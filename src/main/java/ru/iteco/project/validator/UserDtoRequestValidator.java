@@ -11,6 +11,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.iteco.project.controller.dto.UserDtoRequest;
 
+import java.util.ArrayList;
+
 /**
  * Класс содержит валидаторы для полей объекта запроса UserDtoRequest
  */
@@ -29,14 +31,26 @@ public class UserDtoRequestValidator extends AbstractDtoValidator implements Val
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return UserDtoRequest.class.equals(clazz);
+        return UserDtoRequest.class.equals(clazz) || ArrayList.class.equals(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
+        if (target instanceof UserDtoRequest) {
+            UserDtoRequest userForm = (UserDtoRequest) target;
+            performUserDtoRequestChecks(userForm, errors);
+        }
+        if (target instanceof ArrayList) {
+            ArrayList<UserDtoRequest> userFormsList = (ArrayList<UserDtoRequest>) target;
+            performUserDtoRequestListChecks(userFormsList, errors);
+        }
+    }
 
-        UserDtoRequest userForm = (UserDtoRequest) target;
+    private void performUserDtoRequestListChecks(ArrayList<UserDtoRequest> userFormsList, Errors errors) {
+        userFormsList.forEach(userDtoRequest -> performUserDtoRequestChecks(userDtoRequest, errors));
+    }
 
+    private void performUserDtoRequestChecks(UserDtoRequest userForm, Errors errors) {
         if (ObjectUtils.isEmpty(userForm.getFirstName())) {
             logger.error("firstName is empty");
             prepareErrorMessage(errors, "user.firstName.empty", "firstName");
@@ -98,7 +112,6 @@ public class UserDtoRequestValidator extends AbstractDtoValidator implements Val
             logger.error("user status empty");
             prepareErrorMessage(errors, "user.status.empty", "userStatus");
         }
-
     }
 
 }

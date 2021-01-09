@@ -1,5 +1,8 @@
 package ru.iteco.project.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -9,6 +12,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.controller.dto.TaskStatusBaseDto;
 import ru.iteco.project.controller.dto.TaskStatusDtoRequest;
 import ru.iteco.project.controller.dto.TaskStatusDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.TaskStatusSearchDto;
 import ru.iteco.project.service.TaskStatusService;
 import ru.iteco.project.validator.TaskStatusDtoRequestValidator;
 
@@ -66,6 +71,24 @@ public class TaskStatusController {
 
 
     /**
+     * Эндпоинт с реализацией пагинации и сортировки результатов поиска
+     *
+     * @param taskStatusSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
+     * @param pageable            - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @return - объект PageDto с результатами соответствующими критериям запроса
+     */
+    @GetMapping(path = "/search")
+    public PageDto<TaskStatusDtoResponse> getTasks(@RequestBody(required = false) TaskStatusSearchDto taskStatusSearchDto,
+                                                   @PageableDefault(size = 5,
+                                                           page = 0,
+                                                           sort = {"createdAt"},
+                                                           direction = Sort.Direction.ASC) Pageable pageable) {
+
+        return taskStatusService.getStatus(taskStatusSearchDto, pageable);
+    }
+
+
+    /**
      * Создает новый статус задания
      *
      * @param taskStatusDtoRequest - тело запроса на создание статуса задания
@@ -74,8 +97,8 @@ public class TaskStatusController {
      */
     @PostMapping
     public ResponseEntity<? extends TaskStatusBaseDto> createUserStatus(@Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
-                                                                      BindingResult result,
-                                                                      UriComponentsBuilder componentsBuilder) {
+                                                                        BindingResult result,
+                                                                        UriComponentsBuilder componentsBuilder) {
         if (result.hasErrors()) {
             taskStatusDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(taskStatusDtoRequest);
@@ -95,13 +118,13 @@ public class TaskStatusController {
     /**
      * Обновляет существующий статус задания {id}
      *
-     * @param id                 - уникальный идентификатор статуса задания
+     * @param id                   - уникальный идентификатор статуса задания
      * @param taskStatusDtoRequest - тело запроса с данными для обновления
      */
     @PutMapping(value = "/{id}")
     public ResponseEntity<? extends TaskStatusBaseDto> updateTaskStatus(@PathVariable UUID id,
-                                                                    @Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
-                                                                    BindingResult result) {
+                                                                        @Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
+                                                                        BindingResult result) {
 
         if (result.hasErrors()) {
             taskStatusDtoRequest.setErrors(result.getAllErrors());

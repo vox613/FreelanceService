@@ -2,23 +2,32 @@ package ru.iteco.project.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.controller.dto.TaskStatusDtoRequest;
 import ru.iteco.project.controller.dto.TaskStatusDtoResponse;
-import ru.iteco.project.dao.TaskRepository;
-import ru.iteco.project.dao.TaskStatusRepository;
-import ru.iteco.project.dao.UserRepository;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.SearchUnit;
+import ru.iteco.project.controller.searching.TaskStatusSearchDto;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.domain.User;
+import ru.iteco.project.repository.TaskRepository;
+import ru.iteco.project.repository.TaskStatusRepository;
+import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.service.mappers.TaskStatusDtoEntityMapper;
+import ru.iteco.project.service.specifications.CriteriaObject;
+import ru.iteco.project.service.specifications.SpecificationBuilder;
 
 import java.util.*;
 
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.ADMIN;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
+import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
 
 /**
  * Класс реализует функционал сервисного слоя для работы со статусами заданий
@@ -44,14 +53,18 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     /*** Объект маппера dto статуса задания в сущность статуса задания */
     private final TaskStatusDtoEntityMapper taskStatusDtoEntityMapper;
 
+    /*** Сервис для формирования спецификации поиска данных */
+    private final SpecificationBuilder<TaskStatus> specificationBuilder;
+
 
     public TaskStatusServiceImpl(TaskStatusRepository taskStatusRepository, TaskRepository taskRepository, UserRepository userRepository,
-                                 TaskService taskService, TaskStatusDtoEntityMapper taskStatusDtoEntityMapper) {
+                                 TaskService taskService, TaskStatusDtoEntityMapper taskStatusDtoEntityMapper, SpecificationBuilder<TaskStatus> specificationBuilder) {
         this.taskStatusRepository = taskStatusRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.taskService = taskService;
         this.taskStatusDtoEntityMapper = taskStatusDtoEntityMapper;
+        this.specificationBuilder = specificationBuilder;
     }
 
 
@@ -81,8 +94,8 @@ public class TaskStatusServiceImpl implements TaskStatusService {
         TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
         if (operationIsAllow(taskStatusDtoRequest)) {
             TaskStatus newTaskStatus = taskStatusDtoEntityMapper.requestDtoToEntity(taskStatusDtoRequest);
-            taskStatusRepository.save(newTaskStatus);
-            taskStatusDtoResponse = taskStatusDtoEntityMapper.entityToResponseDto(newTaskStatus);
+            TaskStatus save = taskStatusRepository.save(newTaskStatus);
+            taskStatusDtoResponse = taskStatusDtoEntityMapper.entityToResponseDto(save);
         }
         return taskStatusDtoResponse;
     }
@@ -101,8 +114,8 @@ public class TaskStatusServiceImpl implements TaskStatusService {
 
             TaskStatus taskStatus = taskStatusDtoEntityMapper.requestDtoToEntity(taskStatusDtoRequest);
             taskStatus.setId(id);
-            taskStatusRepository.save(taskStatus);
-            taskStatusDtoResponse = taskStatusDtoEntityMapper.entityToResponseDto(taskStatus);
+            TaskStatus save = taskStatusRepository.save(taskStatus);
+            taskStatusDtoResponse = taskStatusDtoEntityMapper.entityToResponseDto(save);
         }
         return taskStatusDtoResponse;
     }
@@ -153,5 +166,63 @@ public class TaskStatusServiceImpl implements TaskStatusService {
             }
         }
         return false;
+    }
+
+
+    public PageDto<TaskStatusDtoResponse> getStatus(SearchDto<TaskStatusSearchDto> searchDto, Pageable pageable) {
+        Page<TaskStatus> page;
+        if ((searchDto != null) && (searchDto.searchData() != null)) {
+            page = taskStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+        } else {
+            page = taskStatusRepository.findAll(pageable);
+        }
+
+        List<TaskStatusDtoResponse> TaskStatusDtoResponses = page.map(taskStatusDtoEntityMapper::entityToResponseDto).toList();
+        return new PageDto<>(TaskStatusDtoResponses, page.getTotalElements(), page.getTotalPages());
+
+    }
+
+    /**
+     * Метод наполняет CriteriaObject данными поиска из searchDto
+     *
+     * @param searchDto - модель с данными для поиска
+     * @return - CriteriaObject - конейнер со всеми данными и ограничениями для поиска
+     */
+    private CriteriaObject prepareCriteriaObject(SearchDto<TaskStatusSearchDto> searchDto) {
+        TaskStatusSearchDto taskStatusSearchDto = searchDto.searchData();
+        return new CriteriaObject(taskStatusSearchDto.getJoinOperation(), prepareRestrictionValues(taskStatusSearchDto));
+    }
+
+    /**
+     * Метод подготавливает ограничения для полей поиска
+     *
+     * @param taskStatusSearchDto - модель с данными для поиска
+     * @return - мписок ограничений для всех полей по которым осуществляется поиск
+     */
+    private List<CriteriaObject.RestrictionValues> prepareRestrictionValues(TaskStatusSearchDto taskStatusSearchDto) {
+        ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
+
+        SearchUnit value = taskStatusSearchDto.getValue();
+        if (searchUnitIsValid(value)) {
+            restrictionValues.add(
+                    new CriteriaObject.RestrictionValues<String>(
+                            "value",
+                            value.getSearchOperation(),
+                            value.getValue()
+                    )
+            );
+        }
+
+        SearchUnit description = taskStatusSearchDto.getDescription();
+        if (searchUnitIsValid(description)) {
+            restrictionValues.add(
+                    new CriteriaObject.RestrictionValues<String>(
+                            "description",
+                            description.getValue(),
+                            description.getSearchOperation()
+                    )
+            );
+        }
+        return restrictionValues;
     }
 }

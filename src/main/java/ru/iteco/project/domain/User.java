@@ -9,7 +9,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "users")
-public class User implements Identified<UUID> {
+public class User extends CreateAtIdentified implements Identified<UUID> {
 
     private static final long serialVersionUID = -7931737332645464539L;
 

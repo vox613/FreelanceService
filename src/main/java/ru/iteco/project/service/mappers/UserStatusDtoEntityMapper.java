@@ -20,6 +20,8 @@ public class UserStatusDtoEntityMapper implements DtoEntityMapper<UserStatus, Us
             userStatusDtoResponse.setId(entity.getId());
             userStatusDtoResponse.setValue(entity.getValue());
             userStatusDtoResponse.setDescription(entity.getDescription());
+            userStatusDtoResponse.setCreatedAt(DateTimeMapper.objectToString(entity.getCreatedAt()));
+            userStatusDtoResponse.setUpdatedAt(DateTimeMapper.objectToString(entity.getUpdatedAt()));
         }
         return userStatusDtoResponse;
     }

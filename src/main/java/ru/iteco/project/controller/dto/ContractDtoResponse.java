@@ -5,9 +5,6 @@ package ru.iteco.project.controller.dto;
  */
 public class ContractDtoResponse extends ContractBaseDto {
 
-    /*** Дата и всремя заключения договора */
-    private String timeOfContractConclusion;
-
     /*** Статус договора */
     private String contractStatus;
 
@@ -20,18 +17,16 @@ public class ContractDtoResponse extends ContractBaseDto {
     /*** Задание */
     private TaskBaseDto task;
 
+    /*** Дата и время создания статуса контракта */
+    private String createdAt;
+
+    /*** Дата и время последнего обновления статуса контракта */
+    private String updatedAt;
+
 
     public ContractDtoResponse() {
     }
 
-
-    public String getTimeOfContractConclusion() {
-        return timeOfContractConclusion;
-    }
-
-    public void setTimeOfContractConclusion(String timeOfContractConclusion) {
-        this.timeOfContractConclusion = timeOfContractConclusion;
-    }
 
     public String getContractStatus() {
         return contractStatus;
@@ -63,5 +58,21 @@ public class ContractDtoResponse extends ContractBaseDto {
 
     public void setTask(TaskBaseDto task) {
         this.task = task;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

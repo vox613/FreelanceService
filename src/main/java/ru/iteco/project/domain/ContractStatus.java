@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "contract_statuses")
-public class ContractStatus implements Identified<UUID> {
+public class ContractStatus extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id статуса контракта */
     @Id

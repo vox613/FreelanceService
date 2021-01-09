@@ -1,5 +1,8 @@
 package ru.iteco.project.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -9,6 +12,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.controller.dto.UserStatusBaseDto;
 import ru.iteco.project.controller.dto.UserStatusDtoRequest;
 import ru.iteco.project.controller.dto.UserStatusDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.UserStatusSearchDto;
 import ru.iteco.project.service.UserStatusService;
 import ru.iteco.project.validator.UserStatusDtoRequestValidator;
 
@@ -66,6 +71,24 @@ public class UserStatusController {
 
 
     /**
+     * Эндпоинт с реализацией пагинации и сортировки результатов поиска
+     *
+     * @param userStatusSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
+     * @param pageable            - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @return - объект PageDto с результатами соответствующими критериям запроса
+     */
+    @GetMapping(path = "/search")
+    public PageDto<UserStatusDtoResponse> getUsers(@RequestBody(required = false) UserStatusSearchDto userStatusSearchDto,
+                                                   @PageableDefault(size = 5,
+                                                           page = 0,
+                                                           sort = {"createdAt"},
+                                                           direction = Sort.Direction.ASC) Pageable pageable) {
+
+        return userStatusService.getStatus(userStatusSearchDto, pageable);
+    }
+
+
+    /**
      * Создает новый статус пользователя
      *
      * @param userStatusDtoRequest - тело запроса на создание статуса пользователя
@@ -74,8 +97,8 @@ public class UserStatusController {
      */
     @PostMapping
     public ResponseEntity<? extends UserStatusBaseDto> createUserStatus(@Validated @RequestBody UserStatusDtoRequest userStatusDtoRequest,
-                                                                      BindingResult result,
-                                                                      UriComponentsBuilder componentsBuilder) {
+                                                                        BindingResult result,
+                                                                        UriComponentsBuilder componentsBuilder) {
         if (result.hasErrors()) {
             userStatusDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(userStatusDtoRequest);
@@ -95,13 +118,13 @@ public class UserStatusController {
     /**
      * Обновляет существующий статус пользователя {id}
      *
-     * @param id                 - уникальный идентификатор статуса пользователя
+     * @param id                   - уникальный идентификатор статуса пользователя
      * @param userStatusDtoRequest - тело запроса с данными для обновления
      */
     @PutMapping(value = "/{id}")
     public ResponseEntity<? extends UserStatusBaseDto> updateUserStatus(@PathVariable UUID id,
-                                                                    @Validated @RequestBody UserStatusDtoRequest userStatusDtoRequest,
-                                                                    BindingResult result) {
+                                                                        @Validated @RequestBody UserStatusDtoRequest userStatusDtoRequest,
+                                                                        BindingResult result) {
 
         if (result.hasErrors()) {
             userStatusDtoRequest.setErrors(result.getAllErrors());

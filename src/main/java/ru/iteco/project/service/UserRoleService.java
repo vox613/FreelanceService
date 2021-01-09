@@ -1,8 +1,12 @@
 package ru.iteco.project.service;
 
 
+import org.springframework.data.domain.Pageable;
 import ru.iteco.project.controller.dto.UserRoleDtoRequest;
 import ru.iteco.project.controller.dto.UserRoleDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.UserRoleSearchDto;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -52,6 +56,16 @@ public interface UserRoleService {
      * false - произошла ошибка при удалении роли пользователя или роли пользователя не существует
      */
     Boolean deleteUserRole(UUID id);
+
+
+    /**
+     * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
+     *
+     * @param searchDto - объект содержащий поля по которым осуществляется поиск данных
+     * @param pageable  - объект пагинации и сортировки
+     * @return - объект PageDto с результатами поиска данных по заданным критериям
+     */
+    PageDto<UserRoleDtoResponse> getRoles(SearchDto<UserRoleSearchDto> searchDto, Pageable pageable);
 
 }
 

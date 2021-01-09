@@ -2,20 +2,29 @@ package ru.iteco.project.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.controller.dto.ContractDtoRequest;
 import ru.iteco.project.controller.dto.ContractDtoResponse;
-import ru.iteco.project.dao.ContractRepository;
-import ru.iteco.project.dao.TaskRepository;
-import ru.iteco.project.dao.UserRepository;
+import ru.iteco.project.controller.searching.ContractSearchDto;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.SearchUnit;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.User;
+import ru.iteco.project.exception.InvalidContractStatusException;
+import ru.iteco.project.repository.ContractRepository;
+import ru.iteco.project.repository.TaskRepository;
+import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.service.mappers.ContractDtoEntityMapper;
 import ru.iteco.project.service.mappers.UserDtoEntityMapper;
+import ru.iteco.project.service.specifications.CriteriaObject;
+import ru.iteco.project.service.specifications.SpecificationBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,6 +36,8 @@ import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.EXECUTOR;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
 import static ru.iteco.project.domain.UserStatus.UserStatusEnum.*;
+import static ru.iteco.project.service.specifications.SpecificationBuilder.isBetweenOperation;
+import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
 
 
 /**
@@ -55,15 +66,19 @@ public class ContractServiceImpl implements ContractService {
     /*** Объект сервисного слоя заданий */
     private final TaskService taskService;
 
+    /*** Сервис для формирования спецификации поиска данных */
+    private final SpecificationBuilder<Contract> specificationBuilder;
+
 
     public ContractServiceImpl(ContractRepository contractRepository, UserRepository userRepository, TaskRepository taskRepository,
-                               ContractDtoEntityMapper contractMapper, UserDtoEntityMapper userDtoEntityMapper, TaskService taskService) {
+                               ContractDtoEntityMapper contractMapper, UserDtoEntityMapper userDtoEntityMapper, TaskService taskService, SpecificationBuilder<Contract> specificationBuilder) {
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.contractDtoEntityMapper = contractMapper;
         this.userDtoEntityMapper = userDtoEntityMapper;
         this.taskService = taskService;
+        this.specificationBuilder = specificationBuilder;
     }
 
     /**
@@ -120,7 +135,6 @@ public class ContractServiceImpl implements ContractService {
                 userRepository.save(customer);
                 userDtoEntityMapper.updateUserStatus(executor, ACTIVE);
 
-                task.setLastTaskUpdateDate(LocalDateTime.now());
                 task.setExecutor(executor);
                 contractDtoEntityMapper.updateTaskStatus(task, IN_PROGRESS);
 
@@ -128,9 +142,9 @@ public class ContractServiceImpl implements ContractService {
                 contract.setExecutor(executor);
                 contract.setTask(task);
                 contract.setCustomer(task.getCustomer());
-                contractRepository.save(contract);
+                Contract save = contractRepository.save(contract);
 
-                contractDtoResponse = enrichContractInfo(contract);
+                contractDtoResponse = enrichContractInfo(save);
             }
         }
         return contractDtoResponse;
@@ -156,8 +170,8 @@ public class ContractServiceImpl implements ContractService {
                 if (allowToUpdate(user, contract)) {
                     contractDtoEntityMapper.requestDtoToEntity(contractDtoRequest, contract, user.getRole().getValue());
                     transferFunds(contract);
-                    contractRepository.save(contract);
-                    contractDtoResponse = enrichContractInfo(contract);
+                    Contract save = contractRepository.save(contract);
+                    contractDtoResponse = enrichContractInfo(save);
                 }
             }
         }
@@ -254,5 +268,81 @@ public class ContractServiceImpl implements ContractService {
                 || isEqualsTaskStatus(CANCELED, contract.getTask());
 
         return userNotBlocked && userIsCustomer && contractIsPaid && taskInTerminatedStatus;
+    }
+
+
+    public PageDto<ContractDtoResponse> getContracts(SearchDto<ContractSearchDto> searchDto, Pageable pageable) {
+        Page<Contract> page;
+        if ((searchDto != null) && (searchDto.searchData() != null)) {
+            page = contractRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+        } else {
+            page = contractRepository.findAll(pageable);
+        }
+
+        List<ContractDtoResponse> contractDtoResponses = page.map(this::enrichContractInfo).toList();
+        return new PageDto<>(contractDtoResponses, page.getTotalElements(), page.getTotalPages());
+
+    }
+
+    /**
+     * Метод наполняет CriteriaObject данными поиска из searchDto
+     *
+     * @param searchDto - модель с данными для поиска
+     * @return - CriteriaObject - конейнер со всеми данными и ограничениями для поиска
+     */
+    private CriteriaObject prepareCriteriaObject(SearchDto<ContractSearchDto> searchDto) {
+        ContractSearchDto contractSearchDto = searchDto.searchData();
+        return new CriteriaObject(contractSearchDto.getJoinOperation(), prepareRestrictionValues(contractSearchDto));
+    }
+
+
+    /**
+     * Метод подготавливает ограничения для полей поиска
+     *
+     * @param contractSearchDto - модель с данными для поиска
+     * @return - мписок ограничений для всех полей по которым осуществляется поиск
+     */
+    private List<CriteriaObject.RestrictionValues> prepareRestrictionValues(ContractSearchDto contractSearchDto) {
+        ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
+
+        SearchUnit contractSearchStatus = contractSearchDto.getContractStatus();
+        if (searchUnitIsValid(contractSearchStatus)) {
+            ContractStatus contractStatus = contractDtoEntityMapper.getContractStatusRepository()
+                    .findContractStatusByValue(contractSearchStatus.getValue())
+                    .orElseThrow(InvalidContractStatusException::new);
+
+            restrictionValues.add(
+                    new CriteriaObject.RestrictionValues<ContractStatus>(
+                            "contractStatus",
+                            contractSearchStatus.getSearchOperation(),
+                            contractStatus
+                    )
+            );
+        }
+
+        SearchUnit createdAt = contractSearchDto.getCreatedAt();
+        if (searchUnitIsValid(createdAt)) {
+            if (isBetweenOperation(createdAt)) {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<LocalDateTime>(
+                                "createdAt",
+                                createdAt.getSearchOperation(),
+                                createdAt.getValue(),
+                                createdAt.getMinValue(),
+                                createdAt.getMaxValue()
+                        )
+                );
+            } else {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<LocalDateTime>(
+                                "createdAt",
+                                createdAt.getValue(),
+                                createdAt.getSearchOperation()
+                        )
+                );
+            }
+        }
+
+        return restrictionValues;
     }
 }

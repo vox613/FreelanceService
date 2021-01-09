@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "task_statuses")
-public class TaskStatus implements Identified<UUID> {
+public class TaskStatus extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id статуса задания */
     @Id

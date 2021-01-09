@@ -1,6 +1,7 @@
-package ru.iteco.project.dao;
+package ru.iteco.project.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ru.iteco.project.domain.User;
 import ru.iteco.project.domain.UserRole;
 import ru.iteco.project.domain.UserStatus;
@@ -11,7 +12,7 @@ import java.util.UUID;
 /**
  * Интерфейс JPA репозитория для предоставления методов взаимодействия с данными сущности User
  */
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
 
     boolean existsByEmailOrLogin(String email, String login);
 

@@ -1,5 +1,8 @@
 package ru.iteco.project.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -9,6 +12,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.controller.dto.ContractStatusBaseDto;
 import ru.iteco.project.controller.dto.ContractStatusDtoRequest;
 import ru.iteco.project.controller.dto.ContractStatusDtoResponse;
+import ru.iteco.project.controller.searching.ContractStatusSearchDto;
+import ru.iteco.project.controller.searching.PageDto;
 import ru.iteco.project.service.ContractStatusService;
 import ru.iteco.project.validator.ContractStatusDtoRequestValidator;
 
@@ -62,6 +67,23 @@ public class ContractStatusController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+
+    /**
+     * Эндпоинт с реализацией пагинации и сортировки результатов поиска
+     *
+     * @param contractStatusSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
+     * @param pageable                - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @return - объект PageDto с результатами соответствующими критериям запроса
+     */
+    @GetMapping(path = "/search")
+    public PageDto<ContractStatusDtoResponse> getContracts(@RequestBody(required = false) ContractStatusSearchDto contractStatusSearchDto,
+                                                           @PageableDefault(size = 5,
+                                                                   page = 0,
+                                                                   sort = {"createdAt"}, direction = Sort.Direction.ASC) Pageable pageable) {
+
+        return contractStatusService.getStatus(contractStatusSearchDto, pageable);
     }
 
 

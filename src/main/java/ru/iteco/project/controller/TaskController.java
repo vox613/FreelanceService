@@ -1,7 +1,8 @@
 package ru.iteco.project.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -11,6 +12,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.controller.dto.TaskBaseDto;
 import ru.iteco.project.controller.dto.TaskDtoRequest;
 import ru.iteco.project.controller.dto.TaskDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.TaskSearchDto;
 import ru.iteco.project.service.TaskService;
 import ru.iteco.project.validator.TaskDtoRequestValidator;
 
@@ -23,7 +26,6 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping(value = "/api/v1/tasks")
-@PropertySource(value = {"classpath:errors.properties"})
 public class TaskController {
 
     /*** Объект сервисного слоя для Task*/
@@ -31,9 +33,6 @@ public class TaskController {
 
     /*** Объект валидатора для TaskDtoRequest*/
     private final TaskDtoRequestValidator taskDtoRequestValidator;
-
-    @Value("${errors.id.mismatched}")
-    private String mismatchedIdMessage;
 
 
     public TaskController(TaskService taskService, TaskDtoRequestValidator taskDtoRequestValidator) {
@@ -75,6 +74,24 @@ public class TaskController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+
+    /**
+     * Эндпоинт с реализацией пагинации и сортировки результатов поиска
+     *
+     * @param taskSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
+     * @param pageable      - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @return - объект PageDto с результатами соответствующими критериям запроса
+     */
+    @GetMapping(path = "/search")
+    public PageDto<TaskDtoResponse> getTasks(@RequestBody(required = false) TaskSearchDto taskSearchDto,
+                                             @PageableDefault(size = 5,
+                                                     page = 0,
+                                                     sort = {"createdAt"},
+                                                     direction = Sort.Direction.ASC) Pageable pageable) {
+
+        return taskService.getTasks(taskSearchDto, pageable);
     }
 
 

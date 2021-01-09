@@ -10,7 +10,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "task")
-public class Task implements Identified<UUID> {
+public class Task extends CreateAtIdentified implements Identified<UUID> {
 
     private static final long serialVersionUID = -7931737332645464539L;
 
@@ -37,17 +37,9 @@ public class Task implements Identified<UUID> {
     @Column(name = "description", nullable = false)
     private String description;
 
-    /*** Время и дата размещения задания */
-    @Column(name = "task_creation_date", nullable = false)
-    private LocalDateTime taskCreationDate = LocalDateTime.now();
-
     /*** Дата и время до наступления которой необходимо выполнить задание */
     @Column(name = "task_completion_date", nullable = false)
     private LocalDateTime taskCompletionDate;
-
-    /*** Время и дата последнего обновления задания */
-    @Column(name = "last_task_update_date", nullable = false)
-    private LocalDateTime lastTaskUpdateDate;
 
     /*** Стоимость исполнения задания */
     @Column(name = "price", nullable = false, precision = 1000, scale = 2)
@@ -66,17 +58,14 @@ public class Task implements Identified<UUID> {
     public Task() {
     }
 
-    public Task(UUID id, User customer, User executor, String title, String description, LocalDateTime taskCreationDate,
-                LocalDateTime taskCompletionDate, LocalDateTime lastTaskUpdateDate, BigDecimal price, TaskStatus taskStatus,
-                String taskDecision) {
+    public Task(UUID id, User customer, User executor, String title, String description, LocalDateTime taskCompletionDate,
+                BigDecimal price, TaskStatus taskStatus, String taskDecision) {
         this.id = id;
         this.customer = customer;
         this.executor = executor;
         this.title = title;
         this.description = description;
-        this.taskCreationDate = taskCreationDate;
         this.taskCompletionDate = taskCompletionDate;
-        this.lastTaskUpdateDate = lastTaskUpdateDate;
         this.price = price;
         this.taskStatus = taskStatus;
         this.taskDecision = taskDecision;
@@ -118,14 +107,6 @@ public class Task implements Identified<UUID> {
         this.description = description;
     }
 
-    public LocalDateTime getTaskCreationDate() {
-        return taskCreationDate;
-    }
-
-    public void setTaskCreationDate(LocalDateTime taskCreationDate) {
-        this.taskCreationDate = taskCreationDate;
-    }
-
     public LocalDateTime getTaskCompletionDate() {
         return taskCompletionDate;
     }
@@ -161,14 +142,6 @@ public class Task implements Identified<UUID> {
     @Override
     public UUID getId() {
         return id;
-    }
-
-    public LocalDateTime getLastTaskUpdateDate() {
-        return lastTaskUpdateDate;
-    }
-
-    public void setLastTaskUpdateDate(LocalDateTime lastTaskUpdateDate) {
-        this.lastTaskUpdateDate = lastTaskUpdateDate;
     }
 
 }

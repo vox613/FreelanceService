@@ -1,8 +1,12 @@
 package ru.iteco.project.service;
 
 
+import org.springframework.data.domain.Pageable;
 import ru.iteco.project.controller.dto.TaskStatusDtoRequest;
 import ru.iteco.project.controller.dto.TaskStatusDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.TaskStatusSearchDto;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -52,5 +56,14 @@ public interface TaskStatusService {
      * false - произошла ошибка при удалении статуса задания или статуса задания не существует
      */
     Boolean deleteTaskStatus(UUID id);
+
+    /**
+     * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
+     *
+     * @param searchDto - объект содержащий поля по которым осуществляется поиск данных
+     * @param pageable  - объект пагинации и сортировки
+     * @return - объект PageDto с результатами поиска данных по заданным критериям
+     */
+    PageDto<TaskStatusDtoResponse> getStatus(SearchDto<TaskStatusSearchDto> searchDto, Pageable pageable);
 
 }

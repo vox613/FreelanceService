@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "user_statuses")
-public class UserStatus implements Identified<UUID> {
+public class UserStatus extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id роли пользователя */
     @Id

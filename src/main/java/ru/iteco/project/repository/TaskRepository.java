@@ -1,6 +1,7 @@
-package ru.iteco.project.dao;
+package ru.iteco.project.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.domain.User;
@@ -14,7 +15,7 @@ import static ru.iteco.project.domain.UserRole.UserRoleEnum.*;
 /**
  * Интерфейс JPA репозитория для предоставления методов взаимодействия с данными сущности Task
  */
-public interface TaskRepository extends JpaRepository<Task, UUID> {
+public interface TaskRepository extends JpaRepository<Task, UUID>, JpaSpecificationExecutor<Task> {
 
     /**
      * Метод получения всех заданий заказчика по его id

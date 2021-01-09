@@ -19,6 +19,8 @@ public class UserRoleDtoEntityMapper implements DtoEntityMapper<UserRole, UserRo
         if (entity != null) {
             userRoleDtoResponse.setId(entity.getId());
             userRoleDtoResponse.setValue(entity.getValue());
+            userRoleDtoResponse.setCreatedAt(DateTimeMapper.objectToString(entity.getCreatedAt()));
+            userRoleDtoResponse.setUpdatedAt(DateTimeMapper.objectToString(entity.getUpdatedAt()));
         }
         return userRoleDtoResponse;
     }

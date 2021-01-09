@@ -1,6 +1,7 @@
-package ru.iteco.project.dao;
+package ru.iteco.project.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ru.iteco.project.domain.UserRole;
 
 import java.util.Optional;
@@ -9,7 +10,7 @@ import java.util.UUID;
 /**
  * Интерфейс JPA репозитория для предоставления методов взаимодействия с данными сущности UserRole
  */
-public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
+public interface UserRoleRepository extends JpaRepository<UserRole, UUID>, JpaSpecificationExecutor<UserRole> {
 
     /**
      * Метод получения сущности роли пользователя по ее строковому представлению

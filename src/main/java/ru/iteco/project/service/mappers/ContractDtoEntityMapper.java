@@ -5,15 +5,14 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import ru.iteco.project.controller.dto.ContractDtoRequest;
 import ru.iteco.project.controller.dto.ContractDtoResponse;
-import ru.iteco.project.dao.ContractStatusRepository;
-import ru.iteco.project.dao.TaskStatusRepository;
-import ru.iteco.project.exception.InvalidContractStatusException;
-import ru.iteco.project.exception.InvalidTaskStatusException;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
+import ru.iteco.project.exception.InvalidContractStatusException;
+import ru.iteco.project.exception.InvalidTaskStatusException;
+import ru.iteco.project.repository.ContractStatusRepository;
+import ru.iteco.project.repository.TaskStatusRepository;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,10 +25,6 @@ import static ru.iteco.project.domain.UserRole.UserRoleEnum.CUSTOMER;
 @Service
 @PropertySource(value = {"classpath:application.yml", "classpath:errors.properties"})
 public class ContractDtoEntityMapper implements DtoEntityMapper<Contract, ContractDtoRequest, ContractDtoResponse> {
-
-    /*** Установленный формат даты и времени*/
-    @Value("${format.date.time}")
-    private String formatDateTime;
 
     @Value("${errors.contract.status.invalid}")
     private String invalidContractStatusMessage;
@@ -56,7 +51,8 @@ public class ContractDtoEntityMapper implements DtoEntityMapper<Contract, Contra
             contractDtoResponse.setId(entity.getId());
             contractDtoResponse.setExecutorId(entity.getExecutor().getId());
             contractDtoResponse.setTaskId(entity.getTask().getId());
-            contractDtoResponse.setTimeOfContractConclusion(entity.getTimeOfContractConclusion().format(DateTimeFormatter.ofPattern(formatDateTime)));
+            contractDtoResponse.setCreatedAt(DateTimeMapper.objectToString(entity.getCreatedAt()));
+            contractDtoResponse.setUpdatedAt(DateTimeMapper.objectToString(entity.getUpdatedAt()));
             contractDtoResponse.setContractStatus(entity.getContractStatus().getValue());
         }
         return contractDtoResponse;
@@ -102,4 +98,7 @@ public class ContractDtoEntityMapper implements DtoEntityMapper<Contract, Contra
         task.setTaskStatus(taskStatus);
     }
 
+    public ContractStatusRepository getContractStatusRepository() {
+        return contractStatusRepository;
+    }
 }

@@ -5,11 +5,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import ru.iteco.project.controller.dto.TaskDtoRequest;
 import ru.iteco.project.controller.dto.TaskDtoResponse;
-import ru.iteco.project.dao.TaskStatusRepository;
-import ru.iteco.project.exception.InvalidTaskStatusException;
 import ru.iteco.project.domain.Task;
+import ru.iteco.project.exception.InvalidTaskStatusException;
+import ru.iteco.project.repository.TaskStatusRepository;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.ON_CHECK;
@@ -42,9 +41,9 @@ public class TaskDtoEntityMapper implements DtoEntityMapper<Task, TaskDtoRequest
             taskDtoResponse.setCustomerId(entity.getCustomer().getId());
             taskDtoResponse.setName(entity.getTitle());
             taskDtoResponse.setDescription(entity.getDescription());
-            taskDtoResponse.setTaskCreationDate(DateTimeMapper.objectToString(entity.getTaskCreationDate()));
+            taskDtoResponse.setCreatedAt(DateTimeMapper.objectToString(entity.getCreatedAt()));
             taskDtoResponse.setTaskCompletionDate(DateTimeMapper.objectToString(entity.getTaskCompletionDate()));
-            taskDtoResponse.setLastTaskUpdateDate(DateTimeMapper.objectToString(entity.getLastTaskUpdateDate()));
+            taskDtoResponse.setUpdatedAt(DateTimeMapper.objectToString(entity.getUpdatedAt()));
             taskDtoResponse.setPrice(entity.getPrice());
             taskDtoResponse.setTaskStatus(entity.getTaskStatus().getValue());
             taskDtoResponse.setTaskDecision(entity.getTaskDecision());
@@ -68,8 +67,6 @@ public class TaskDtoEntityMapper implements DtoEntityMapper<Task, TaskDtoRequest
 
             task.setTaskStatus(taskStatusRepository.findTaskStatusByValue(REGISTERED.name())
                     .orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage)));
-            task.setTaskCreationDate(LocalDateTime.now());
-            task.setLastTaskUpdateDate(task.getTaskCreationDate());
             task.setTaskDecision(requestDto.getTaskDecision());
         }
 
@@ -99,7 +96,10 @@ public class TaskDtoEntityMapper implements DtoEntityMapper<Task, TaskDtoRequest
                 task.setTaskStatus(taskStatusRepository.findTaskStatusByValue(ON_CHECK.name())
                         .orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage)));
             }
-            task.setLastTaskUpdateDate(LocalDateTime.now());
         }
+    }
+
+    public TaskStatusRepository getTaskStatusRepository() {
+        return taskStatusRepository;
     }
 }

@@ -4,31 +4,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.controller.dto.TaskDtoRequest;
 import ru.iteco.project.controller.dto.TaskDtoResponse;
-import ru.iteco.project.dao.ContractRepository;
-import ru.iteco.project.dao.TaskRepository;
-import ru.iteco.project.dao.UserRepository;
-import ru.iteco.project.exception.UnavailableRoleOperationException;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.SearchUnit;
+import ru.iteco.project.controller.searching.TaskSearchDto;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.Task;
+import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.domain.User;
+import ru.iteco.project.exception.InvalidTaskStatusException;
+import ru.iteco.project.exception.UnavailableRoleOperationException;
+import ru.iteco.project.repository.ContractRepository;
+import ru.iteco.project.repository.TaskRepository;
+import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.service.mappers.TaskDtoEntityMapper;
 import ru.iteco.project.service.mappers.UserDtoEntityMapper;
+import ru.iteco.project.service.specifications.CriteriaObject;
+import ru.iteco.project.service.specifications.SpecificationBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.EXECUTOR;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
 import static ru.iteco.project.domain.UserStatus.UserStatusEnum.*;
+import static ru.iteco.project.service.specifications.SpecificationBuilder.isBetweenOperation;
+import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
 
 /**
  * Класс реализует функционал сервисного слоя для работы с заданиями
@@ -57,14 +68,18 @@ public class TaskServiceImpl implements TaskService {
     /*** Объект маппера dto пользователя в сущность пользователя */
     private final UserDtoEntityMapper userMapper;
 
+    /*** Сервис для формирования спецификации поиска данных */
+    private final SpecificationBuilder<Task> specificationBuilder;
+
 
     public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository, ContractRepository contractRepository,
-                           TaskDtoEntityMapper taskMapper, UserDtoEntityMapper userMapper) {
+                           TaskDtoEntityMapper taskMapper, UserDtoEntityMapper userMapper, SpecificationBuilder<Task> specificationBuilder) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.contractRepository = contractRepository;
         this.taskMapper = taskMapper;
         this.userMapper = userMapper;
+        this.specificationBuilder = specificationBuilder;
     }
 
 
@@ -125,8 +140,8 @@ public class TaskServiceImpl implements TaskService {
             userMapper.updateUserStatus(user, ACTIVE);
             Task task = taskMapper.requestDtoToEntity(taskDtoRequest);
             task.setCustomer(user);
-            taskRepository.save(task);
-            taskDtoResponse = enrichByUsersInfo(task);
+            Task save = taskRepository.save(task);
+            taskDtoResponse = enrichByUsersInfo(save);
         }
         return taskDtoResponse;
     }
@@ -150,8 +165,8 @@ public class TaskServiceImpl implements TaskService {
                 Task task = taskById.get();
                 if (allowToUpdate(user, task)) {
                     taskMapper.requestDtoToEntity(taskDtoRequest, task, user.getRole().getValue());
-                    taskRepository.save(task);
-                    taskDtoResponse = enrichByUsersInfo(task);
+                    Task save = taskRepository.save(task);
+                    taskDtoResponse = enrichByUsersInfo(save);
                 }
             }
         }
@@ -232,5 +247,140 @@ public class TaskServiceImpl implements TaskService {
         if (isEqualsUserRole(EXECUTOR, user) || isEqualsUserStatus(BLOCKED, user)) {
             throw new UnavailableRoleOperationException(unavailableOperationMessage);
         }
+    }
+
+    public PageDto<TaskDtoResponse> getTasks(SearchDto<TaskSearchDto> searchDto, Pageable pageable) {
+        Page<Task> page;
+        if ((searchDto != null) && (searchDto.searchData() != null)) {
+            page = taskRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+        } else {
+            page = taskRepository.findAll(pageable);
+        }
+
+        List<TaskDtoResponse> taskDtoResponses = page.map(this::enrichByUsersInfo).toList();
+        return new PageDto<>(taskDtoResponses, page.getTotalElements(), page.getTotalPages());
+
+    }
+
+    /**
+     * Метод наполняет CriteriaObject данными поиска из searchDto
+     *
+     * @param searchDto - модель с данными для поиска
+     * @return - CriteriaObject - конейнер со всеми данными и ограничениями для поиска
+     */
+    private CriteriaObject prepareCriteriaObject(SearchDto<TaskSearchDto> searchDto) {
+        TaskSearchDto taskSearchDto = searchDto.searchData();
+        return new CriteriaObject(taskSearchDto.getJoinOperation(), prepareRestrictionValues(taskSearchDto));
+    }
+
+
+    /**
+     * Метод подготавливает ограничения для полей поиска
+     *
+     * @param taskSearchDto - модель с данными для поиска
+     * @return - мписок ограничений для всех полей по которым осуществляется поиск
+     */
+    private List<CriteriaObject.RestrictionValues> prepareRestrictionValues(TaskSearchDto taskSearchDto) {
+        ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
+
+        SearchUnit taskSearchStatus = taskSearchDto.getTaskStatus();
+        if (searchUnitIsValid(taskSearchStatus)) {
+            TaskStatus taskStatus = taskMapper.getTaskStatusRepository()
+                    .findTaskStatusByValue(taskSearchStatus.getValue())
+                    .orElseThrow(InvalidTaskStatusException::new);
+
+            restrictionValues.add(
+                    new CriteriaObject.RestrictionValues<TaskStatus>(
+                            "taskStatus",
+                            taskSearchStatus.getSearchOperation(),
+                            taskStatus
+                    )
+            );
+        }
+
+        SearchUnit createdAt = taskSearchDto.getCreatedAt();
+        if (searchUnitIsValid(createdAt)) {
+            if (isBetweenOperation(createdAt)) {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<LocalDateTime>(
+                                "createdAt",
+                                createdAt.getSearchOperation(),
+                                createdAt.getValue(),
+                                createdAt.getMinValue(),
+                                createdAt.getMaxValue()
+                        )
+                );
+            } else {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<LocalDateTime>(
+                                "createdAt",
+                                createdAt.getValue(),
+                                createdAt.getSearchOperation()
+                        )
+                );
+            }
+        }
+
+
+        SearchUnit price = taskSearchDto.getPrice();
+        if (searchUnitIsValid(price)) {
+            if (isBetweenOperation(price)) {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<BigDecimal>(
+                                "price",
+                                price.getSearchOperation(),
+                                price.getValue(),
+                                price.getMinValue(),
+                                price.getMaxValue()
+                        )
+                );
+            } else {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<BigDecimal>(
+                                "price",
+                                price.getValue(),
+                                price.getSearchOperation()
+                        )
+                );
+            }
+        }
+
+
+        SearchUnit description = taskSearchDto.getDescription();
+        if (searchUnitIsValid(description)) {
+            restrictionValues.add(
+                    new CriteriaObject.RestrictionValues<String>(
+                            "description",
+                            description.getValue(),
+                            description.getSearchOperation()
+                    )
+            );
+        }
+
+
+        SearchUnit taskCompletionDate = taskSearchDto.getTaskCompletionDate();
+        if (searchUnitIsValid(taskCompletionDate)) {
+            if (isBetweenOperation(taskCompletionDate)) {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<LocalDateTime>(
+                                "taskCompletionDate",
+                                taskCompletionDate.getSearchOperation(),
+                                taskCompletionDate.getValue(),
+                                taskCompletionDate.getMinValue(),
+                                taskCompletionDate.getMaxValue()
+                        )
+                );
+            } else {
+                restrictionValues.add(
+                        new CriteriaObject.RestrictionValues<LocalDateTime>(
+                                "taskCompletionDate",
+                                taskCompletionDate.getValue(),
+                                taskCompletionDate.getSearchOperation()
+                        )
+                );
+            }
+        }
+
+        return restrictionValues;
     }
 }

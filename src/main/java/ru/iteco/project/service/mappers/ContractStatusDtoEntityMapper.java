@@ -20,6 +20,8 @@ public class ContractStatusDtoEntityMapper implements DtoEntityMapper<ContractSt
             contractStatusDtoResponse.setId(entity.getId());
             contractStatusDtoResponse.setValue(entity.getValue());
             contractStatusDtoResponse.setDescription(entity.getDescription());
+            contractStatusDtoResponse.setCreatedAt(DateTimeMapper.objectToString(entity.getCreatedAt()));
+            contractStatusDtoResponse.setUpdatedAt(DateTimeMapper.objectToString(entity.getUpdatedAt()));
         }
         return contractStatusDtoResponse;
     }

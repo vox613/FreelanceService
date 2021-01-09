@@ -1,5 +1,8 @@
 package ru.iteco.project.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -9,9 +12,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.controller.dto.UserBaseDto;
 import ru.iteco.project.controller.dto.UserDtoRequest;
 import ru.iteco.project.controller.dto.UserDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.UserSearchDto;
 import ru.iteco.project.service.UserService;
 import ru.iteco.project.validator.UserDtoRequestValidator;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +52,23 @@ public class UserController {
     ResponseEntity<List<UserDtoResponse>> getAllUsers() {
         ArrayList<UserDtoResponse> allUsers = userService.getAllUsers();
         return ResponseEntity.ok().body(allUsers);
+    }
+
+    /**
+     * Эндпоинт с реализацией пагинации и сортировки результатов поиска
+     *
+     * @param userSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
+     * @param pageable      - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @return - объект PageDto с результатами соответствующими критериям запроса
+     */
+    @GetMapping(path = "/search")
+    public PageDto<UserDtoResponse> getUsers(@RequestBody(required = false) UserSearchDto userSearchDto,
+                                             @PageableDefault(size = 5,
+                                                     page = 0,
+                                                     sort = {"createdAt"},
+                                                     direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return userService.getUsers(userSearchDto, pageable);
     }
 
 
@@ -102,8 +125,12 @@ public class UserController {
      * @return - список созданных пользователей в представлении UserDtoResponse
      */
     @PostMapping(value = "/batch")
-    public ResponseEntity<List<UserDtoResponse>> createBatchUser(@RequestBody ArrayList<UserDtoRequest> userDtoRequestList,
-                                                                 UriComponentsBuilder componentsBuilder) {
+    public ResponseEntity<List<? extends Serializable>> createBatchUser(@Validated @RequestBody ArrayList<UserDtoRequest> userDtoRequestList,
+                                                                        UriComponentsBuilder componentsBuilder,
+                                                                        BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.unprocessableEntity().body(result.getAllErrors());
+        }
 
         List<UserDtoResponse> bundleUsers = userService.createBundleUsers(userDtoRequestList);
         URI uri = componentsBuilder.path("/").build().toUri();
@@ -150,8 +177,8 @@ public class UserController {
         }
     }
 
-    @InitBinder(value = "userDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    @InitBinder(value = {"userDtoRequest", "userDtoRequestList"})
+    private void initUserDtoRequestBinder(WebDataBinder binder) {
         binder.setValidator(userDtoRequestValidator);
     }
 

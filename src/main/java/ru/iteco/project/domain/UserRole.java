@@ -1,5 +1,7 @@
 package ru.iteco.project.domain;
 
+import ru.iteco.project.exception.InvalidUserRoleException;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,7 +13,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "user_roles")
-public class UserRole implements Identified<UUID> {
+public class UserRole extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id роли пользователя */
     @Id
@@ -73,6 +75,14 @@ public class UserRole implements Identified<UUID> {
                 }
             }
             return false;
+        }
+
+
+        public UserRoleEnum userRoleEnumFromValue(String inputUserRole) {
+            if (isCorrectValue(inputUserRole)) {
+                return valueOf(inputUserRole);
+            }
+            throw new InvalidUserRoleException();
         }
 
 

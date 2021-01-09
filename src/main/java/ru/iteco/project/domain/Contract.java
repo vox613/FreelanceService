@@ -1,7 +1,6 @@
 package ru.iteco.project.domain;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -9,7 +8,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "contract")
-public class Contract implements Identified<UUID> {
+public class Contract extends CreateAtIdentified implements Identified<UUID> {
 
     private static final long serialVersionUID = -7931737332645464539L;
 
@@ -28,10 +27,6 @@ public class Contract implements Identified<UUID> {
     @JoinColumn(name = "executor_id", nullable = false)
     private User executor;
 
-    /*** Дата и время заключения договора */
-    @Column(name = "time_contract_conclusion", nullable = false)
-    private LocalDateTime timeOfContractConclusion = LocalDateTime.now();
-
     /*** Задание - предмет договора */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, optional = false)
     @JoinColumn(name = "task_id", nullable = false)
@@ -46,12 +41,11 @@ public class Contract implements Identified<UUID> {
     public Contract() {
     }
 
-    public Contract(UUID id, User customer, User executor, LocalDateTime timeOfContractConclusion, Task task,
+    public Contract(UUID id, User customer, User executor, Task task,
                     ContractStatus contractStatus) {
         this.id = id;
         this.customer = customer;
         this.executor = executor;
-        this.timeOfContractConclusion = timeOfContractConclusion;
         this.task = task;
         this.contractStatus = contractStatus;
     }
@@ -71,14 +65,6 @@ public class Contract implements Identified<UUID> {
 
     public void setExecutor(User executor) {
         this.executor = executor;
-    }
-
-    public LocalDateTime getTimeOfContractConclusion() {
-        return timeOfContractConclusion;
-    }
-
-    public void setTimeOfContractConclusion(LocalDateTime timeOfContractConclusion) {
-        this.timeOfContractConclusion = timeOfContractConclusion;
     }
 
     public Task getTask() {

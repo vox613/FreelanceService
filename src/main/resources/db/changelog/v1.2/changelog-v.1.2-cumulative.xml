@@ -1,0 +1,15 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <include file="v1.2_01_add_to_users_createdAt_and_updatedAt_columns.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_02_add_to_users_roles_createdAt_and_updatedAt_columns.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_03_add_to_users_statuses_createdAt_and_updatedAt_columns.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_04_rename_task_columns_to_createAt_and_updateAt.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_05_add_to_task_statuses_createdAt_and_updatedAt_columns.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_06_add_to_contract_updatedAt_column_and_rename_time_contract_conclusion.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_07_add_to_contract_statuses_createdAt_and_updatedAt_columns.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

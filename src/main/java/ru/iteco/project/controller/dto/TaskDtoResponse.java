@@ -5,12 +5,6 @@ package ru.iteco.project.controller.dto;
  */
 public class TaskDtoResponse extends TaskBaseDto {
 
-    /*** Время и дата размещения задания */
-    private String taskCreationDate;
-
-    /*** Время и дата последнего обновления задания */
-    private String lastTaskUpdateDate;
-
     /*** Статус задания */
     private String taskStatus;
 
@@ -22,6 +16,12 @@ public class TaskDtoResponse extends TaskBaseDto {
 
     /*** Исполнитель */
     private UserBaseDto executor;
+
+    /*** Дата и время создания задания */
+    private String createdAt;
+
+    /*** Дата и время последнего обновления задания */
+    private String updatedAt;
 
 
     public TaskDtoResponse() {
@@ -43,14 +43,6 @@ public class TaskDtoResponse extends TaskBaseDto {
         this.executor = executor;
     }
 
-    public String getTaskCreationDate() {
-        return taskCreationDate;
-    }
-
-    public void setTaskCreationDate(String taskCreationDate) {
-        this.taskCreationDate = taskCreationDate;
-    }
-
     public String getTaskStatus() {
         return taskStatus;
     }
@@ -67,11 +59,19 @@ public class TaskDtoResponse extends TaskBaseDto {
         this.taskDecision = taskDecision;
     }
 
-    public String getLastTaskUpdateDate() {
-        return lastTaskUpdateDate;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setLastTaskUpdateDate(String lastTaskUpdateDate) {
-        this.lastTaskUpdateDate = lastTaskUpdateDate;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

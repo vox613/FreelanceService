@@ -1,7 +1,11 @@
 package ru.iteco.project.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.iteco.project.controller.dto.TaskDtoRequest;
 import ru.iteco.project.controller.dto.TaskDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.TaskSearchDto;
 import ru.iteco.project.domain.Task;
 
 import java.util.List;
@@ -66,4 +70,13 @@ public interface TaskService {
      * @return - объект TaskDtoResponse с подготовленными данными о задании, исполнителе и заказчике
      */
     TaskDtoResponse enrichByUsersInfo(Task task);
+
+    /**
+     * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
+     *
+     * @param searchDto - объект содержащий поля по которым осуществляется поиск данных
+     * @param pageable  - объект пагинации и сортировки
+     * @return - объект PageDto с результатами поиска данных по заданным критериям
+     */
+    PageDto<TaskDtoResponse> getTasks(SearchDto<TaskSearchDto> searchDto, Pageable pageable);
 }

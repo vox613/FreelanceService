@@ -1,8 +1,12 @@
 package ru.iteco.project.service;
 
 
+import org.springframework.data.domain.Pageable;
 import ru.iteco.project.controller.dto.ContractStatusDtoRequest;
 import ru.iteco.project.controller.dto.ContractStatusDtoResponse;
+import ru.iteco.project.controller.searching.ContractStatusSearchDto;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -53,4 +57,12 @@ public interface ContractStatusService {
      */
     Boolean deleteContractStatus(UUID id);
 
+    /**
+     * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
+     *
+     * @param searchDto - объект содержащий поля по которым осуществляется поиск данных
+     * @param pageable  - объект пагинации и сортировки
+     * @return - объект PageDto с результатами поиска данных по заданным критериям
+     */
+    PageDto<ContractStatusDtoResponse> getStatus(SearchDto<ContractStatusSearchDto> searchDto, Pageable pageable);
 }

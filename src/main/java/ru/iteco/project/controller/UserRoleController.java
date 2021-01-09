@@ -1,5 +1,8 @@
 package ru.iteco.project.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -9,6 +12,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.controller.dto.UserRoleBaseDto;
 import ru.iteco.project.controller.dto.UserRoleDtoRequest;
 import ru.iteco.project.controller.dto.UserRoleDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.UserRoleSearchDto;
 import ru.iteco.project.service.UserRoleService;
 import ru.iteco.project.validator.UserRoleDtoRequestValidator;
 
@@ -62,6 +67,24 @@ public class UserRoleController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+
+    /**
+     * Эндпоинт с реализацией пагинации и сортировки результатов поиска
+     *
+     * @param userRoleSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
+     * @param pageable          - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @return - объект PageDto с результатами соответствующими критериям запроса
+     */
+    @GetMapping(path = "/search")
+    public PageDto<UserRoleDtoResponse> getUsers(@RequestBody(required = false) UserRoleSearchDto userRoleSearchDto,
+                                                 @PageableDefault(size = 5,
+                                                         page = 0,
+                                                         sort = {"createdAt"},
+                                                         direction = Sort.Direction.ASC) Pageable pageable) {
+
+        return userRoleService.getRoles(userRoleSearchDto, pageable);
     }
 
 

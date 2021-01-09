@@ -20,6 +20,8 @@ public class TaskStatusDtoEntityMapper implements DtoEntityMapper<TaskStatus, Ta
             taskStatusDtoResponse.setId(entity.getId());
             taskStatusDtoResponse.setValue(entity.getValue());
             taskStatusDtoResponse.setDescription(entity.getDescription());
+            taskStatusDtoResponse.setCreatedAt(DateTimeMapper.objectToString(entity.getCreatedAt()));
+            taskStatusDtoResponse.setUpdatedAt(DateTimeMapper.objectToString(entity.getUpdatedAt()));
         }
         return taskStatusDtoResponse;
     }

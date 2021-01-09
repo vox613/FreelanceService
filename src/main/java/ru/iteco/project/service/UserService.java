@@ -1,7 +1,11 @@
 package ru.iteco.project.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.iteco.project.controller.dto.UserDtoRequest;
 import ru.iteco.project.controller.dto.UserDtoResponse;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
+import ru.iteco.project.controller.searching.UserSearchDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,4 +64,13 @@ public interface UserService {
      */
     Boolean deleteUser(UUID id);
 
+
+    /**
+     * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
+     *
+     * @param searchDto - объект содержащий поля по которым осуществляется поиск данных
+     * @param pageable  - объект пагинации и сортировки
+     * @return - объект PageDto с результатами поиска данных по заданным критериям
+     */
+    PageDto<UserDtoResponse> getUsers(SearchDto<UserSearchDto> searchDto, Pageable pageable);
 }

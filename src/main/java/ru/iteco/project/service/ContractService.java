@@ -1,7 +1,11 @@
 package ru.iteco.project.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.iteco.project.controller.dto.ContractDtoRequest;
 import ru.iteco.project.controller.dto.ContractDtoResponse;
+import ru.iteco.project.controller.searching.ContractSearchDto;
+import ru.iteco.project.controller.searching.PageDto;
+import ru.iteco.project.controller.searching.SearchDto;
 import ru.iteco.project.domain.Contract;
 
 import java.util.List;
@@ -59,5 +63,12 @@ public interface ContractService {
      */
     ContractDtoResponse enrichContractInfo(Contract contract);
 
-
+    /**
+     * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
+     *
+     * @param searchDto - объект содержащий поля по которым осуществляется поиск данных
+     * @param pageable  - объект пагинации и сортировки
+     * @return - объект PageDto с результатами поиска данных по заданным критериям
+     */
+    PageDto<ContractDtoResponse> getContracts(SearchDto<ContractSearchDto> searchDto, Pageable pageable);
 }

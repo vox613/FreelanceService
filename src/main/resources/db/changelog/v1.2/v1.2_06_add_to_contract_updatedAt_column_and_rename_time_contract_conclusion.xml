@@ -1,0 +1,30 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="contract"/>
+        </preConditions>
+
+        
+        <renameColumn tableName="contract" oldColumnName="time_contract_conclusion" newColumnName="created_at"/>
+
+        <addColumn tableName="contract">
+            <column name="updated_at" type="timestamp with time zone" remarks="Дата и время последнего обновления">
+            </column>
+        </addColumn>
+
+        <sql> UPDATE contract SET updated_at = CURRENT_TIMESTAMP  </sql>
+
+        <addNotNullConstraint tableName="contract" columnName="updated_at"/>
+
+        <comment> Добавил колонку дата и время последнего обновления записи (updated_at),
+            переименовал колонку time_contract_conclusion дата и время создания записи в created_at
+        </comment>
+    </changeSet>
+
+
+</databaseChangeLog>

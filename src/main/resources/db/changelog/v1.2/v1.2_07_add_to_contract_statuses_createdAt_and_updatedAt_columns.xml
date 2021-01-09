@@ -1,0 +1,31 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="contract_statuses"/>
+        </preConditions>
+
+
+        <addColumn tableName="contract_statuses">
+            <column name="created_at" type="timestamp with time zone" remarks="Дата и время создания">
+            </column>
+            <column name="updated_at" type="timestamp with time zone" remarks="Дата и время последнего обновления">
+            </column>
+        </addColumn>
+
+        <sql> UPDATE contract_statuses SET created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP  </sql>
+
+        <addNotNullConstraint tableName="contract_statuses" columnName="created_at"/>
+        <addNotNullConstraint tableName="contract_statuses" columnName="updated_at"/>
+
+        <comment> Добавил 2 колонки: дату и время создания записи (created_at) и дату и время последнего обновления
+            записи (updated_at)
+        </comment>
+    </changeSet>
+
+
+</databaseChangeLog>
