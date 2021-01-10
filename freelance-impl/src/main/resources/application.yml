@@ -1,0 +1,100 @@
+server:
+  port: ${APP_PORT:8081}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+    context-path: /freelance
+    application-display-name: Freelance
+  tomcat:
+    max-connections: 1000
+    accept-count: 100
+    connection-timeout: 30000
+
+spring:
+  application:
+    name: freelance
+  datasource:
+    url: jdbc:postgresql://localhost:5432/freelance
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml
+  messages:
+    basename: "message_en_EN, message_ru_Ru"
+    encoding: UTF-8
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    properties:
+      hibernate.temp.use_jdbc_metadata_defaults: false
+    show-sql: false
+    hibernate:
+      hbm2ddl:
+        auto: none
+      default_schema: public
+      use_sql_comments: true
+      format_sql: true
+  jackson:
+    defaultPropertyInclusion: NON_NULL
+
+logging:
+  level:
+    ROOT: INFO
+    ru.iteco.project: DEBUG
+    org.springframework: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics
+  metrics:
+    export:
+      atlas:
+        enabled: true
+
+  # Регулярное выражение для валидации электронной почты
+user:
+  email:
+    regexp: '^([A-Za-z0-9._-]{1,40})@([A-Za-z0-9._-]{1,20}\.)([A-Za-z0-9._-]{1,15})$'
+
+
+task:
+  description:
+    length:
+      max: 1000 # Максимальное количество символов в названии задания
+  decision:
+    length:
+      max: 100000 # Максимальное количество символов в решении задания
+  price:
+    min: 0  # Минимальная стоимость задания
+  scheduler:
+      taskCompletionDate:
+        expiredDays: 10  # Количество дней через которое будет удалено просроченное, невостребованное задание
+
+
+format:
+  date:
+    time: yyyy-MM-dd HH:mm:ss # Установленный формат даты и времени
+
+
+# Профиль для swagger
+swagger:
+  title: Фриланс сервис
+  description: API для Фриланс сервис
+  contract:
+    mail: vox613@gmail.com
+    name: Алексей И
+    url: http://iteco.ru
+
+
+# Планировщик задач
+scheduling:
+  cron:
+    enabled: true
+    expression: "0 0 * * * *" # Запуск задачи каждый час

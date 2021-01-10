@@ -1,0 +1,17 @@
+ext {
+    deps = [
+            "spring-boot-starter-web"     : "org.springframework.boot:spring-boot-starter-web",
+            "spring-boot-starter-actuator": "org.springframework.boot:spring-boot-starter-actuator",
+            "spring-boot-starter-data-jpa": "org.springframework.boot:spring-boot-starter-data-jpa",
+            "liquibase"                   : [
+                    "org.liquibase:liquibase-core:4.1.1",
+                    "org.postgresql:postgresql:42.2.18"
+            ],
+            "postgresql"                  : "org.postgresql:postgresql:42.2.18",
+            "commons-lang3"               : "org.apache.commons:commons-lang3:3.11",
+            "spring-web": "org.springframework:spring-web",
+            "springfox-boot-starter"      : "io.springfox:springfox-boot-starter:3.0.0",
+            "swagger-annotations"         : "io.swagger:swagger-annotations:1.5.20",
+            "orika-spring-boot-starter": "net.rakugakibox.spring.boot:orika-spring-boot-starter:1.9.0"
+    ]
+}

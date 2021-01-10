@@ -1,0 +1,610 @@
+
+///////////////////////////////////////
+            UserController
+//////////////////////////////////////
+
+Получить всех пользователей
+GET - http://localhost:8081/freelance/api/v1/users
+
+Получить пользователя с {id}
+GET - http://localhost:8081/freelance/api/v1/users/{id}
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=firstName)
+POST - http://localhost:8081/freelance/api/v1/users/search
+
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "AND",
+    "userStatus": {
+        "searchOperation": "EQUAL",
+        "value": "ACTIVE"
+    },
+    "wallet": {
+        "searchOperation": "BETWEEN",
+        "minValue": "0",
+        "maxValue": "100000"
+    },
+    "secondName": {
+        "searchOperation": "LIKE",
+        "value": "name"
+    },
+    "createdAt": {
+        "searchOperation": "GREATER_THAN_OR_EQUAL",
+        "value": "2020-12-20 19:02:03"
+    }
+}
+
+
+
+
+
+
+Создать пользователя
+POST - http://localhost:8081/freelance/api/v1/users
+{
+    "firstName": "firstName",
+    "secondName": "secondName",
+    "lastName": "lastName",
+    "login": "login",
+    "email": "email",
+    "phoneNumber": "phoneNumber",
+    "password": "password",
+    "repeatPassword": "password",
+    "role": "EXECUTOR",
+    "wallet": "8000"
+}
+
+
+
+Пакетное создание пользователей
+POST - http://localhost:8081/freelance/api/v1/users/batch
+[
+    {
+        "firstName": "firstName1",
+        "secondName": "secondName1",
+        "lastName": "lastName1",
+        "login": "login1",
+        "email": "email1",
+        "phoneNumber": "phoneNumber1",
+        "password": "password1",
+        "repeatPassword": "password1",
+        "userRoleEnum": "EXECUTOR",
+        "userStatus": "CREATED",
+        "wallet": "0"
+    },
+    {
+        "firstName": "firstName2",
+        "secondName": "secondName2",
+        "lastName": "lastName2",
+        "login": "login2",
+        "email": "email2",
+        "phoneNumber": "phoneNumber2",
+        "password": "password2",
+        "repeatPassword": "password2",
+        "userRoleEnum": "CUSTOMER",
+        "userStatus": "CREATED",
+        "wallet": "8000"
+    }
+]
+
+
+
+Обновить пользователя C {id}
+PUT - http://localhost:8081/freelance/api/v1/users/{id}
+{
+    "id": {id},
+    "firstName": "firstName",
+    "secondName": "secondName",
+    "lastName": "lastName",
+    "login": "login",
+    "email": "email",
+    "phoneNumber": "phoneNumber",
+    "password": "password",
+    "repeatPassword": "password",
+    "userRoleEnum": "EXECUTOR",
+    "userStatus": "CREATED",
+    "wallet": "8000"
+}
+
+
+Удалить пользователя с {id}
+DELETE - http://localhost:8081/freelance/api/v1/users/{id}
+
+
+
+
+
+
+
+///////////////////////////////////////
+            TaskController
+//////////////////////////////////////
+
+
+Получить все задания
+GET - http://localhost:8081/freelance/api/v1/tasks
+
+
+Получить задание с {id}
+GET - http://localhost:8081/freelance/api/v1/tasks/{id}
+
+
+Получить все задания пользователя с {userId}
+GET - http://localhost:8081/freelance/api/v1/tasks?userId={id}
+
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=taskStatus)
+POST - http://localhost:8081/freelance/api/v1/tasks/search
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "OR",
+    "taskStatus": {
+        "searchOperation": "EQUAL",
+        "value": "IN_PROGRESS"
+    },
+    "createdAt": {
+        "searchOperation": "BETWEEN",
+        "minValue":"2020-12-20 19:07:20",
+        "maxValue": "2020-12-20 19:07:20"
+    }
+}
+
+
+Создать задание
+POST - http://localhost:8081/freelance/api/v1/tasks
+{
+    "userId": {userId},
+    "customerId": {customerId},
+    "executorId": {executorId},
+    "title": "title",
+    "description": "description",
+    "taskStatus": "REGISTERED",
+    "taskCompletionDate": "2020-10-30 18:41:36",
+    "price": "123"
+}
+
+
+Обновить задание с {taskId} от имени пользователя с {userId}
+Для заказчика возможно только когда задание в статусах REGISTERED и ON_CHECK
+Для исполнителя только когда задание в статусах IN_PROGRESS и ON_FIX
+PUT - http://localhost:8081/freelance/api/v1/tasks/{taskId}
+{
+    "id": {taskId},
+    "customerId": {customerId},
+    "userId": {userId},
+    "customerId": {customerId},
+    "executorId": {executorId},
+    "title": "title",
+    "description": "description",
+    "taskCompletionDate": "2020-10-30 18:41:36",
+    "taskStatus": "ON_FIX"
+    "price": "123"
+}
+
+
+Удалить задание с {id}
+DELETE - http://localhost:8081/freelance/api/v1/tasks/{id}
+
+
+
+
+
+
+///////////////////////////////////////
+            ContractController
+//////////////////////////////////////
+
+
+Получить все контракты
+GET - http://localhost:8081/freelance/api/v1/contracts
+
+
+Получить контракт с {id}
+GET - http://localhost:8081/freelance/api/v1/contracts/{id}
+
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=taskStatus)
+POST - http://localhost:8081/freelance/api/v1/contracts/search
+
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "OR",
+    "contractStatus": {
+        "searchOperation": "EQUAL",
+        "value": "PAID"
+    },
+    "createdAt": {
+        "searchOperation": "BETWEEN",
+        "minValue":"2020-12-20 19:07:20",
+        "maxValue": "2020-12-20 19:07:20"
+    }
+}
+
+
+Создать контракт для задания {taskId}
+POST - http://localhost:8081/freelance/api/v1/contracts
+{
+    "userId": {userId},
+    "executorId": {executorId},
+    "taskId": {taskId},
+    "contractStatus": "PAID",
+    "confirmationCode": "confirmationCode",
+    "repeatConfirmationCode": "confirmationCode"
+}
+
+
+Обновить статус  контракта (на TERMINATED или DONE) с {contractId} от имени владельца контракта {userId}
+Возможно при статусе контракта PAID и статусе задания DONE или CANCELED
+PUT - http://localhost:8081/freelance/api/v1/contracts/{contractId}
+{
+    "id": {contractId},
+    "userId": {userId},
+    "taskId": {taskId},
+    "executorId": {executorId},
+    "confirmationCode": "confirmationCode",
+    "repeatConfirmationCode": "confirmationCode",
+    "contractStatus": "DONE"
+}
+
+
+Удалить задание с {id}
+DELETE - http://localhost:8081/freelance/api/v1/tasks/{id}
+
+
+
+
+
+///////////////////////////////////////
+            UserRoleController
+//////////////////////////////////////
+
+Получить все роли пользователей
+GET - http://localhost:8081/freelance/api/v1/roles/users
+
+
+Получить роль пользователя с {id}
+GET - http://localhost:8081/freelance/api/v1/roles/users/{id}
+
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=createdAt)
+POST - http://localhost:8081/freelance/api/v1/roles/users/search
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "OR",
+    "value": {
+        "searchOperation": "EQUAL",
+        "value": "CUSTOMER"
+    },
+    "description": {
+        "searchOperation": "LIKE",
+        "value": "оплачен"
+    }
+}
+
+
+Создать роль пользователя. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+POST - http://localhost:8081/freelance/api/v1/roles/users
+{
+    "userId": {userId},
+    "value": "MODERATOR"
+}
+
+
+Обновить текстовое значение роли пользователя. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+PUT - http://localhost:8081/freelance/api/v1/roles/users/{roleId}
+{
+    "id": {roleId},
+    "userId": {userId},
+    "value": "MODERATOR"
+}
+
+
+Удалить роль пользователя с {id}
+DELETE - http://localhost:8081/freelance/api/v1/roles/users/{id}
+
+
+
+
+
+///////////////////////////////////////
+            UserStatusController
+//////////////////////////////////////
+
+Получить все статусы пользователей
+GET - http://localhost:8081/freelance/api/v1/statuses/users
+
+
+Получить статус пользователя с {id}
+GET - http://localhost:8081/freelance/api/v1/statuses/users/{id}
+
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=createdAt)
+POST - http://localhost:8081/freelance/api/v1/statuses/users/search
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "OR",
+    "value": {
+        "searchOperation": "EQUAL",
+        "value": "BLOCKED"
+    },
+    "description": {
+        "searchOperation": "LIKE",
+        "value": "не"
+    }
+}
+
+
+Создать статус пользователя. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+POST - http://localhost:8081/freelance/api/v1/statuses/users
+{
+    "userId": {statusId},
+    "value": "ACTIVE",
+    "description": "Активен"
+}
+
+
+Обновить текстовое значение статуса пользователя. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+PUT - http://localhost:8081/freelance/api/v1/statuses/users/{statusId}
+{
+    "id": {statusId},
+    "userId": {userId},
+    "value": "BLOCKED",
+    "description": "Заблокирован"
+}
+
+
+Удалить статус пользователя с {id}
+DELETE - http://localhost:8081/freelance/api/v1/statuses/users/{id}
+
+
+
+
+
+
+///////////////////////////////////////
+            TaskStatusController
+//////////////////////////////////////
+
+Получить все статусы заданий
+GET - http://localhost:8081/freelance/api/v1/statuses/tasks
+
+
+Получить статус задания с {id}
+GET - http://localhost:8081/freelance/api/v1/statuses/tasks/{id}
+
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=createdAt)
+POST - http://localhost:8081/freelance/api/v1/statuses/tasks/search
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "OR",
+    "value": {
+        "searchOperation": "EQUAL",
+        "value": "DONE"
+    },
+    "description": {
+        "searchOperation": "LIKE",
+        "value": "на"
+    }
+}
+
+
+Создать статус заданий. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+POST - http://localhost:8081/freelance/api/v1/statuses/tasks
+{
+    "userId": {statusId},
+    "value": "ACTIVE",
+    "description": "Активен"
+}
+
+
+Обновить текстовое значение статуса задания. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+PUT - http://localhost:8081/freelance/api/v1/statuses/tasks/{statusId}
+{
+    "id": {statusId},
+    "userId": {userId},
+    "value": "BLOCKED",
+    "description": "Заблокирован"
+}
+
+
+Удалить статус задания с {id}
+DELETE - http://localhost:8081/freelance/api/v1/statuses/tasks/{id}
+
+
+
+
+
+
+///////////////////////////////////////
+            ContractStatusController
+//////////////////////////////////////
+
+Получить все статусы контрактов
+GET - http://localhost:8081/freelance/api/v1/statuses/contracts
+
+
+Получить статус контракта с {id}
+GET - http://localhost:8081/freelance/api/v1/statuses/contracts/{id}
+
+
+Пагинация + сортировка данных опционально (?page=3&size=5&sort=createdAt)
+POST - http://localhost:8081/freelance/api/v1/statuses/contracts/search
+Опционально:
+Для некоторых полей сущностей реализован функционал комплексного поиска
+по значениям/диапазонам значений для ряда полей
+(Для каждой сущности это те поля, которые указаны в соответствующей ...SearchDto)
+Для каждого поля из ...SearchDto предусмотрен разбор сообщения следующего формата:
+
+
+Общая структура запроса:
+{
+    "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
+    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+        "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
+        "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
+        "maxValue": ""                  -   Минимаьная величина искомого значения данного поля (Наличие обязательно для диапазонных операций BETWEEN / NOT_BETWEEN)
+    }
+}
+Из данных элементов в запросе возможно набрать составной запрос поиска по необходимым полям
+
+Пример запроса для поиска:
+{
+    "joinOperation": "OR",
+    "value": {
+        "searchOperation": "EQUAL",
+        "value": "DONE"
+    },
+    "description": {
+        "searchOperation": "LIKE",
+        "value": "на"
+    }
+}
+
+
+Создать статус контрактов. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+POST - http://localhost:8081/freelance/api/v1/statuses/contracts
+{
+    "userId": {statusId},
+    "value": "ACTIVE",
+    "description": "Активен"
+}
+
+
+Обновить текстовое значение статуса контракта. Необходим userId в теле запроса,
+доступно только пользователя с ролью администратора ADMIN
+PUT - http://localhost:8081/freelance/api/v1/statuses/contracts/{statusId}
+{
+    "id": {statusId},
+    "userId": {userId},
+    "value": "BLOCKED",
+    "description": "Заблокирован"
+}
+
+
+Удалить статус контракта с {id}
+DELETE - http://localhost:8081/freelance/api/v1/statuses/contracts/{id}
+
+//todo Проект в Postman
