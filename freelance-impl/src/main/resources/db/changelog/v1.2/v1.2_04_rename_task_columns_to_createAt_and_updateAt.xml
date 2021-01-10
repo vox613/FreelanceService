@@ -10,23 +10,8 @@
             <tableExists tableName="task"/>
         </preConditions>
 
-
         <renameColumn tableName="task" oldColumnName="task_creation_date" newColumnName="created_at"/>
         <renameColumn tableName="task" oldColumnName="last_task_update_date" newColumnName="updated_at"/>
-
-
-        <!--        <addColumn tableName="task">-->
-<!--            <column name="create_at" type="timestamp with time zone" remarks="Дата создания">-->
-<!--            </column>-->
-<!--        </addColumn>-->
-
-<!--        <sql>-->
-<!--            UPDATE task SET create_at = task_creation_date;-->
-<!--        </sql>-->
-
-<!--        <addNotNullConstraint tableName="task" columnName="create_at"/>-->
-
-<!--        <dropColumn tableName="task" columnName="task_creation_date" />-->
 
         <comment> Переименовал 2 колонки: дату и время создания записи (task_creation_date -> created_at) и
             дату и время последнего обновления записи (last_task_update_date -> updated_at)

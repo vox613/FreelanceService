@@ -208,6 +208,7 @@ POST - http://localhost:8081/freelance/api/v1/tasks
 PUT - http://localhost:8081/freelance/api/v1/tasks/{taskId}
 {
     "id": {taskId},
+    "customerId": {customerId},
     "userId": {userId},
     "customerId": {customerId},
     "executorId": {executorId},

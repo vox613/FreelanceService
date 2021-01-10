@@ -53,6 +53,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Перехватчик исключения MismatchedIdException, возникающего при несовпадении id сущности в pathVariable и
+     * в теле запроса - requestBody
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(MismatchedIdException.class)
+    public ResponseEntity<ResponseError> mismatchedIdException(MismatchedIdException e) {
+        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Перехватчик исключения InvalidUserRoleException, возникающего при попытке создать или получить из БД
      * пользователя с невалидной ролью
      *

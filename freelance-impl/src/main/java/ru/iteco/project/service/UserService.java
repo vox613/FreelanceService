@@ -42,11 +42,10 @@ public interface UserService {
     /**
      * Метод обновления данны пользователя
      *
-     * @param id             - уникальный идентификатор пользователя
      * @param userDtoRequest - запрос с обновленными данными клиента
      * @return - объект UserDtoResponse с обновленной сущностью пользователя
      */
-    UserDtoResponse updateUser(UUID id, UserDtoRequest userDtoRequest);
+    UserDtoResponse updateUser(UserDtoRequest userDtoRequest);
 
     /**
      * Метод получения данных обо всех пользователях

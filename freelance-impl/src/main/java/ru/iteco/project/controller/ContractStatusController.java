@@ -1,15 +1,10 @@
 package ru.iteco.project.controller;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.ContractStatusResource;
@@ -51,7 +46,7 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    public ResponseEntity<ContractStatusDtoResponse> getContractStatus(@PathVariable UUID id) {
+    public ResponseEntity<ContractStatusDtoResponse> getContractStatus(UUID id) {
         ContractStatusDtoResponse contractStatusById = contractStatusService.getContractStatusById(id);
         if ((contractStatusById != null) && (contractStatusById.getId() != null)) {
             return ResponseEntity.ok().body(contractStatusById);
@@ -62,17 +57,13 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    public PageDto getContracts(@RequestBody(required = false) ContractStatusSearchDto contractStatusSearchDto,
-                                @PageableDefault(size = 5,
-                                        page = 0,
-                                        sort = {"createdAt"}, direction = Sort.Direction.ASC) Pageable pageable) {
-
+    public PageDto getContracts(ContractStatusSearchDto contractStatusSearchDto, Pageable pageable) {
         return contractStatusService.getStatus(contractStatusSearchDto, pageable);
     }
 
 
     @Override
-    public ResponseEntity<? extends ContractStatusBaseDto> createContractStatus(@Validated @RequestBody ContractStatusDtoRequest contractStatusDtoRequest,
+    public ResponseEntity<? extends ContractStatusBaseDto> createContractStatus(ContractStatusDtoRequest contractStatusDtoRequest,
                                                                                 BindingResult result,
                                                                                 UriComponentsBuilder componentsBuilder) {
         if (result.hasErrors()) {
@@ -92,8 +83,7 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    public ResponseEntity<? extends ContractStatusBaseDto> updateTaskStatus(@PathVariable UUID id,
-                                                                            @Validated @RequestBody ContractStatusDtoRequest contractStatusDtoRequest,
+    public ResponseEntity<? extends ContractStatusBaseDto> updateTaskStatus(UUID id, ContractStatusDtoRequest contractStatusDtoRequest,
                                                                             BindingResult result) {
 
         if (result.hasErrors()) {
@@ -112,7 +102,7 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    public ResponseEntity<Object> deleteTaskStatus(@PathVariable UUID id) {
+    public ResponseEntity<Object> deleteTaskStatus(UUID id) {
         if (contractStatusService.deleteContractStatus(id)) {
             return ResponseEntity.ok().build();
         } else {

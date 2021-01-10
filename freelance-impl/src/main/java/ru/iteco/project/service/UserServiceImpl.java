@@ -139,9 +139,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public UserDtoResponse updateUser(UUID id, UserDtoRequest userDtoRequest) {
+    public UserDtoResponse updateUser(UserDtoRequest userDtoRequest) {
         UserDtoResponse userDtoResponse = null;
-        if (userRepository.existsById(id) && Objects.equals(id, userDtoRequest.getId())) {
+        if (userRepository.existsById(userDtoRequest.getId())) {
             User user = userRepository.findById(userDtoRequest.getId()).orElseThrow(
                     () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
             mapperFacade.map(userDtoRequest, user);

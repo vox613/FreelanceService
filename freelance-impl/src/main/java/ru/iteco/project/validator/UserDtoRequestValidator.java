@@ -39,7 +39,8 @@ public class UserDtoRequestValidator extends AbstractDtoValidator implements Val
         if (target instanceof UserDtoRequest) {
             UserDtoRequest userForm = (UserDtoRequest) target;
             performUserDtoRequestChecks(userForm, errors);
-        } else if (target instanceof ArrayList) {
+        }
+        if (target instanceof ArrayList) {
             ArrayList<UserDtoRequest> userFormsList = (ArrayList<UserDtoRequest>) target;
             performUserDtoRequestListChecks(userFormsList, errors);
         }

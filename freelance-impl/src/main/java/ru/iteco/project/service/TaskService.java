@@ -49,11 +49,10 @@ public interface TaskService {
     /**
      * Метод обновления существующего задания
      *
-     * @param id             - уникальный идентификатор задания
      * @param taskDtoRequest -  тело запроса для обновления
      * @return TaskDtoResponse - dto объект с данными о задании
      */
-    TaskDtoResponse updateTask(UUID id, TaskDtoRequest taskDtoRequest);
+    TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest);
 
     /**
      * Метод удаляет пользователя из коллекции

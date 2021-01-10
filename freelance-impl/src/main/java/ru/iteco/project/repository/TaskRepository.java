@@ -63,10 +63,13 @@ public interface TaskRepository extends JpaRepository<Task, UUID>, JpaSpecificat
 
 
     /**
-     * Метод
+     * Метод удаляет задания у которых: статус REGISTERED - задание не взято в работу и с момента заданной  даты
+     * выполнения задания прошло заданное в {task.scheduler.taskCompletionDate.expiredDays} количество дней или более.
+     * Данные задания считаются неактуальными/невостребованными, т.к. в случае актуальности задания для заказчика он
+     * обновил бы крайний срок выполнения задания.
      *
-     * @param taskStatus
-     * @param expiredDate
+     * @param taskStatus  - статус в котором должно находиться удаляемое задание
+     * @param expiredDate - дата, ранее которой задания со сроком выполнения <= expiredDate считаются невостребованными
      */
     @Modifying
     @Query("delete from Task t where t.taskStatus = :taskStatus and t.taskCompletionDate <= :expiredDate")

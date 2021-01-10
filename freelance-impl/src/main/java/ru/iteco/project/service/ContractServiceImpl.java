@@ -149,14 +149,13 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public ContractDtoResponse updateContract(UUID id, ContractDtoRequest contractDtoRequest) {
+    public ContractDtoResponse updateContract(ContractDtoRequest contractDtoRequest) {
         ContractDtoResponse contractDtoResponse = null;
-        if (Objects.equals(id, contractDtoRequest.getId())
-                && contractDtoRequest.getUserId() != null
-                && contractRepository.existsById(id)) {
+        if (contractDtoRequest.getUserId() != null
+                && contractRepository.existsById(contractDtoRequest.getId())) {
 
             Optional<User> userOptional = userRepository.findById(contractDtoRequest.getUserId());
-            Optional<Contract> contractById = contractRepository.findById(id);
+            Optional<Contract> contractById = contractRepository.findById(contractDtoRequest.getId());
             if (userOptional.isPresent() && contractById.isPresent()) {
                 User user = userOptional.get();
                 Contract contract = contractById.get();

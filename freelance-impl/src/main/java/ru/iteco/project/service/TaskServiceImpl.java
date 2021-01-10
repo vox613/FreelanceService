@@ -153,14 +153,13 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public TaskDtoResponse updateTask(UUID id, TaskDtoRequest taskDtoRequest) {
+    public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
         TaskDtoResponse taskDtoResponse = null;
-        if (Objects.equals(id, taskDtoRequest.getId())
-                && taskDtoRequest.getUserId() != null
-                && taskRepository.existsById(id)) {
+        if (taskDtoRequest.getUserId() != null
+                && taskRepository.existsById(taskDtoRequest.getUserId())) {
 
             Optional<User> userOptional = userRepository.findById(taskDtoRequest.getUserId());
-            Optional<Task> taskById = taskRepository.findById(id);
+            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getUserId());
             if (userOptional.isPresent() && taskById.isPresent()) {
                 User user = userOptional.get();
                 Task task = taskById.get();
@@ -194,6 +193,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
+    /**
+     * Метод формирует ответ TaskDtoResponse и обогащает его данными о заказчике и исполнителе
+     *
+     * @param task - объект задания
+     * @return - объект TaskDtoResponse с подготовленными данными о задании, исполнителе и заказчике
+     */
     @Override
     public TaskDtoResponse enrichByUsersInfo(Task task) {
         TaskDtoResponse taskDtoResponse = mapperFacade.map(task, TaskDtoResponse.class);

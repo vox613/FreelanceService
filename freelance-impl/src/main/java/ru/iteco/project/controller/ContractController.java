@@ -1,15 +1,10 @@
 package ru.iteco.project.controller;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.ContractResource;
@@ -52,7 +47,7 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    public ResponseEntity<ContractDtoResponse> getContract(@PathVariable UUID id) {
+    public ResponseEntity<ContractDtoResponse> getContract(UUID id) {
         ContractDtoResponse contractById = contractService.getContractById(id);
         if ((contractById != null) && (contractById.getId() != null)) {
             return ResponseEntity.ok().body(contractById);
@@ -63,17 +58,13 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    public PageDto getContracts(@RequestBody(required = false) ContractSearchDto contractSearchDto,
-                                @PageableDefault(size = 5,
-                                        page = 0,
-                                        sort = {"createdAt"}, direction = Sort.Direction.ASC) Pageable pageable) {
-
+    public PageDto getContracts(ContractSearchDto contractSearchDto, Pageable pageable) {
         return contractService.getContracts(contractSearchDto, pageable);
     }
 
 
     @Override
-    public ResponseEntity<? extends ContractBaseDto> createContract(@Validated @RequestBody ContractDtoRequest contractDtoRequest,
+    public ResponseEntity<? extends ContractBaseDto> createContract(ContractDtoRequest contractDtoRequest,
                                                                     UriComponentsBuilder componentsBuilder,
                                                                     BindingResult result) {
 
@@ -98,8 +89,7 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    public ResponseEntity<? extends ContractBaseDto> updateContract(@Validated @RequestBody ContractDtoRequest contractDtoRequest,
-                                                                    @PathVariable UUID id,
+    public ResponseEntity<? extends ContractBaseDto> updateContract(ContractDtoRequest contractDtoRequest, UUID id,
                                                                     BindingResult result) {
 
         if (result.hasErrors()) {
@@ -107,7 +97,7 @@ public class ContractController implements ContractResource {
             return ResponseEntity.unprocessableEntity().body(contractDtoRequest);
         }
 
-        ContractDtoResponse contractDtoResponse = contractService.updateContract(id, contractDtoRequest);
+        ContractDtoResponse contractDtoResponse = contractService.updateContract(contractDtoRequest);
 
         if (contractDtoResponse != null) {
             return ResponseEntity.ok().body(contractDtoResponse);
@@ -118,7 +108,7 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    public ResponseEntity<ContractDtoResponse> deleteContract(@PathVariable UUID id) {
+    public ResponseEntity<ContractDtoResponse> deleteContract(UUID id) {
         if (contractService.deleteContract(id)) {
             return ResponseEntity.ok().build();
         } else {

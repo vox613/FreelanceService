@@ -106,7 +106,7 @@ public class UserController implements UserResource {
             return ResponseEntity.unprocessableEntity().body(userDtoRequest);
         }
 
-        UserDtoResponse userDtoResponse = userService.updateUser(id, userDtoRequest);
+        UserDtoResponse userDtoResponse = userService.updateUser(userDtoRequest);
 
         if (userDtoResponse != null) {
             return ResponseEntity.ok().body(userDtoResponse);

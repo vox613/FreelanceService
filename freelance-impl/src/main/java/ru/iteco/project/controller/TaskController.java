@@ -1,13 +1,11 @@
 package ru.iteco.project.controller;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.TaskResource;
 import ru.iteco.project.resource.dto.TaskBaseDto;
@@ -42,7 +40,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    public ResponseEntity<List<TaskDtoResponse>> getAllUserTasks(@RequestParam(required = false) UUID userId) {
+    public ResponseEntity<List<TaskDtoResponse>> getAllUserTasks(UUID userId) {
         List<TaskDtoResponse> allTasks;
         if (userId != null) {
             allTasks = taskService.getAllUserTasks(userId);
@@ -54,7 +52,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    public ResponseEntity<TaskDtoResponse> getTask(@PathVariable UUID id) {
+    public ResponseEntity<TaskDtoResponse> getTask(UUID id) {
         TaskDtoResponse taskById = taskService.getTaskById(id);
         if ((taskById != null) && (taskById.getId() != null)) {
             return ResponseEntity.ok().body(taskById);
@@ -65,18 +63,13 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    public PageDto getTasks(@RequestBody(required = false) TaskSearchDto taskSearchDto,
-                            @PageableDefault(size = 5,
-                                    page = 0,
-                                    sort = {"createdAt"},
-                                    direction = Sort.Direction.ASC) Pageable pageable) {
-
+    public PageDto getTasks(TaskSearchDto taskSearchDto, Pageable pageable) {
         return taskService.getTasks(taskSearchDto, pageable);
     }
 
 
     @Override
-    public ResponseEntity<? extends TaskBaseDto> createTask(@Validated @RequestBody TaskDtoRequest taskDtoRequest,
+    public ResponseEntity<? extends TaskBaseDto> createTask(TaskDtoRequest taskDtoRequest,
                                                             BindingResult result,
                                                             UriComponentsBuilder componentsBuilder) {
 
@@ -102,8 +95,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    public ResponseEntity<? extends TaskBaseDto> updateTask(@PathVariable UUID id,
-                                                            @Validated @RequestBody TaskDtoRequest taskDtoRequest,
+    public ResponseEntity<? extends TaskBaseDto> updateTask(UUID id, TaskDtoRequest taskDtoRequest,
                                                             BindingResult result) {
 
         if (result.hasErrors()) {
@@ -111,7 +103,7 @@ public class TaskController implements TaskResource {
             return ResponseEntity.unprocessableEntity().body(taskDtoRequest);
         }
 
-        TaskDtoResponse taskDtoResponse = taskService.updateTask(id, taskDtoRequest);
+        TaskDtoResponse taskDtoResponse = taskService.updateTask(taskDtoRequest);
 
         if (taskDtoResponse != null) {
             return ResponseEntity.ok().body(taskDtoResponse);
@@ -122,7 +114,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    public ResponseEntity<Object> deleteTask(@PathVariable UUID id) {
+    public ResponseEntity<Object> deleteTask(UUID id) {
         if (taskService.deleteTask(id)) {
             return ResponseEntity.ok().build();
         } else {

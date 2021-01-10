@@ -5,10 +5,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,7 +49,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    public ResponseEntity<TaskStatusDtoResponse> getTaskStatus(@PathVariable UUID id) {
+    public ResponseEntity<TaskStatusDtoResponse> getTaskStatus(UUID id) {
         TaskStatusDtoResponse taskStatusById = taskStatusService.getTaskStatusById(id);
         if ((taskStatusById != null) && (taskStatusById.getId() != null)) {
             return ResponseEntity.ok().body(taskStatusById);
@@ -73,7 +71,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    public ResponseEntity<? extends TaskStatusBaseDto> createUserStatus(@Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
+    public ResponseEntity<? extends TaskStatusBaseDto> createUserStatus(TaskStatusDtoRequest taskStatusDtoRequest,
                                                                         BindingResult result,
                                                                         UriComponentsBuilder componentsBuilder) {
         if (result.hasErrors()) {
@@ -93,8 +91,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    public ResponseEntity<? extends TaskStatusBaseDto> updateTaskStatus(@PathVariable UUID id,
-                                                                        @Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
+    public ResponseEntity<? extends TaskStatusBaseDto> updateTaskStatus(UUID id, TaskStatusDtoRequest taskStatusDtoRequest,
                                                                         BindingResult result) {
 
         if (result.hasErrors()) {
@@ -113,7 +110,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    public ResponseEntity<Object> deleteTaskStatus(@PathVariable UUID id) {
+    public ResponseEntity<Object> deleteTaskStatus(UUID id) {
         if (taskStatusService.deleteTaskStatus(id)) {
             return ResponseEntity.ok().build();
         } else {

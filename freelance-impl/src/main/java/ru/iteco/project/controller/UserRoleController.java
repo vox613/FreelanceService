@@ -1,15 +1,10 @@
 package ru.iteco.project.controller;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.UserRoleResource;
@@ -51,7 +46,7 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    public ResponseEntity<UserRoleDtoResponse> getUserRole(@PathVariable UUID id) {
+    public ResponseEntity<UserRoleDtoResponse> getUserRole(UUID id) {
         UserRoleDtoResponse userRoleById = userRoleService.getUserRoleById(id);
         if ((userRoleById != null) && (userRoleById.getId() != null)) {
             return ResponseEntity.ok().body(userRoleById);
@@ -62,18 +57,13 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    public PageDto getUsers(@RequestBody(required = false) UserRoleSearchDto userRoleSearchDto,
-                            @PageableDefault(size = 5,
-                                    page = 0,
-                                    sort = {"createdAt"},
-                                    direction = Sort.Direction.ASC) Pageable pageable) {
-
+    public PageDto getUsers(UserRoleSearchDto userRoleSearchDto, Pageable pageable) {
         return userRoleService.getRoles(userRoleSearchDto, pageable);
     }
 
 
     @Override
-    public ResponseEntity<? extends UserRoleBaseDto> createUserRole(@Validated @RequestBody UserRoleDtoRequest userRoleDtoRequest,
+    public ResponseEntity<? extends UserRoleBaseDto> createUserRole(UserRoleDtoRequest userRoleDtoRequest,
                                                                     BindingResult result,
                                                                     UriComponentsBuilder componentsBuilder) {
         if (result.hasErrors()) {
@@ -93,8 +83,7 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    public ResponseEntity<? extends UserRoleBaseDto> updateUserRole(@PathVariable UUID id,
-                                                                    @Validated @RequestBody UserRoleDtoRequest userRoleDtoRequest,
+    public ResponseEntity<? extends UserRoleBaseDto> updateUserRole(UUID id, UserRoleDtoRequest userRoleDtoRequest,
                                                                     BindingResult result) {
 
         if (result.hasErrors()) {
@@ -113,7 +102,7 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    public ResponseEntity<Object> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Object> deleteUser(UUID id) {
         if (userRoleService.deleteUserRole(id)) {
             return ResponseEntity.ok().build();
         } else {

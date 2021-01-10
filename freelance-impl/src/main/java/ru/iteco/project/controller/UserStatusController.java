@@ -1,15 +1,10 @@
 package ru.iteco.project.controller;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.UserStatusResource;
@@ -51,7 +46,7 @@ public class UserStatusController implements UserStatusResource {
 
 
     @Override
-    public ResponseEntity<UserStatusDtoResponse> getUserStatus(@PathVariable UUID id) {
+    public ResponseEntity<UserStatusDtoResponse> getUserStatus(UUID id) {
         UserStatusDtoResponse userStatusById = userStatusService.getUserStatusById(id);
         if ((userStatusById != null) && (userStatusById.getId() != null)) {
             return ResponseEntity.ok().body(userStatusById);
@@ -62,18 +57,13 @@ public class UserStatusController implements UserStatusResource {
 
 
     @Override
-    public PageDto getUsers(@RequestBody(required = false) UserStatusSearchDto userStatusSearchDto,
-                            @PageableDefault(size = 5,
-                                    page = 0,
-                                    sort = {"createdAt"},
-                                    direction = Sort.Direction.ASC) Pageable pageable) {
-
+    public PageDto getUsers(UserStatusSearchDto userStatusSearchDto, Pageable pageable) {
         return userStatusService.getStatus(userStatusSearchDto, pageable);
     }
 
 
     @Override
-    public ResponseEntity<? extends UserStatusBaseDto> createUserStatus(@Validated @RequestBody UserStatusDtoRequest userStatusDtoRequest,
+    public ResponseEntity<? extends UserStatusBaseDto> createUserStatus(UserStatusDtoRequest userStatusDtoRequest,
                                                                         BindingResult result,
                                                                         UriComponentsBuilder componentsBuilder) {
         if (result.hasErrors()) {
@@ -93,8 +83,7 @@ public class UserStatusController implements UserStatusResource {
 
 
     @Override
-    public ResponseEntity<? extends UserStatusBaseDto> updateUserStatus(@PathVariable UUID id,
-                                                                        @Validated @RequestBody UserStatusDtoRequest userStatusDtoRequest,
+    public ResponseEntity<? extends UserStatusBaseDto> updateUserStatus(UUID id, UserStatusDtoRequest userStatusDtoRequest,
                                                                         BindingResult result) {
 
         if (result.hasErrors()) {
@@ -113,7 +102,7 @@ public class UserStatusController implements UserStatusResource {
 
 
     @Override
-    public ResponseEntity<Object> deleteUserStatus(@PathVariable UUID id) {
+    public ResponseEntity<Object> deleteUserStatus(UUID id) {
         if (userStatusService.deleteUserStatus(id)) {
             return ResponseEntity.ok().build();
         } else {

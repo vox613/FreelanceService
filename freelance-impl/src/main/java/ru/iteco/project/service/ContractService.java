@@ -42,11 +42,10 @@ public interface ContractService {
     /**
      * Метод обновления существующего контракта
      *
-     * @param id                 - уникальный идентификатор Контракта
      * @param contractDtoRequest -  тело запроса для обновления
      * @return ContractDtoResponse - dto объект с данными о контракте
      */
-    ContractDtoResponse updateContract(UUID id, ContractDtoRequest contractDtoRequest);
+    ContractDtoResponse updateContract(ContractDtoRequest contractDtoRequest);
 
     /**
      * Метод удаляет договор из коллекции
