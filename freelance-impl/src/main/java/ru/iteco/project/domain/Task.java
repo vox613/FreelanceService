@@ -1,5 +1,7 @@
 package ru.iteco.project.domain;
 
+import ru.iteco.project.domain.converter.LocalDateTimeAttributeConverter;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,6 +41,7 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Дата и время до наступления которой необходимо выполнить задание */
     @Column(name = "task_completion_date", nullable = false)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime taskCompletionDate;
 
     /*** Стоимость исполнения задания */

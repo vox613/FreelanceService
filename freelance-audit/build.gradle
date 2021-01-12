@@ -1,0 +1,14 @@
+bootJar {
+    enabled = false
+}
+
+dependencies {
+    implementation deps."spring-web"
+    implementation deps."aop"
+    implementation deps."commons-lang3"
+
+}
+
+jar {
+    enabled = true
+}

@@ -1,5 +1,6 @@
 package ru.iteco.project.controller;
 
+import org.apache.logging.log4j.Level;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -7,6 +8,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.iteco.project.annotation.Audit;
+import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.ContractResource;
 import ru.iteco.project.resource.dto.ContractBaseDto;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
@@ -19,6 +22,9 @@ import ru.iteco.project.validator.ContractDtoRequestValidator;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+
+import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
+import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с Contract
@@ -41,14 +47,18 @@ public class ContractController implements ContractResource {
 
     @Override
     public ResponseEntity<List<ContractDtoResponse>> getAllContracts() {
+        beforeCall(Level.DEBUG, "getAllContracts()", "{}");
         List<ContractDtoResponse> allContracts = contractService.getAllContracts();
+        afterCall(Level.DEBUG, "getAllContracts()", allContracts);
         return ResponseEntity.ok().body(allContracts);
     }
 
 
     @Override
     public ResponseEntity<ContractDtoResponse> getContract(UUID id) {
+        beforeCall(Level.DEBUG, "getContract()", id);
         ContractDtoResponse contractById = contractService.getContractById(id);
+        afterCall(Level.DEBUG, "getContract()", contractById);
         if ((contractById != null) && (contractById.getId() != null)) {
             return ResponseEntity.ok().body(contractById);
         } else {
@@ -59,21 +69,27 @@ public class ContractController implements ContractResource {
 
     @Override
     public PageDto getContracts(ContractSearchDto contractSearchDto, Pageable pageable) {
-        return contractService.getContracts(contractSearchDto, pageable);
+        beforeCall(Level.DEBUG, "getContracts()", contractSearchDto, pageable);
+        PageDto contracts = contractService.getContracts(contractSearchDto, pageable);
+        afterCall(Level.DEBUG, "getContracts()", contracts);
+        return contracts;
     }
 
 
     @Override
+    @Audit(operation = AuditCode.CONTRACT_CREATE)
     public ResponseEntity<? extends ContractBaseDto> createContract(ContractDtoRequest contractDtoRequest,
                                                                     UriComponentsBuilder componentsBuilder,
                                                                     BindingResult result) {
 
+        beforeCall(Level.DEBUG, "createContract()", contractDtoRequest);
         if (result.hasErrors()) {
             contractDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(contractDtoRequest);
         }
 
         ContractDtoResponse contractDtoResponse = contractService.createContract(contractDtoRequest);
+        afterCall(Level.DEBUG, "createContract()", contractDtoResponse);
 
         if (contractDtoResponse != null) {
             URI uri = componentsBuilder
@@ -89,16 +105,18 @@ public class ContractController implements ContractResource {
 
 
     @Override
+    @Audit(operation = AuditCode.CONTRACT_UPDATE)
     public ResponseEntity<? extends ContractBaseDto> updateContract(ContractDtoRequest contractDtoRequest, UUID id,
                                                                     BindingResult result) {
 
+        beforeCall(Level.DEBUG, "updateContract()", contractDtoRequest, id);
         if (result.hasErrors()) {
             contractDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(contractDtoRequest);
         }
 
         ContractDtoResponse contractDtoResponse = contractService.updateContract(contractDtoRequest);
-
+        afterCall(Level.DEBUG, "updateContract()", contractDtoResponse);
         if (contractDtoResponse != null) {
             return ResponseEntity.ok().body(contractDtoResponse);
         } else {
@@ -108,8 +126,12 @@ public class ContractController implements ContractResource {
 
 
     @Override
+    @Audit(operation = AuditCode.CONTRACT_DELETE)
     public ResponseEntity<ContractDtoResponse> deleteContract(UUID id) {
-        if (contractService.deleteContract(id)) {
+        beforeCall(Level.DEBUG, "deleteContract()", id);
+        Boolean isDeleted = contractService.deleteContract(id);
+        afterCall(Level.DEBUG, "deleteContract()", isDeleted);
+        if (isDeleted) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
