@@ -1,0 +1,68 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="audit"/>
+            </not>
+        </preConditions>
+        <createTable tableName="audit" remarks="Таблица событий аудита">
+
+            <column name="id" type="uuid" remarks="Уникальный идентификатор события аудита">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="audit_code" type="varchar(255)" remarks="Код события аудита">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="audit_event_type" type="varchar(255)" remarks="Тип события аудита">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time_start" type="timestamp with time zone" remarks="Дата и время начала события">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="time_end" type="timestamp with time zone" remarks="Дата и время конца события">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="username" type="varchar(255)"
+                    remarks="Имя пользователя от которого выполняется данный запрос">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="params" type="json" remarks="Параметры запроса">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="return_value" type="json" remarks="Возвращаемое значение в результате выполнения метода">
+                <constraints nullable="true"/>
+            </column>
+
+        </createTable>
+
+        <comment>Задача по созданию таблицы аудита событий</comment>
+    </changeSet>
+
+
+    <changeSet id="2" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <primaryKeyExists tableName="audit" primaryKeyName="audit_pkey"/>
+            </not>
+        </preConditions>
+        <addPrimaryKey columnNames="id, audit_event_type"
+                       constraintName="audit_pkey"
+                       tableName="audit"
+                       validate="true"/>
+        <comment>Объявил составной primary key</comment>
+    </changeSet>
+
+
+</databaseChangeLog>

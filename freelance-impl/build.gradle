@@ -9,6 +9,7 @@ bootJar {
 
 dependencies {
     implementation project(":freelance-api")
+    implementation project(":freelance-audit")
 
     implementation deps."spring-boot-starter-web"
 

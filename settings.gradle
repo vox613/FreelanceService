@@ -1,3 +1,4 @@
 rootProject.name = 'itecoSpringProject'
 include 'freelance-api'
 include 'freelance-impl'
+include 'freelance-audit'

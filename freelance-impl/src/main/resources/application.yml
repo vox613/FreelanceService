@@ -22,6 +22,8 @@ spring:
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
+      data-source-properties:
+        stringtype: unspecified
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
@@ -41,12 +43,9 @@ spring:
       format_sql: true
   jackson:
     defaultPropertyInclusion: NON_NULL
+    serialization:
+      write_dates_as_timestamps: false
 
-logging:
-  level:
-    ROOT: INFO
-    ru.iteco.project: DEBUG
-    org.springframework: INFO
 
 management:
   endpoints:
@@ -98,3 +97,28 @@ scheduling:
   cron:
     enabled: true
     expression: "0 0 * * * *" # Запуск задачи каждый час
+
+
+# Настройки логгера
+logging:
+  level:
+    ROOT: INFO
+    ru.iteco.project: DEBUG
+    org.springframework: INFO
+  appenders:
+    console:
+      enabled: false
+    file:
+      enabled: true
+      name: log
+      path: logs
+      maxHistory: 300
+  pattern:
+    audit: '%msg%n'
+
+
+# Настройки аудита
+audit:
+  logName: audit
+  logPath: /audit
+  maxHistory: 300

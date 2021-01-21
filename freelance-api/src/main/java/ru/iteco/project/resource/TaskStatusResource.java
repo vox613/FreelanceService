@@ -123,7 +123,7 @@ public interface TaskStatusResource {
             @ApiResponse(code = 422, message = "Серверу не удалось обработать инструкции содержимого тела запроса",
                     response = ResponseError.class)
     })
-    ResponseEntity<? extends TaskStatusBaseDto> createUserStatus(@Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
+    ResponseEntity<? extends TaskStatusBaseDto> createTaskStatus(@Validated @RequestBody TaskStatusDtoRequest taskStatusDtoRequest,
                                                                  BindingResult result,
                                                                  UriComponentsBuilder componentsBuilder);
 

@@ -1,5 +1,6 @@
 package ru.iteco.project.controller;
 
+import org.apache.logging.log4j.Level;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.iteco.project.annotation.Audit;
+import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.TaskStatusResource;
 import ru.iteco.project.resource.dto.TaskStatusBaseDto;
 import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
@@ -22,6 +25,9 @@ import ru.iteco.project.validator.TaskStatusDtoRequestValidator;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+
+import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
+import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с TaskStatus
@@ -43,14 +49,18 @@ public class TaskStatusController implements TaskStatusResource {
 
     @Override
     public ResponseEntity<List<TaskStatusDtoResponse>> getAllTaskStatus() {
+        beforeCall(Level.DEBUG, "getAllTaskStatus()", "{}");
         List<TaskStatusDtoResponse> allTaskStatuses = taskStatusService.getAllTasksStatuses();
+        afterCall(Level.DEBUG, "getAllTaskStatus()", allTaskStatuses);
         return ResponseEntity.ok().body(allTaskStatuses);
     }
 
 
     @Override
     public ResponseEntity<TaskStatusDtoResponse> getTaskStatus(UUID id) {
+        beforeCall(Level.DEBUG, "getTaskStatus()", id);
         TaskStatusDtoResponse taskStatusById = taskStatusService.getTaskStatusById(id);
+        afterCall(Level.DEBUG, "getTaskStatus()", taskStatusById);
         if ((taskStatusById != null) && (taskStatusById.getId() != null)) {
             return ResponseEntity.ok().body(taskStatusById);
         } else {
@@ -60,26 +70,27 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    public PageDto getTasks(@RequestBody(required = false) TaskStatusSearchDto taskStatusSearchDto,
-                            @PageableDefault(size = 5,
-                                    page = 0,
-                                    sort = {"createdAt"},
-                                    direction = Sort.Direction.ASC) Pageable pageable) {
-
-        return taskStatusService.getStatus(taskStatusSearchDto, pageable);
+    public PageDto getTasks(TaskStatusSearchDto taskStatusSearchDto, Pageable pageable) {
+        beforeCall(Level.DEBUG, "getTasks()", taskStatusSearchDto, pageable);
+        PageDto taskStatus = taskStatusService.getStatus(taskStatusSearchDto, pageable);
+        afterCall(Level.DEBUG, "getTasks()", taskStatus);
+        return taskStatus;
     }
 
 
     @Override
-    public ResponseEntity<? extends TaskStatusBaseDto> createUserStatus(TaskStatusDtoRequest taskStatusDtoRequest,
+    @Audit(operation = AuditCode.TASK_STATUS_CREATE)
+    public ResponseEntity<? extends TaskStatusBaseDto> createTaskStatus(TaskStatusDtoRequest taskStatusDtoRequest,
                                                                         BindingResult result,
                                                                         UriComponentsBuilder componentsBuilder) {
+        beforeCall(Level.DEBUG, "createTaskStatus()", taskStatusDtoRequest);
         if (result.hasErrors()) {
             taskStatusDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(taskStatusDtoRequest);
         }
 
         TaskStatusDtoResponse taskStatusDtoResponse = taskStatusService.createTaskStatus(taskStatusDtoRequest);
+        afterCall(Level.DEBUG, "createTaskStatus()", taskStatusDtoResponse);
 
         if (taskStatusDtoResponse.getId() != null) {
             URI uri = componentsBuilder.path("statuses/tasks/" + taskStatusDtoResponse.getId()).buildAndExpand(taskStatusDtoResponse).toUri();
@@ -91,15 +102,17 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
+    @Audit(operation = AuditCode.TASK_STATUS_UPDATE)
     public ResponseEntity<? extends TaskStatusBaseDto> updateTaskStatus(UUID id, TaskStatusDtoRequest taskStatusDtoRequest,
                                                                         BindingResult result) {
-
+        beforeCall(Level.DEBUG, "updateTaskStatus()", id, taskStatusDtoRequest);
         if (result.hasErrors()) {
             taskStatusDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(taskStatusDtoRequest);
         }
 
         TaskStatusDtoResponse taskStatusDtoResponse = taskStatusService.updateTaskStatus(id, taskStatusDtoRequest);
+        afterCall(Level.DEBUG, "updateTaskStatus()", taskStatusDtoResponse);
 
         if (taskStatusDtoResponse != null) {
             return ResponseEntity.ok().body(taskStatusDtoResponse);
@@ -110,8 +123,12 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
+    @Audit(operation = AuditCode.TASK_STATUS_DELETE)
     public ResponseEntity<Object> deleteTaskStatus(UUID id) {
-        if (taskStatusService.deleteTaskStatus(id)) {
+        beforeCall(Level.DEBUG, "deleteTaskStatus()", id);
+        Boolean isDeleted = taskStatusService.deleteTaskStatus(id);
+        afterCall(Level.DEBUG, "deleteTaskStatus()", isDeleted);
+        if (isDeleted) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();

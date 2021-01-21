@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * Класс-конвертер даты типа LocalDateTime в совместимый с БД sql.Timestamp
  */
-@Converter(autoApply = true)
+@Converter
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, Timestamp> {
 
     /*** Текст ошибки возникающей при попытке сохранения в поле БД null значения */

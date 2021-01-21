@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.iteco.project.domain.*;
+import ru.iteco.project.domain.audit.AuditEvent;
+import ru.iteco.project.dto.AuditEventDto;
 import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.*;
 import ru.iteco.project.resource.dto.*;
@@ -101,6 +103,7 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         taskStatusMapperConfigure(mapperFactory);
         contractMapperConfigure(mapperFactory);
         contractStatusMapperConfigure(mapperFactory);
+        auditEventMapperConfigure(mapperFactory);
     }
 
 
@@ -375,6 +378,33 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         // POST/PUT  ContractStatusDtoRequest --> ContractStatus
         mapperFactory
                 .classMap(ContractStatusDtoRequest.class, ContractStatus.class)
+                .byDefault()
+                .register();
+    }
+
+    /**
+     * Метод конфигурирует маппер для преобразований: AuditEvent <--> AuditEventDto
+     *
+     * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
+     *                      которые будут использоваться для выполнения функции отображения
+     */
+    private void auditEventMapperConfigure(MapperFactory mapperFactory) {
+        mapperFactory.classMap(AuditEvent.class, AuditEventDto.class)
+                .customize(new CustomMapper<AuditEvent, AuditEventDto>() {
+                    @Override
+                    public void mapAtoB(AuditEvent auditEvent, AuditEventDto auditEventDto, MappingContext context) {
+                        auditEventDto.setParams(auditEvent.getParams());
+                        auditEventDto.setReturnValue(auditEvent.getReturnValue());
+                        super.mapAtoB(auditEvent, auditEventDto, context);
+                    }
+
+                    @Override
+                    public void mapBtoA(AuditEventDto auditEventDto, AuditEvent auditEvent, MappingContext context) {
+                        auditEvent.setParams(auditEventDto.getParams());
+                        auditEvent.setReturnValue(auditEventDto.getReturnValue());
+                        super.mapBtoA(auditEventDto, auditEvent, context);
+                    }
+                })
                 .byDefault()
                 .register();
     }
