@@ -13,6 +13,12 @@ ext {
             "springfox-boot-starter"      : "io.springfox:springfox-boot-starter:3.0.0",
             "swagger-annotations"         : "io.swagger:swagger-annotations:1.5.20",
             "orika-spring-boot-starter": "net.rakugakibox.spring.boot:orika-spring-boot-starter:1.9.0",
-            "aop"                         : "org.springframework.boot:spring-boot-starter-aop"
+            "aop"                         : "org.springframework.boot:spring-boot-starter-aop",
+            "jackson"                     : [
+                    "com.fasterxml.jackson.core:jackson-core:2.12.1",
+                    "com.fasterxml.jackson.core:jackson-databind:2.12.1",
+                    "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.1"
+
+            ]
     ]
 }

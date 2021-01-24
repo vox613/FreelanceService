@@ -1,7 +1,25 @@
 spring:
+  config:
+    use-legacy-processing: true
   profiles:
     active: development
+    include: swagger
 
 logging:
   level:
-    ru.iteco.project.service: DEBUG
+    ru.iteco.project.service: INFO
+  appenders:
+    file:
+      enabled: true
+      name: log
+      path: logs
+      maxHistory: 300
+    console:
+      enabled: true
+
+
+# Настройки аудита
+audit:
+  logName: audit
+  logPath: /audit
+  maxHistory: 300

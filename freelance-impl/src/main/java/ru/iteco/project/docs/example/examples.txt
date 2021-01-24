@@ -208,14 +208,14 @@ POST - http://localhost:8081/freelance/api/v1/tasks
 PUT - http://localhost:8081/freelance/api/v1/tasks/{taskId}
 {
     "id": {taskId},
-    "customerId": {customerId},
     "userId": {userId},
     "customerId": {customerId},
     "executorId": {executorId},
     "title": "title",
     "description": "description",
     "taskCompletionDate": "2020-10-30 18:41:36",
-    "taskStatus": "ON_FIX"
+    "taskStatus": "ON_FIX",
+    "taskDecision": "taskDecision",
     "price": "123"
 }
 

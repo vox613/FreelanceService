@@ -1,4 +1,4 @@
-package ru.iteco.project.service;
+package ru.iteco.project.service.scheduler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.domain.TaskStatus;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.exception.InvalidTaskStatusException;
 import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.TaskStatusRepository;
@@ -45,7 +43,6 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    @Audit(operation = AuditCode.TASK_SCHEDULER_DELETE)
     public void taskDeletingOverdueTasks() {
         TaskStatus taskStatus = taskStatusRepository.findTaskStatusByValue(REGISTERED.name())
                 .orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage));

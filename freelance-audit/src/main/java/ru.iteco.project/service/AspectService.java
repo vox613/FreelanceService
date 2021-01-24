@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.util.UriBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.dto.AuditEventDto;
-import ru.iteco.project.enumaration.AuditCode;
+import ru.iteco.project.domain.AuditEvent;
 import ru.iteco.project.enumaration.AuditEventType;
 
 import java.lang.reflect.Method;
@@ -53,53 +52,59 @@ public class AspectService {
         Audit annotation = method.getAnnotation(Audit.class);
         Validate.notNull(annotation);
 
-        AuditEventDto auditEventDto = prepareBaseAuditData(annotation.operation());
-        auditService.createAuditEvent(prepareStartEvent(auditEventDto, joinPoint));
+        String operation = annotation.operation();
+        UUID uuid = UUID.randomUUID();
+
+        auditService.createAuditEvent(prepareStartEvent(uuid, operation, joinPoint));
+        AuditEvent auditEvent = null;
         try {
             Object proceed = joinPoint.proceed();
-            prepareSuccessEvent(auditEventDto, proceed);
+            auditEvent = prepareSuccessEvent(uuid, operation, proceed);
             return proceed;
         } catch (Throwable e) {
-            prepareFailureEvent(auditEventDto, e);
+            auditEvent = prepareFailureEvent(uuid, operation, e);
             throw e;
         } finally {
-            auditService.createAuditEvent(auditEventDto);
+            auditService.createAuditEvent(auditEvent);
         }
     }
 
 
-    private AuditEventDto prepareBaseAuditData(AuditCode auditCode) {
-        AuditEventDto auditEventDto = new AuditEventDto();
-        auditEventDto.setId(UUID.randomUUID());
-        auditEventDto.setAuditCode(auditCode);
-        auditEventDto.setTimeStart(LocalDateTime.now());
+    private AuditEvent prepareBaseAuditData(UUID uuid, String auditCode) {
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setId(uuid);
+        auditEvent.setAuditCode(auditCode);
+        auditEvent.setTimeStart(LocalDateTime.now());
 
-        auditEventDto.setUserName("");
-        return auditEventDto;
+        auditEvent.setUserName("");
+        return auditEvent;
     }
 
-    private AuditEventDto prepareStartEvent(AuditEventDto auditEventDto, ProceedingJoinPoint joinPoint) {
-
-        auditEventDto.setAuditEventType(AuditEventType.START);
-
+    private AuditEvent prepareStartEvent(UUID uuid, String operation, ProceedingJoinPoint joinPoint) {
+        AuditEvent auditEvent = prepareBaseAuditData(uuid, operation);
+        auditEvent.setAuditEventType(AuditEventType.START);
         for (Object arg : joinPoint.getArgs()) {
             if (!(arg instanceof BeanPropertyBindingResult || arg instanceof UriBuilder)) {
-                auditEventDto.getParams().put(arg.getClass().getSimpleName(), arg);
+                auditEvent.getParams().put(arg.getClass().getSimpleName(), arg);
             }
         }
-        return auditEventDto;
+        return auditEvent;
     }
 
-    private void prepareSuccessEvent(AuditEventDto auditEventDto, Object returnValue) {
-        auditEventDto.setAuditEventType(AuditEventType.SUCCESS);
-        auditEventDto.setTimeEnd(LocalDateTime.now());
-        auditEventDto.getReturnValue().put(returnValue.getClass().getSimpleName(), returnValue);
+    private AuditEvent prepareSuccessEvent(UUID uuid, String operation, Object returnValue) {
+        AuditEvent auditEvent = prepareBaseAuditData(uuid, operation);
+        auditEvent.setAuditEventType(AuditEventType.SUCCESS);
+        auditEvent.setTimeEnd(LocalDateTime.now());
+        auditEvent.getReturnValue().put(returnValue.getClass().getSimpleName(), returnValue);
+        return auditEvent;
     }
 
-    private void prepareFailureEvent(AuditEventDto auditEventDto, Throwable e) {
-        auditEventDto.setAuditEventType(AuditEventType.FAILURE);
-        auditEventDto.setTimeEnd(LocalDateTime.now());
-        auditEventDto.getReturnValue().put("exception_msg", e.getMessage());
+    private AuditEvent prepareFailureEvent(UUID uuid, String operation, Throwable e) {
+        AuditEvent auditEvent = prepareBaseAuditData(uuid, operation);
+        auditEvent.setAuditEventType(AuditEventType.FAILURE);
+        auditEvent.setTimeEnd(LocalDateTime.now());
+        auditEvent.getReturnValue().put("exception_msg", e.getMessage());
+        return auditEvent;
     }
 
 }

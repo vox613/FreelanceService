@@ -4,12 +4,13 @@ import org.apache.logging.log4j.Level;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.UserResource;
 import ru.iteco.project.resource.dto.UserBaseDto;
 import ru.iteco.project.resource.dto.UserDtoRequest;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
+import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с User
@@ -77,7 +79,7 @@ public class UserController implements UserResource {
     }
 
     @Override
-    @Audit(operation = AuditCode.USER_CREATE)
+    @Audit(operation = USER_CREATE)
     public ResponseEntity<? extends UserBaseDto> createUser(UserDtoRequest userDtoRequest, BindingResult result,
                                                             UriComponentsBuilder componentsBuilder) {
         beforeCall(Level.DEBUG, "createUser()", userDtoRequest);
@@ -101,7 +103,7 @@ public class UserController implements UserResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_BATCH_CREATE)
+    @Audit(operation = USER_BATCH_CREATE)
     public ResponseEntity<List<? extends Serializable>> createBatchUser(ArrayList<UserDtoRequest> userDtoRequestList,
                                                                         UriComponentsBuilder componentsBuilder,
                                                                         BindingResult result) {
@@ -122,7 +124,7 @@ public class UserController implements UserResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_UPDATE)
+    @Audit(operation = USER_UPDATE)
     public ResponseEntity<? extends UserBaseDto> updateUser(UUID id, UserDtoRequest userDtoRequest, BindingResult result) {
 
         beforeCall(Level.DEBUG, "updateUser()", id, userDtoRequest);
@@ -144,7 +146,7 @@ public class UserController implements UserResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_DELETE)
+    @Audit(operation = USER_DELETE)
     public ResponseEntity<Object> deleteUser(UUID id) {
         beforeCall(Level.DEBUG, "deleteUser()", id);
         Boolean isDeleted = userService.deleteUser(id);
@@ -157,7 +159,7 @@ public class UserController implements UserResource {
     }
 
     @InitBinder(value = {"userDtoRequest", "userDtoRequestList"})
-    private void initUserDtoRequestBinder(WebDataBinder binder) {
+    public void initUserDtoRequestBinder(WebDataBinder binder) {
         binder.setValidator(userDtoRequestValidator);
     }
 

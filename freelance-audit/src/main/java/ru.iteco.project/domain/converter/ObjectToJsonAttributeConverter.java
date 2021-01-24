@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -19,14 +18,6 @@ import javax.persistence.Converter;
 public class ObjectToJsonAttributeConverter<T> implements AttributeConverter<T, String> {
     private static final Logger log = LogManager.getLogger(ObjectToJsonAttributeConverter.class.getName());
 
-    /*** Текст ошибки возникающей при конвертации объекта в JSON */
-    @Value("${errors.jpa.converter.audit.error.toJson}")
-    private String convertingToJsonErrorMessage;
-
-    /*** Текст ошибки возникающей при конвертации строки JSON в объект */
-    @Value("${errors.jpa.converter.audit.error.toObject}")
-    private String convertingFromJsonErrorMessage;
-
     /*** Экземпляр ObjectMapper, предоставляет функциональные возможности для преобразований JSON <-> POJO */
     private final ObjectMapper objectMapper = new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
@@ -35,9 +26,9 @@ public class ObjectToJsonAttributeConverter<T> implements AttributeConverter<T, 
     public String convertToDatabaseColumn(T attribute) {
         String jsonString = null;
         try {
-            jsonString = objectMapper.writeValueAsString(attribute);
-        } catch (final JsonProcessingException e) {
-            log.error(convertingToJsonErrorMessage, e);
+            jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(attribute);
+        } catch (JsonProcessingException e) {
+            log.error("Ошибка конвертации объекта в JSON!", e);
         }
         return jsonString;
     }
@@ -49,7 +40,7 @@ public class ObjectToJsonAttributeConverter<T> implements AttributeConverter<T, 
             object = objectMapper.readValue(dbData, new TypeReference<T>() {
             });
         } catch (JsonProcessingException e) {
-            log.error(convertingFromJsonErrorMessage, e);
+            log.error("Ошибка конвертации JSON в объект!", e);
         }
         return object;
     }

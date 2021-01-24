@@ -1,4 +1,6 @@
 spring:
+  config:
+    use-legacy-processing: true
   profiles:
     active: local
     include: swagger
@@ -13,4 +15,10 @@ logging:
       path: logs
       maxHistory: 300
     console:
-      enabled: false
+      enabled: true
+
+# Настройки аудита
+audit:
+  logName: audit
+  logPath: /audit
+  maxHistory: 300

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.UserStatusResource;
 import ru.iteco.project.resource.dto.UserStatusBaseDto;
 import ru.iteco.project.resource.dto.UserStatusDtoRequest;
@@ -25,6 +24,7 @@ import java.util.UUID;
 
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
+import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с UserStatus
@@ -76,7 +76,7 @@ public class UserStatusController implements UserStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_STATUS_CREATE)
+    @Audit(operation = USER_STATUS_CREATE)
     public ResponseEntity<? extends UserStatusBaseDto> createUserStatus(UserStatusDtoRequest userStatusDtoRequest,
                                                                         BindingResult result,
                                                                         UriComponentsBuilder componentsBuilder) {
@@ -99,7 +99,7 @@ public class UserStatusController implements UserStatusResource {
     }
 
     @Override
-    @Audit(operation = AuditCode.USER_STATUS_UPDATE)
+    @Audit(operation = USER_STATUS_UPDATE)
     public ResponseEntity<? extends UserStatusBaseDto> updateUserStatus(UUID id, UserStatusDtoRequest userStatusDtoRequest,
                                                                         BindingResult result) {
         beforeCall(Level.DEBUG, "updateUserStatus()", id, userStatusDtoRequest);
@@ -120,7 +120,7 @@ public class UserStatusController implements UserStatusResource {
     }
 
     @Override
-    @Audit(operation = AuditCode.USER_STATUS_DELETE)
+    @Audit(operation = USER_STATUS_DELETE)
     public ResponseEntity<Object> deleteUserStatus(UUID id) {
         beforeCall(Level.DEBUG, "deleteUserStatus()", id);
         Boolean isDeleted = userStatusService.deleteUserStatus(id);
@@ -133,7 +133,7 @@ public class UserStatusController implements UserStatusResource {
     }
 
     @InitBinder(value = "userStatusDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(userStatusDtoRequestValidator);
     }
 

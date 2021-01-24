@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.UserRoleResource;
 import ru.iteco.project.resource.dto.UserRoleBaseDto;
 import ru.iteco.project.resource.dto.UserRoleDtoRequest;
@@ -25,6 +24,7 @@ import java.util.UUID;
 
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
+import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с User
@@ -76,7 +76,7 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_ROLE_CREATE)
+    @Audit(operation = USER_ROLE_CREATE)
     public ResponseEntity<? extends UserRoleBaseDto> createUserRole(UserRoleDtoRequest userRoleDtoRequest,
                                                                     BindingResult result,
                                                                     UriComponentsBuilder componentsBuilder) {
@@ -99,7 +99,7 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_ROLE_UPDATE)
+    @Audit(operation = USER_ROLE_UPDATE)
     public ResponseEntity<? extends UserRoleBaseDto> updateUserRole(UUID id, UserRoleDtoRequest userRoleDtoRequest,
                                                                     BindingResult result) {
         beforeCall(Level.DEBUG, "updateUserRole()", id, userRoleDtoRequest);
@@ -120,7 +120,7 @@ public class UserRoleController implements UserRoleResource {
 
 
     @Override
-    @Audit(operation = AuditCode.USER_ROLE_DELETE)
+    @Audit(operation = USER_ROLE_DELETE)
     public ResponseEntity<Object> deleteUser(UUID id) {
         beforeCall(Level.DEBUG, "deleteUser()", id);
         Boolean isDeleted = userRoleService.deleteUserRole(id);
@@ -133,7 +133,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @InitBinder(value = "userRoleDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(userRoleDtoRequestValidator);
     }
 

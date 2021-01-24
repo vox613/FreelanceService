@@ -4,10 +4,13 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <springProperty scope="context" name="LOG_PATH" source="logging.appenders.file.path" defaultValue="logs"/>
+    <springProperty scope="context" name="LOCAL_FILE_NAME" source="logging.appenders.file.name"/>
+    <springProperty scope="context" name="LOCAL_FILE_ENABLED" source="logging.appenders.file.enabled"/>
+    <springProperty scope="context" name="CONSOLE_ENABLED" source="logging.appenders.console.enabled" />
+
     <springProperty scope="context" name="AUDIT_PATH" source="audit.logPath" defaultValue="/audit"/>
     <springProperty scope="context" name="AUDIT_NAME" source="audit.logName" defaultValue="audit"/>
     <springProperty scope="context" name="AUDIT_MAX_HISTORY" source="audit.maxHistory" defaultValue="100"/>
-    <springProperty scope="context" name="AUDIT_LOG_PATTERN" source="logging.pattern.audit" defaultValue="%msg%n"/>
 
     <property name="AUDIT_FULL_PATH" value="${LOG_PATH}${AUDIT_PATH}"/>
     <property name="AUDIT_ARCHIVE_PATH" value="${AUDIT_FULL_PATH}/archive"/>
@@ -16,7 +19,7 @@
     <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${AUDIT_FULL_PATH}/${AUDIT_NAME}.csv</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${AUDIT_LOG_PATTERN}</pattern>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -25,13 +28,10 @@
         </rollingPolicy>
     </appender>
 
-    <logger name="ru.iteco.project.service.audit.AuditServiceLocalImpl" level="DEBUG" additivity="false">
+    <logger name="ru.iteco.project.service.AuditServiceLocalImpl" level="DEBUG" additivity="false">
         <appender-ref ref="AUDIT_FILE"/>
     </logger>
 
-
-    <springProperty scope="context" name="LOCAL_FILE_ENABLED" source="logging.appenders.file.enabled"/>
-    <springProperty scope="context" name="LOCAL_FILE_NAME" source="logging.appenders.file.name"/>
 
     <if condition='p("LOCAL_FILE_ENABLED").equals("true")'>
         <then>
@@ -49,8 +49,6 @@
         </then>
     </if>
 
-
-    <springProperty name="CONSOLE_ENABLED" source="logging.appenders.console.enabled" scope="context"/>
 
     <if condition='p("CONSOLE_ENABLED").equals("true")'>
         <then>

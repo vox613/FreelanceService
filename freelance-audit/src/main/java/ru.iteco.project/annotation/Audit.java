@@ -1,12 +1,6 @@
 package ru.iteco.project.annotation;
 
-import ru.iteco.project.enumaration.AuditCode;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Аннотация для методов, для которых предусмотрен аудит
@@ -16,6 +10,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface Audit {
 
-    AuditCode operation();
+    String operation();
 
 }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.TaskResource;
 import ru.iteco.project.resource.dto.TaskBaseDto;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
@@ -25,6 +24,7 @@ import java.util.UUID;
 
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
+import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с Task
@@ -82,7 +82,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    @Audit(operation = AuditCode.TASK_CREATE)
+    @Audit(operation = TASK_CREATE)
     public ResponseEntity<? extends TaskBaseDto> createTask(TaskDtoRequest taskDtoRequest,
                                                             BindingResult result,
                                                             UriComponentsBuilder componentsBuilder) {
@@ -111,7 +111,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    @Audit(operation = AuditCode.TASK_UPDATE)
+    @Audit(operation = TASK_UPDATE)
     public ResponseEntity<? extends TaskBaseDto> updateTask(UUID id, TaskDtoRequest taskDtoRequest,
                                                             BindingResult result) {
         beforeCall(Level.DEBUG, "updateTask()", id, taskDtoRequest);
@@ -131,7 +131,7 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    @Audit(operation = AuditCode.TASK_DELETE)
+    @Audit(operation = TASK_DELETE)
     public ResponseEntity<Object> deleteTask(UUID id) {
         beforeCall(Level.DEBUG, "deleteTask()", id);
         Boolean isDeleted = taskService.deleteTask(id);
@@ -145,7 +145,7 @@ public class TaskController implements TaskResource {
 
 
     @InitBinder(value = "taskDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(taskDtoRequestValidator);
     }
 

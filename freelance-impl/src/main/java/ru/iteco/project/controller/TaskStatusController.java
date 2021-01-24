@@ -2,17 +2,13 @@ package ru.iteco.project.controller;
 
 import org.apache.logging.log4j.Level;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.TaskStatusResource;
 import ru.iteco.project.resource.dto.TaskStatusBaseDto;
 import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
@@ -28,6 +24,7 @@ import java.util.UUID;
 
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
+import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с TaskStatus
@@ -79,7 +76,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.TASK_STATUS_CREATE)
+    @Audit(operation = TASK_STATUS_CREATE)
     public ResponseEntity<? extends TaskStatusBaseDto> createTaskStatus(TaskStatusDtoRequest taskStatusDtoRequest,
                                                                         BindingResult result,
                                                                         UriComponentsBuilder componentsBuilder) {
@@ -102,7 +99,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.TASK_STATUS_UPDATE)
+    @Audit(operation = TASK_STATUS_UPDATE)
     public ResponseEntity<? extends TaskStatusBaseDto> updateTaskStatus(UUID id, TaskStatusDtoRequest taskStatusDtoRequest,
                                                                         BindingResult result) {
         beforeCall(Level.DEBUG, "updateTaskStatus()", id, taskStatusDtoRequest);
@@ -123,7 +120,7 @@ public class TaskStatusController implements TaskStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.TASK_STATUS_DELETE)
+    @Audit(operation = TASK_STATUS_DELETE)
     public ResponseEntity<Object> deleteTaskStatus(UUID id) {
         beforeCall(Level.DEBUG, "deleteTaskStatus()", id);
         Boolean isDeleted = taskStatusService.deleteTaskStatus(id);
@@ -136,7 +133,7 @@ public class TaskStatusController implements TaskStatusResource {
     }
 
     @InitBinder(value = "taskStatusDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(taskStatusDtoRequestValidator);
     }
 

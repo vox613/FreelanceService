@@ -156,18 +156,18 @@ public class TaskServiceImpl implements TaskService {
     public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
         TaskDtoResponse taskDtoResponse = null;
         if (taskDtoRequest.getUserId() != null
-                && taskRepository.existsById(taskDtoRequest.getUserId())) {
+                && taskRepository.existsById(taskDtoRequest.getId())) {
 
             Optional<User> userOptional = userRepository.findById(taskDtoRequest.getUserId());
-            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getUserId());
+            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getId());
             if (userOptional.isPresent() && taskById.isPresent()) {
                 User user = userOptional.get();
                 Task task = taskById.get();
-                if (allowToUpdate(user, task)) {
-                    mapperFacade.map(taskDtoRequest, task);
-                    Task save = taskRepository.save(task);
-                    taskDtoResponse = enrichByUsersInfo(save);
-                }
+
+                allowToUpdate(user, task);
+                mapperFacade.map(taskDtoRequest, task);
+                Task save = taskRepository.save(task);
+                taskDtoResponse = enrichByUsersInfo(save);
             }
         }
         return taskDtoResponse;
@@ -218,18 +218,18 @@ public class TaskServiceImpl implements TaskService {
      *
      * @param user - пользователь инициировавший процесс
      * @param task - задание
-     * @return - true - пользователь не заблокирован, роль пользователя позволяет менять статаус задания,
-     * false - в любом ином случае
      */
-    private boolean allowToUpdate(User user, Task task) {
+    private void allowToUpdate(User user, Task task) {
         boolean userNotBlocked = !isEqualsUserStatus(BLOCKED, user);
         boolean userIsCustomerAndTaskOnCustomer = user.getId().equals(task.getCustomer().getId()) &&
                 (isEqualsTaskStatus(REGISTERED, task) || isEqualsTaskStatus(ON_CHECK, task));
         boolean userIsExecutorAndTaskOnExecutor = (task.getExecutor() != null) &&
                 user.getId().equals(task.getExecutor().getId()) &&
                 (isEqualsTaskStatus(IN_PROGRESS, task) || isEqualsTaskStatus(ON_FIX, task));
-
-        return userNotBlocked && (userIsCustomerAndTaskOnCustomer || userIsExecutorAndTaskOnExecutor);
+        boolean isAllowed = userNotBlocked && (userIsCustomerAndTaskOnCustomer || userIsExecutorAndTaskOnExecutor);
+        if (!isAllowed) {
+            throw new UnavailableRoleOperationException(unavailableOperationMessage);
+        }
     }
 
 

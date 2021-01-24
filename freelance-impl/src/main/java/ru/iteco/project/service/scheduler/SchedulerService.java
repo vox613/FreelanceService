@@ -1,4 +1,4 @@
-package ru.iteco.project.service;
+package ru.iteco.project.service.scheduler;
 
 /**
  * Интерфейс описывает общий функционал Service слоя для отложенных заданий и заданий по CRON расписанию
