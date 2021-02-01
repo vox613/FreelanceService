@@ -5,9 +5,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.ObjectError;
+import ru.iteco.project.controller.feign.ExchangeRatesClient;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
 import ru.iteco.project.domain.Task;
@@ -19,6 +22,7 @@ import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
+import ru.iteco.project.resource.dto.ConversionDto;
 import ru.iteco.project.resource.dto.UserBaseDto;
 import ru.iteco.project.resource.searching.ContractSearchDto;
 import ru.iteco.project.resource.searching.PageDto;
@@ -70,10 +74,15 @@ public class ContractServiceImpl implements ContractService {
     /*** Объект маппера dto <-> сущность договога */
     private final MapperFacade mapperFacade;
 
+    /*** Объект Feign клиента для доступа к конвертеру валют */
+    private final ExchangeRatesClient exchangeRatesClient;
 
-    public ContractServiceImpl(ContractRepository contractRepository, UserRepository userRepository, TaskRepository taskRepository,
-                               ContractStatusRepository contractStatusRepository, MapperFacade mapperFacade, TaskService taskService,
-                               SpecificationBuilder<Contract> specificationBuilder) {
+
+    public ContractServiceImpl(ContractRepository contractRepository, UserRepository userRepository,
+                               TaskRepository taskRepository, ContractStatusRepository contractStatusRepository,
+                               TaskService taskService, SpecificationBuilder<Contract> specificationBuilder,
+                               MapperFacade mapperFacade, ExchangeRatesClient exchangeRatesClient) {
+
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
@@ -81,6 +90,7 @@ public class ContractServiceImpl implements ContractService {
         this.taskService = taskService;
         this.specificationBuilder = specificationBuilder;
         this.mapperFacade = mapperFacade;
+        this.exchangeRatesClient = exchangeRatesClient;
     }
 
     /**
@@ -134,8 +144,8 @@ public class ContractServiceImpl implements ContractService {
 
                 Contract contract = mapperFacade.map(contractDtoRequest, Contract.class);
                 contract.setId(UUID.randomUUID());
-                User taskCustomer = contract.getCustomer();
-                taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
+                User customer = contract.getCustomer();
+                customer.setWallet(customer.getWallet().subtract(task.getPrice()));
                 Contract save = contractRepository.save(contract);
                 contractDtoResponse = enrichContractInfo(save);
             }
@@ -201,13 +211,47 @@ public class ContractServiceImpl implements ContractService {
      * @param contract - объект договора
      */
     private void transferFunds(Contract contract) {
+        User customer = contract.getCustomer();
+        User executor = contract.getExecutor();
+        BigDecimal taskPrice;
+
+        taskPrice = currencyTransactionProcessing(contract);
+
         if (isEqualsContractStatus(ContractStatus.ContractStatusEnum.DONE, contract)) {
-            User executor = contract.getExecutor();
-            executor.setWallet(executor.getWallet().add(contract.getTask().getPrice()));
+            executor.setWallet(executor.getWallet().add(taskPrice));
         } else if (isEqualsContractStatus(TERMINATED, contract)) {
-            User customer = contract.getCustomer();
-            customer.setWallet(customer.getWallet().add(contract.getTask().getPrice()));
+            customer.setWallet(customer.getWallet().add(taskPrice));
         }
+    }
+
+
+    private BigDecimal currencyTransactionProcessing(Contract contract) {
+        String customerCurrency = contract.getCustomer().getCurrency();
+        String executorCurrency = contract.getExecutor().getCurrency();
+        BigDecimal taskPrice = contract.getTask().getPrice();
+        List<ObjectError> errors;
+
+        try {
+            if (!customerCurrency.equals(executorCurrency)) {
+                ConversionDto conversionDto = new ConversionDto(customerCurrency, executorCurrency, taskPrice);
+                ResponseEntity<ConversionDto> convert = exchangeRatesClient.convert(conversionDto);
+                if ((convert == null) || (convert.getBody() == null)) {
+                    throw new RuntimeException("Error");
+                }
+
+                ConversionDto body = convert.getBody();
+                if (convert.getStatusCode().is2xxSuccessful()){
+                    return body.getConvertedAmount();
+                }else {
+                    errors = body.getErrors();
+                    throw new RuntimeException("Errors: " + Arrays.toString(errors.toArray()));
+                }
+            }
+        } catch (Exception ex) {
+            log.error("get error with mdg: {}", ex.getMessage());
+            throw ex;
+        }
+        return taskPrice;
     }
 
     /**

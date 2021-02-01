@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.annotation.Audit;
+import ru.iteco.project.controller.UserController;
 import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.exception.InvalidTaskStatusException;

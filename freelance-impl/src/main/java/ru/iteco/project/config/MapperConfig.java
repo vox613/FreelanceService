@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.iteco.project.domain.*;
 import ru.iteco.project.domain.audit.AuditEvent;
-import ru.iteco.project.dto.AuditEventDto;
 import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.*;
 import ru.iteco.project.resource.dto.*;
@@ -135,6 +134,7 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         // POST/PUT  UserDtoRequest --> User
         mapperFactory
                 .classMap(UserDtoRequest.class, User.class)
+                .exclude("currency")
                 .byDefault()
                 .customize(new CustomMapper<UserDtoRequest, User>() {
                     @Override
@@ -142,6 +142,9 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                         if (user.getRole().getId() == null) {
                             user.setRole(userRoleRepository.findUserRoleByValue(userDtoRequest.getRole())
                                     .orElseThrow(() -> new InvalidUserRoleException(userRoleIsInvalidMessage)));
+                        }
+                        if (user.getCurrency() == null) {
+                            user.setCurrency(userDtoRequest.getCurrency());
                         }
                         user.setUserStatus(userStatusRepository.findUserStatusByValue(userDtoRequest.getUserStatus())
                                 .orElseThrow(() -> new InvalidUserStatusException(unavailableOperationMessage)));

@@ -98,6 +98,11 @@ public class UserDtoRequestValidator extends AbstractDtoValidator implements Val
         }
         if (errors.hasErrors()) return;
 
+        if (ObjectUtils.isEmpty(userForm.getCurrency())) {
+            logger.error("currency is empty");
+            prepareErrorMessage(errors, "user.wallet.currency.empty", "currency");
+        }
+        if (errors.hasErrors()) return;
 
         if (ObjectUtils.isEmpty(userForm.getPassword()) || ObjectUtils.isEmpty(userForm.getRepeatPassword())) {
             logger.error("passwords is empty");

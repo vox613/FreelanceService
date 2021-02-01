@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iteco.project.controller.feign.ExchangeRatesClient;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
@@ -83,7 +84,6 @@ public class TaskServiceImpl implements TaskService {
         this.specificationBuilder = specificationBuilder;
     }
 
-
     /**
      * По умолчанию в Postgres isolation READ_COMMITTED + недоступна модификация данных
      */
@@ -140,6 +140,7 @@ public class TaskServiceImpl implements TaskService {
             checkUserPermissions(user);
             Task task = mapperFacade.map(taskDtoRequest, Task.class);
             task.setId(UUID.randomUUID());
+            task.setCurrency(user.getCurrency());
             Task save = taskRepository.save(task);
             taskDtoResponse = enrichByUsersInfo(save);
         }
@@ -156,10 +157,10 @@ public class TaskServiceImpl implements TaskService {
     public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
         TaskDtoResponse taskDtoResponse = null;
         if (taskDtoRequest.getUserId() != null
-                && taskRepository.existsById(taskDtoRequest.getUserId())) {
+                && taskRepository.existsById(taskDtoRequest.getId())) {
 
             Optional<User> userOptional = userRepository.findById(taskDtoRequest.getUserId());
-            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getUserId());
+            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getId());
             if (userOptional.isPresent() && taskById.isPresent()) {
                 User user = userOptional.get();
                 Task task = taskById.get();

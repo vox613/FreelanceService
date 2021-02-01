@@ -13,4 +13,4 @@ logging:
       path: logs
       maxHistory: 300
     console:
-      enabled: false
+      enabled: true

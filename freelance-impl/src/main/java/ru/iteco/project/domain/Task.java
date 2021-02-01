@@ -48,6 +48,10 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
     @Column(name = "price", nullable = false, precision = 1000, scale = 2)
     private BigDecimal price;
 
+    /*** Наименование валюты цены задания */
+    @Column(name = "currency", nullable = false)
+    private String currency;
+
     /*** Статус задания */
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "task_status_id", nullable = false)
@@ -62,7 +66,7 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
     }
 
     public Task(UUID id, User customer, User executor, String title, String description, LocalDateTime taskCompletionDate,
-                BigDecimal price, TaskStatus taskStatus, String taskDecision) {
+                BigDecimal price, String currency, TaskStatus taskStatus, String taskDecision) {
         this.id = id;
         this.customer = customer;
         this.executor = executor;
@@ -70,6 +74,7 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
         this.description = description;
         this.taskCompletionDate = taskCompletionDate;
         this.price = price;
+        this.currency = currency;
         this.taskStatus = taskStatus;
         this.taskDecision = taskDecision;
     }
@@ -140,6 +145,14 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
 
     public void setTaskDecision(String taskDecision) {
         this.taskDecision = taskDecision;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     @Override

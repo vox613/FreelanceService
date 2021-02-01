@@ -1,6 +1,6 @@
 package ru.iteco.project.service;
 
-import ru.iteco.project.dto.AuditEventDto;
+import ru.iteco.project.resource.dto.AuditEventDto;
 
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности AuditEvent

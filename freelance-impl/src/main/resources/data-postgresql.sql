@@ -29,7 +29,7 @@ VALUES (uuid_generate_v1(), 'TERMINATED', 'Договор расторгнут',
 
 
 INSERT INTO users(id, first_name, last_name, second_name, login, password, email, phone_number, role_id, status_id,
-                  wallet, created_at, updated_at)
+                  wallet, created_at, updated_at, currency)
 SELECT uuid_generate_v1(),
        'admin',
        'admin',
@@ -42,6 +42,7 @@ SELECT uuid_generate_v1(),
        user_statuses.id,
        1000,
        now(),
-       now()
+       now(),
+       'RUB'
 FROM user_roles, user_statuses
 WHERE user_roles.value = 'ADMIN' AND user_statuses.value = 'ACTIVE';

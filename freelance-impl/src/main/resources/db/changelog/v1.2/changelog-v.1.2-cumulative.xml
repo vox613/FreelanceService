@@ -12,5 +12,7 @@
     <include file="v1.2_06_add_to_contract_updatedAt_column_and_rename_time_contract_conclusion.xml" relativeToChangelogFile="true"/>
     <include file="v1.2_07_add_to_contract_statuses_createdAt_and_updatedAt_columns.xml" relativeToChangelogFile="true"/>
     <include file="v1.2_08_add_audit.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_09_add_currency_column_to_user.xml" relativeToChangelogFile="true"/>
+    <include file="v1.2_10_add_currency_column_to_task.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

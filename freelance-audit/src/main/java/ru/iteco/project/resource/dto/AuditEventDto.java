@@ -1,4 +1,4 @@
-package ru.iteco.project.dto;
+package ru.iteco.project.resource.dto;
 
 import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.enumaration.AuditEventType;

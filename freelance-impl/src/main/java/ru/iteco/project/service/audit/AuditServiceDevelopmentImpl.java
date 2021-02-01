@@ -4,7 +4,7 @@ import ma.glasnost.orika.MapperFacade;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import ru.iteco.project.domain.audit.AuditEvent;
-import ru.iteco.project.dto.AuditEventDto;
+import ru.iteco.project.resource.dto.AuditEventDto;
 import ru.iteco.project.repository.AuditRepository;
 import ru.iteco.project.service.AuditService;
 

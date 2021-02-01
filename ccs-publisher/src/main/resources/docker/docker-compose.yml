@@ -1,0 +1,13 @@
+version: '2'
+services:
+  ccs:
+    image: postgres:12.4
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ccs
+    ports:
+      - 5433:5432
+
+# docker-compose up -d
+# docker-compose down --remove-orphans

@@ -21,6 +21,9 @@ public class TaskDtoResponse extends TaskBaseDto {
     @ApiModelProperty(value = "Дата и время создания задания", example = "2020-12-28 03:47:32", required = true)
     private String createdAt;
 
+    @ApiModelProperty(value = "Наименование валюты в которой задана стоимость задания", example = "RUB", required = true)
+    private String currency;
+
     @ApiModelProperty(value = "Дата и время последнего обновления задания", example = "2020-12-28 03:47:32",
             required = true)
     private String updatedAt;
@@ -67,5 +70,13 @@ public class TaskDtoResponse extends TaskBaseDto {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 }

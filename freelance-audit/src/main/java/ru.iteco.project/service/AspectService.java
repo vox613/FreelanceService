@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.util.UriBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.dto.AuditEventDto;
+import ru.iteco.project.resource.dto.AuditEventDto;
 import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.enumaration.AuditEventType;
 

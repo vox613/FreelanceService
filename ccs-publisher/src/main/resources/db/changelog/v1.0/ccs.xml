@@ -1,0 +1,50 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Aleksey Aleksandrov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="exchange_rates"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="exchange_rates" remarks="Таблица курсов валют">
+            <column name="id" type="varchar(255)" remarks="Идентификатор записи">
+                <constraints primaryKey="true"
+                             primaryKeyName="exchange_rates_pk"
+                             nullable="false"
+                />
+            </column>
+
+            <column name="num_code" type="varchar(255)" remarks="Цифровой идентификатор валюты">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="char_code" type="varchar(255)" remarks="Буквенный идентификатор валюты">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nominal" type="numeric(1000,2)" remarks="Номинал валюты">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)" remarks="Название валюты">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_value" type="numeric(1000,4)" remarks="Текущий курс валюты относительно Рубля">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_value" type="numeric(1000,4)" remarks="Предыдущий курс валюты относительно Рубля">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" remarks="Дата и время создания">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" remarks="Дата и время последнего обновления">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <comment>Задача по созданию пользователя</comment>
+    </changeSet>
+
+</databaseChangeLog>

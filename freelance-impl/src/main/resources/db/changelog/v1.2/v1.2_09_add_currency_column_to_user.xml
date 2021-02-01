@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="users"/>
+            <not>
+                <columnExists tableName="users" columnName="currency"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="users">
+            <column name="currency" type="varchar(255)" remarks="Символьный код валюты">
+            </column>
+        </addColumn>
+
+        <sql>UPDATE users SET currency = 'RUB'</sql>
+
+
+        <addNotNullConstraint tableName="users" columnName="currency"/>
+
+        <comment>Добавил колонку с наименованием валюты кошелька пользователя (currency)</comment>
+    </changeSet>
+
+</databaseChangeLog>

@@ -34,6 +34,9 @@ public class UserSearchDto extends AbstractSearchDto {
     @ApiModelProperty(value = "Кошелек пользователя", allowEmptyValue = true)
     private SearchUnit wallet;
 
+    @ApiModelProperty(value = "Валюта кошелька пользователя", allowEmptyValue = true)
+    private SearchUnit currency;
+
 
     public UserSearchDto() {
     }
@@ -108,6 +111,14 @@ public class UserSearchDto extends AbstractSearchDto {
 
     public void setWallet(SearchUnit wallet) {
         this.wallet = wallet;
+    }
+
+    public SearchUnit getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(SearchUnit currency) {
+        this.currency = currency;
     }
 
     @Override

@@ -10,6 +10,8 @@ bootJar {
 dependencies {
     implementation project(":freelance-api")
     implementation project(":freelance-audit")
+    implementation project(":ccs-api")
+
 
     implementation deps."spring-boot-starter-web"
 
@@ -21,5 +23,6 @@ dependencies {
     implementation deps."commons-lang3"
     implementation deps."orika-spring-boot-starter"
     implementation deps."springfox-boot-starter"
+    implementation deps."feign-client"
 }
 

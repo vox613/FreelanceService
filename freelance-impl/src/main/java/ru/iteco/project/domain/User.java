@@ -60,12 +60,16 @@ public class User extends CreateAtIdentified implements Identified<UUID> {
     @Column(name = "wallet", nullable = false, precision = 1000, scale = 2)
     private BigDecimal wallet = new BigDecimal(0);
 
+    /*** Наименование валюты кошелька пользователя */
+    @Column(name = "currency", nullable = false)
+    private String currency;
+
 
     public User() {
     }
 
-    public User(UUID id, String firstName, String secondName, String lastName, String login, String password,
-                String email, String phoneNumber, UserRole role, UserStatus userStatus, BigDecimal wallet) {
+    public User(UUID id, String firstName, String secondName, String lastName, String login, String password, String email,
+                String phoneNumber, UserRole role, UserStatus userStatus, BigDecimal wallet, String currency) {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
@@ -77,6 +81,7 @@ public class User extends CreateAtIdentified implements Identified<UUID> {
         this.role = role;
         this.userStatus = userStatus;
         this.wallet = wallet;
+        this.currency = currency;
     }
 
     @Override
@@ -168,4 +173,11 @@ public class User extends CreateAtIdentified implements Identified<UUID> {
         this.wallet = wallet;
     }
 
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
 }

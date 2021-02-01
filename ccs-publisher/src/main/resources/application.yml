@@ -1,0 +1,105 @@
+server:
+  port: ${APP_PORT:8082}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+    context-path: /ccs
+    application-display-name: CCS
+  tomcat:
+    max-connections: 1000
+    accept-count: 100
+    connection-timeout: 30000
+
+spring:
+  application:
+    name: ccs-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/ccs
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      data-source-properties:
+        stringtype: unspecified
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml
+  messages:
+    basename: "message_en_EN, message_ru_Ru"
+    encoding: UTF-8
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    properties:
+      hibernate.temp.use_jdbc_metadata_defaults: false
+    show-sql: false
+    hibernate:
+      hbm2ddl:
+        auto: none
+      default_schema: public
+      use_sql_comments: true
+      format_sql: true
+  jackson:
+    defaultPropertyInclusion: NON_NULL
+    serialization:
+      write_dates_as_timestamps: false
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics
+  metrics:
+    export:
+      atlas:
+        enabled: true
+
+# Установленный формат даты и времени
+format:
+  date:
+    time: yyyy-MM-dd HH:mm:ss
+
+# Ресурс получения актуальных курсов валют
+urls:
+  exchangeRatesUrl: "https://www.cbr-xml-daily.ru/daily_json.js"
+
+# Константы форматирования и округления сумм
+currency:
+  scale: 4
+  rounding: 6
+
+
+# Профиль для swagger
+swagger:
+  title: Сервис конвертации валют
+  description: API для сервиса конвертации валют
+  contract:
+    mail: vox613@gmail.com
+    name: Алексей И
+    url: http://iteco.ru
+
+
+# Планировщик задач
+scheduling:
+  cron:
+    enabled: true
+    expression: "0 0 2-3 * * *" # Every hour, between 02:00 AM and 03:59 AM
+
+
+# Настройки логгера
+logging:
+  level:
+    ROOT: INFO
+    ru.iteco.project: DEBUG
+    org.springframework: INFO
+  appenders:
+    console:
+      enabled: true
+    file:
+      enabled: true
+      name: ccsLog
+      path: logs/ccs
+      maxHistory: 300

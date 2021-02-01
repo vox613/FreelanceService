@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iteco.project.controller.feign.ExchangeRatesClient;
 import ru.iteco.project.domain.User;
 import ru.iteco.project.domain.UserRole;
 import ru.iteco.project.domain.UserStatus;
@@ -65,10 +66,13 @@ public class UserServiceImpl implements UserService {
     /*** Объект маппера dto <-> сущность пользователя */
     private final MapperFacade mapperFacade;
 
+    /*** Объект Feign клиента для доступа к конвертеру валют */
+    private final ExchangeRatesClient exchangeRatesClient;
+
 
     public UserServiceImpl(UserRepository userRepository, TaskRepository taskRepository, UserRoleRepository userRoleRepository,
-                           UserStatusRepository userStatusRepository, TaskService taskService,
-                           SpecificationBuilder<User> specificationBuilder, MapperFacade mapperFacade) {
+                           UserStatusRepository userStatusRepository, TaskService taskService, SpecificationBuilder<User> specificationBuilder,
+                           MapperFacade mapperFacade, ExchangeRatesClient exchangeRatesClient) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.userRoleRepository = userRoleRepository;
@@ -76,6 +80,7 @@ public class UserServiceImpl implements UserService {
         this.taskService = taskService;
         this.specificationBuilder = specificationBuilder;
         this.mapperFacade = mapperFacade;
+        this.exchangeRatesClient = exchangeRatesClient;
     }
 
     /**
@@ -103,7 +108,9 @@ public class UserServiceImpl implements UserService {
     public UserDtoResponse createUser(UserDtoRequest userDtoRequest) {
         UserDtoResponse userDtoResponse = null;
         if (isCorrectLoginEmail(userDtoRequest.getLogin(), userDtoRequest.getEmail())
-                && isEqualsUserStatus(CREATED, userDtoRequest.getUserStatus())) {
+                && isEqualsUserStatus(CREATED, userDtoRequest.getUserStatus())
+                && isCorrectCurrency(userDtoRequest.getCurrency())) {
+
             User newUser = mapperFacade.map(userDtoRequest, User.class);
             newUser.setId(UUID.randomUUID());
             User save = userRepository.save(newUser);
@@ -193,6 +200,16 @@ public class UserServiceImpl implements UserService {
      */
     private boolean isCorrectLoginEmail(String login, String email) {
         return !userRepository.existsByEmailOrLogin(email, login);
+    }
+
+    /**
+     * Метод проверяет что передано корректное значение
+     *
+     * @param currency - валюта кошелька пользователя
+     * @return - true - логин и email не пусты и пользователя с такими данными не существует, false - в любом ином случае
+     */
+    private boolean isCorrectCurrency(String currency) {
+        return exchangeRatesClient.isValidCurrency(currency);
     }
 
     @Override

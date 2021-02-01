@@ -43,12 +43,15 @@ public class UserBaseDto implements DtoInterface {
     @ApiModelProperty(value = "Кошелек пользователя", example = "1500", required = true)
     private BigDecimal wallet = new BigDecimal(0);
 
+    @ApiModelProperty(value = "Валюта кошелька пользователя", example = "RUB", required = true)
+    private String currency;
+
 
     public UserBaseDto() {
     }
 
-    public UserBaseDto(UUID id, String firstName, String secondName, String lastName, String login,
-                       String email, String phoneNumber, String role, String userStatus, BigDecimal wallet) {
+    public UserBaseDto(UUID id, String firstName, String secondName, String lastName, String login, String email,
+                       String phoneNumber, String role, String userStatus, BigDecimal wallet, String currency) {
         this.id = id;
         this.firstName = firstName;
         this.secondName = secondName;
@@ -59,6 +62,7 @@ public class UserBaseDto implements DtoInterface {
         this.role = role;
         this.userStatus = userStatus;
         this.wallet = wallet;
+        this.currency = currency;
     }
 
     public UUID getId() {
@@ -139,5 +143,13 @@ public class UserBaseDto implements DtoInterface {
 
     public void setUserStatus(String userStatus) {
         this.userStatus = userStatus;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 }
