@@ -159,6 +159,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Перехватчик исключения ContractConclusionException, возникающего при ошибках заключения договора
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(CurrencyConverterException.class)
+    public ResponseEntity<ResponseError> currencyConverterException(CurrencyConverterException e) {
+        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(),
+                e.getClass().getName(), e.getObjectErrorList());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Перехватчик всех остальных не предусмотренных Exception, возникающих при работе приложения
      *
      * @param e - объект исключения

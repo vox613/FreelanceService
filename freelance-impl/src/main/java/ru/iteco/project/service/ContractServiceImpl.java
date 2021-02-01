@@ -15,6 +15,7 @@ import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.User;
+import ru.iteco.project.exception.CurrencyConverterException;
 import ru.iteco.project.exception.InvalidContractStatusException;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.ContractStatusRepository;
@@ -236,19 +237,18 @@ public class ContractServiceImpl implements ContractService {
                 ConversionDto conversionDto = new ConversionDto(customerCurrency, executorCurrency, taskPrice);
                 ResponseEntity<ConversionDto> convert = exchangeRatesClient.convert(conversionDto);
                 if ((convert == null) || (convert.getBody() == null)) {
-                    throw new RuntimeException("Error");
+                    throw new CurrencyConverterException("Error calling currency conversion service! Result is null!");
                 }
 
                 ConversionDto body = convert.getBody();
                 if (convert.getStatusCode().is2xxSuccessful()){
                     return body.getConvertedAmount();
                 }else {
-                    errors = body.getErrors();
-                    throw new RuntimeException("Errors: " + Arrays.toString(errors.toArray()));
+                    throw new CurrencyConverterException("Status code: " + convert.getStatusCode().toString(), body.getErrors());
                 }
             }
         } catch (Exception ex) {
-            log.error("get error with mdg: {}", ex.getMessage());
+            log.error("Get error with msg: {}", ex.getMessage());
             throw ex;
         }
         return taskPrice;
