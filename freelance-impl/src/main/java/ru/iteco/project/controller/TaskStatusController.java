@@ -136,7 +136,7 @@ public class TaskStatusController implements TaskStatusResource {
     }
 
     @InitBinder(value = "taskStatusDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(taskStatusDtoRequestValidator);
     }
 

@@ -140,7 +140,7 @@ public class ContractController implements ContractResource {
 
 
     @InitBinder(value = "contractDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(contractDtoRequestValidator);
     }
 

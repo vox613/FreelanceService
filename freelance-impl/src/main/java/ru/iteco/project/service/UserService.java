@@ -1,6 +1,10 @@
 package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
+import ru.iteco.project.domain.Task;
+import ru.iteco.project.domain.TaskStatus;
+import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.UserStatus;
 import ru.iteco.project.resource.dto.UserDtoRequest;
 import ru.iteco.project.resource.dto.UserDtoResponse;
 import ru.iteco.project.resource.searching.PageDto;
@@ -72,4 +76,20 @@ public interface UserService {
      * @return - объект PageDto с результатами поиска данных по заданным критериям
      */
     PageDto<UserDtoResponse> getUsers(SearchDto<UserSearchDto> searchDto, Pageable pageable);
+
+    /**
+     * Метод получает объект статуса пользователя по строковому значению
+     *
+     * @param userStatus - текстовое представление статуса пользователя
+     * @return - объект статуса пользователя или бросает InvalidUserStatusException если такого статуса не существует
+     */
+    UserStatus getUserStatusByValue(String userStatus);
+
+    /**
+     * Метод получения сущности пользователя по его id
+     *
+     * @param id - уникальный идентификатор пользователя
+     * @return сущность с данными о задании
+     */
+    User getUserEntityById(UUID id);
 }

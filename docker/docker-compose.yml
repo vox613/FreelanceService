@@ -9,5 +9,23 @@ services:
     ports:
       - 5432:5432
 
+  activemq:
+    image: rmohr/activemq:5.10.0
+    ports:
+      - "8161:8161"     #      8161  UI
+      - "61616:61616"   #      61616 JMS
+      - "61613:61613"   #      61613 STOMP (since `rmohr/activemq:5.12.1`)
+                        #      5672  AMQP  (since `rmohr/activemq:5.12.1`)
+                        #      1883  MQTT  (since `rmohr/activemq:5.12.1`)
+                        #      61614 WS    (since `rmohr/activemq:5.12.1`)
+    environment:
+      - ACTIVEMQ_MIN_MEMORY=512
+      - ACTIVEMQ_MAX_MEMORY=2048
+      - ACTIVEMQ_ENABLED_AUTH=true
+      - ACTIVEMQ_ADMIN_LOGIN=admin
+      - ACTIVEMQ_ADMIN_PASSWORD=admin
+    volumes:
+      - ./volumes/log/activemq:/var/log/activemq
+
 # docker-compose up -d
 # docker-compose down --remove-orphans

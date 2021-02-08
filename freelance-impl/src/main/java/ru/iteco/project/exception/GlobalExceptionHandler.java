@@ -159,6 +159,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Класс исключения EmptyReportException, возникающего при попытке формирования бухгалтерского отчета из пустого документа
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(EmptyReportException.class)
+    public ResponseEntity<ResponseError> emptyReportException(EmptyReportException e) {
+        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Класс исключения EmptyAckMessageException, возникающего при пустого сообщения в качестве подтверждения успешной передачи отчета
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(EmptyAckMessageException.class)
+    public ResponseEntity<ResponseError> emptyAckMessageException(EmptyAckMessageException e) {
+        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
      * Перехватчик всех остальных не предусмотренных Exception, возникающих при работе приложения
      *
      * @param e - объект исключения

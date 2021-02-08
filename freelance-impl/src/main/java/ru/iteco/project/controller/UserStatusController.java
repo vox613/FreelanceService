@@ -133,7 +133,7 @@ public class UserStatusController implements UserStatusResource {
     }
 
     @InitBinder(value = "userStatusDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(userStatusDtoRequestValidator);
     }
 

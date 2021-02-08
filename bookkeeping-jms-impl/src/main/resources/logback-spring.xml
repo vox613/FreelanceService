@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="LOG_PATH" source="logging.appenders.file.path" defaultValue="logs/bookkeeping"/>
+    <springProperty scope="context" name="LOCAL_FILE_ENABLED" source="logging.appenders.file.enabled"/>
+    <springProperty scope="context" name="LOCAL_FILE_NAME" source="logging.appenders.file.name"/>
+    <springProperty name="CONSOLE_ENABLED" source="logging.appenders.console.enabled" scope="context"/>
+
+    <if condition='p("LOCAL_FILE_ENABLED").equals("true")'>
+        <then>
+            <appender name="LOCAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${LOG_PATH}/${LOCAL_FILE_NAME}.csv</file>
+                <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <pattern>${FILE_LOG_PATTERN}</pattern>
+                    <charset>UTF-8</charset>
+                </encoder>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${LOG_PATH}/archive/${LOCAL_FILE_NAME}.%d{yyyy-MM-dd}.csv</fileNamePattern>
+                    <maxHistory>${FILE_MAX_HISTORY}</maxHistory>
+                </rollingPolicy>
+            </appender>
+        </then>
+    </if>
+
+    <if condition='p("CONSOLE_ENABLED").equals("true")'>
+        <then>
+            <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+                <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                    <charset>UTF-8</charset>
+                </encoder>
+            </appender>
+        </then>
+    </if>
+
+    <root level="INFO">
+        <if condition='p("LOCAL_FILE_ENABLED").equals("true")'>
+            <then>
+                <appender-ref ref="LOCAL_FILE"/>
+            </then>
+        </if>
+
+        <if condition='p("CONSOLE_ENABLED").equals("true")'>
+            <then>
+                <appender-ref ref="CONSOLE"/>
+            </then>
+        </if>
+    </root>
+
+</configuration>

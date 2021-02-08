@@ -132,7 +132,7 @@ public class ContractStatusController implements ContractStatusResource {
     }
 
     @InitBinder(value = "contractStatusDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(contractStatusDtoRequestValidator);
     }
 

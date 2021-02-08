@@ -2,6 +2,7 @@ package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
 import ru.iteco.project.domain.Task;
+import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoResponse;
 import ru.iteco.project.resource.searching.PageDto;
@@ -79,4 +80,21 @@ public interface TaskService {
      * @return - объект PageDto с результатами поиска данных по заданным критериям
      */
     PageDto<TaskDtoResponse> getTasks(SearchDto<TaskSearchDto> searchDto, Pageable pageable);
+
+
+    /**
+     * Метод получает объект статуса задания по строковому значению
+     *
+     * @param taskStatus - текстовое представление статуса задания
+     * @return - объект статуса задания или бросает InvalidTaskStatusException если такого статуса не существует
+     */
+    TaskStatus getTaskStatusByValue(String taskStatus);
+
+    /**
+     * Метод получения сущности задания по его id
+     *
+     * @param id - уникальный идентификатор задания
+     * @return сущность с данными о задании
+     */
+    Task getTaskEntityById(UUID id);
 }

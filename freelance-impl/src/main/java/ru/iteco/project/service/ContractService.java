@@ -2,6 +2,9 @@ package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
 import ru.iteco.project.domain.Contract;
+import ru.iteco.project.domain.ContractStatus;
+import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.UserStatus;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
@@ -71,4 +74,20 @@ public interface ContractService {
      * @return - объект PageDto с результатами поиска данных по заданным критериям
      */
     PageDto<ContractDtoResponse> getContracts(SearchDto<ContractSearchDto> searchDto, Pageable pageable);
+
+    /**
+     * Метод получает объект статуса контракта по строковому значению
+     *
+     * @param contractStatus - текстовое представление статуса контракта
+     * @return - объект статуса контракта или бросает InvalidContractStatusException если такого статуса не существует
+     */
+    ContractStatus getContractStatusByValue(String contractStatus);
+
+    /**
+     * Метод получения сущности контракта по его id
+     *
+     * @param id - уникальный идентификатор контракта
+     * @return сущность с данными о контракте
+     */
+    Contract getContractEntityById(UUID id);
 }

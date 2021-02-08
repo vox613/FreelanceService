@@ -145,7 +145,7 @@ public class TaskController implements TaskResource {
 
 
     @InitBinder(value = "taskDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(taskDtoRequestValidator);
     }
 

@@ -1,0 +1,107 @@
+server:
+  port: ${APP_PORT:8082}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+    context-path: /bookkeeping
+    application-display-name: Bookkeeping
+  tomcat:
+    max-connections: 1000
+    accept-count: 100
+    connection-timeout: 30000
+
+spring:
+  application:
+    name: bookkeeping-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/freelance
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      data-source-properties:
+        stringtype: unspecified
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml
+    default-schema: bookkeeping
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    properties:
+      hibernate.temp.use_jdbc_metadata_defaults: false
+    show-sql: false
+    hibernate:
+      hbm2ddl:
+        auto: none
+      default_schema: bookkeeping
+      use_sql_comments: true
+      format_sql: true
+  jackson:
+    defaultPropertyInclusion: NON_NULL
+    serialization:
+      write_dates_as_timestamps: false
+  activemq:
+    broker-url: "tcp://localhost:61616"
+    password: admin
+    user: admin
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics
+  metrics:
+    export:
+      atlas:
+        enabled: true
+
+# Установленный формат даты и времени
+format:
+  date:
+    time: yyyy-MM-dd HH:mm:ss
+
+
+# Профиль для swagger
+swagger:
+  title: Сервис бухгалтерского учета
+  description: API для сервиса бухгалтерского учета
+  contract:
+    mail: vox613@gmail.com
+    name: Алексей И
+    url: http://iteco.ru
+
+
+# Планировщик задач
+scheduling:
+  askResending:
+    cron:
+      enabled: true
+      expression: "0 0 1 * * SAT"   # At 01:00 AM, only on Saturday
+
+
+# Настройки логгера
+logging:
+  level:
+    ROOT: INFO
+    ru.iteco.project: DEBUG
+    org.springframework: INFO
+  appenders:
+    console:
+      enabled: true
+    file:
+      enabled: true
+      name: bookkeepingLog
+      path: logs/bookkeeping
+      maxHistory: 300
+
+
+# Настройки очередей/топиков jms
+iteco:
+  jms:
+    queue:
+      bookKeepingQueue: "iteco.jms.queue.bookkeeping"
+      bookKeepingAckQueue: "iteco.jms.queue.bookkeeping.ack"

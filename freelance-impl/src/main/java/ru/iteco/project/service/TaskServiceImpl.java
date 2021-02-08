@@ -14,6 +14,7 @@ import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.domain.User;
+import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.exception.InvalidTaskStatusException;
 import ru.iteco.project.exception.UnavailableRoleOperationException;
 import ru.iteco.project.repository.ContractRepository;
@@ -30,7 +31,10 @@ import ru.iteco.project.resource.searching.TaskSearchDto;
 import ru.iteco.project.service.specifications.CriteriaObject;
 import ru.iteco.project.service.specifications.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
@@ -156,10 +160,10 @@ public class TaskServiceImpl implements TaskService {
     public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
         TaskDtoResponse taskDtoResponse = null;
         if (taskDtoRequest.getUserId() != null
-                && taskRepository.existsById(taskDtoRequest.getUserId())) {
+                && taskRepository.existsById(taskDtoRequest.getId())) {
 
             Optional<User> userOptional = userRepository.findById(taskDtoRequest.getUserId());
-            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getUserId());
+            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getId());
             if (userOptional.isPresent() && taskById.isPresent()) {
                 User user = userOptional.get();
                 Task task = taskById.get();
@@ -209,8 +213,14 @@ public class TaskServiceImpl implements TaskService {
         return taskDtoResponse;
     }
 
-    public TaskRepository getTaskRepository() {
-        return taskRepository;
+    @Override
+    public TaskStatus getTaskStatusByValue(String taskStatus) {
+        return taskStatusRepository.findTaskStatusByValue(taskStatus).orElseThrow(InvalidTaskStatusException::new);
+    }
+
+    @Override
+    public Task getTaskEntityById(UUID id) {
+        return taskRepository.findById(id).orElseThrow(() -> new EntityRecordNotFoundException("errors.task.notfound"));
     }
 
     /**

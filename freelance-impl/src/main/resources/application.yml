@@ -45,6 +45,10 @@ spring:
     defaultPropertyInclusion: NON_NULL
     serialization:
       write_dates_as_timestamps: false
+  activemq:
+    broker-url: "tcp://localhost:61616"
+    password: admin
+    user: admin
 
 
 management:
@@ -94,9 +98,14 @@ swagger:
 
 # Планировщик задач
 scheduling:
-  cron:
-    enabled: true
-    expression: "0 0 * * * *" # Запуск задачи каждый час
+  task:
+    cron:
+      enabled: true
+      expression: "0 0 * * * *" # Запуск задачи каждый час
+  bookkeeping:
+    cron:
+      enabled: true
+      expression: "0 0 1 * * FRI" # At 01:00 AM, only on Friday
 
 
 # Настройки логгера
@@ -107,7 +116,7 @@ logging:
     org.springframework: INFO
   appenders:
     console:
-      enabled: false
+      enabled: true
     file:
       enabled: true
       name: log
@@ -122,3 +131,11 @@ audit:
   logName: audit
   logPath: /audit
   maxHistory: 300
+
+
+# Настройки очередей/топиков jms
+iteco:
+  jms:
+    queue:
+      bookKeepingQueue: "iteco.jms.queue.bookkeeping"
+      bookKeepingAckQueue: "iteco.jms.queue.bookkeeping.ack"

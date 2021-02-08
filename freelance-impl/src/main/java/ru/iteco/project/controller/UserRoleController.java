@@ -133,7 +133,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @InitBinder(value = "userRoleDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(userRoleDtoRequestValidator);
     }
 

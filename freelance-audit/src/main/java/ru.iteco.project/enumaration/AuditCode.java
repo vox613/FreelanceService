@@ -26,8 +26,6 @@ public enum AuditCode {
     TASK_STATUS_UPDATE("Обновление статуса задания"),
     TASK_STATUS_DELETE("Удаление статуса задания"),
 
-    TASK_SCHEDULER_DELETE("Удаление неактуального просроченного задания"),
-
     CONTRACT_CREATE("Создание контракта"),
     CONTRACT_UPDATE("Обновление контракта"),
     CONTRACT_DELETE("Удаление контракта"),

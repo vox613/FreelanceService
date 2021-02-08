@@ -5,3 +5,6 @@ spring:
 logging:
   level:
     ru.iteco.project.service: DEBUG
+  appenders:
+    console:
+      enabled: true

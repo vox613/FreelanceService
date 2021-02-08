@@ -27,8 +27,10 @@ import ru.iteco.project.resource.searching.UserSearchDto;
 import ru.iteco.project.service.specifications.CriteriaObject;
 import ru.iteco.project.service.specifications.SpecificationBuilder;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.UserStatus.UserStatusEnum.CREATED;
@@ -183,6 +185,15 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    @Override
+    public UserStatus getUserStatusByValue(String userStatus) {
+        return userStatusRepository.findUserStatusByValue(userStatus).orElseThrow(InvalidUserStatusException::new);
+    }
+
+    @Override
+    public User getUserEntityById(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityRecordNotFoundException("errors.user.notfound"));
+    }
 
     /**
      * Метод проверяет что пользователя с таким логином и email не существует

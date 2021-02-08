@@ -14,7 +14,10 @@ import org.springframework.context.annotation.Configuration;
 import ru.iteco.project.domain.*;
 import ru.iteco.project.domain.audit.AuditEvent;
 import ru.iteco.project.dto.AuditEventDto;
-import ru.iteco.project.exception.*;
+import ru.iteco.project.exception.EntityRecordNotFoundException;
+import ru.iteco.project.exception.InvalidTaskStatusException;
+import ru.iteco.project.exception.InvalidUserRoleException;
+import ru.iteco.project.exception.InvalidUserStatusException;
 import ru.iteco.project.repository.*;
 import ru.iteco.project.resource.dto.*;
 import ru.iteco.project.service.mappers.DateTimeMapper;
@@ -23,8 +26,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.time.LocalDateTime;
 
-import static ru.iteco.project.domain.ContractStatus.ContractStatusEnum.PAID;
-import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
+import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.ON_CHECK;
+import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.REGISTERED;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.*;
 import static ru.iteco.project.domain.UserStatus.UserStatusEnum.ACTIVE;
 
@@ -62,19 +65,15 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
     /*** Объект доступа к репозиторию статусов заданий */
     private final TaskStatusRepository taskStatusRepository;
 
-    /*** Объект доступа к репозиторию статусов контрактов */
-    private final ContractStatusRepository contractStatusRepository;
-
 
     public MapperConfig(TaskRepository taskRepository, UserRepository userRepository,
                         UserRoleRepository userRoleRepository, UserStatusRepository userStatusRepository,
-                        TaskStatusRepository taskStatusRepository, ContractStatusRepository contractStatusRepository) {
+                        TaskStatusRepository taskStatusRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.userStatusRepository = userStatusRepository;
         this.taskStatusRepository = taskStatusRepository;
-        this.contractStatusRepository = contractStatusRepository;
     }
 
 
@@ -104,6 +103,9 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         contractMapperConfigure(mapperFactory);
         contractStatusMapperConfigure(mapperFactory);
         auditEventMapperConfigure(mapperFactory);
+        bookKeepingReportDtoMapperConfigure(mapperFactory);
+        bookKeepingClientReportDtoMapperConfigure(mapperFactory);
+        bookKeepingTaskReportDtoMapperConfigure(mapperFactory);
     }
 
 
@@ -244,7 +246,7 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                     @Override
                     public void mapAtoB(TaskDtoRequest taskDtoRequest, Task task, MappingContext context) {
                         User user = userRepository.findById(taskDtoRequest.getUserId()).orElseThrow(
-                                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+                                () -> new EntityRecordNotFoundException("errors.user.notfound")
                         );
                         if (isEqualsUserRole(CUSTOMER, user)) {
                             task.setTitle(taskDtoRequest.getTitle());
@@ -318,45 +320,6 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                 .fieldMap("createdAt").converter("dateTimeFormatter").add()
                 .fieldMap("updatedAt").converter("dateTimeFormatter").add()
                 .register();
-
-
-        // POST/PUT  ContractDtoRequest --> Contract
-        mapperFactory
-                .classMap(ContractDtoRequest.class, Contract.class)
-                .customize(new CustomMapper<ContractDtoRequest, Contract>() {
-                    @Override
-                    public void mapAtoB(ContractDtoRequest contractDtoRequest, Contract contract, MappingContext context) {
-
-                        if (contract.getId() == null) {
-
-                            Task task = taskRepository.findById(contractDtoRequest.getTaskId()).orElseThrow(
-                                    () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
-                            );
-                            task.setTaskStatus(taskStatusRepository.findTaskStatusByValue(IN_PROGRESS.name())
-                                    .orElseThrow(InvalidUserRoleException::new));
-
-                            User executor = userRepository.findById(contractDtoRequest.getExecutorId()).orElseThrow(
-                                    () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
-                            );
-                            executor.setUserStatus(userStatusRepository.findUserStatusByValue(ACTIVE.name())
-                                    .orElseThrow(InvalidUserRoleException::new));
-
-                            contract.setCustomer(task.getCustomer());
-                            contract.setExecutor(executor);
-                            task.setExecutor(executor);
-                            contract.setTask(task);
-
-                            contract.setContractStatus(contractStatusRepository.findContractStatusByValue(PAID.name())
-                                    .orElseThrow(() -> new InvalidContractStatusException(invalidContractStatusMessage)));
-                        } else {
-                            contract.setContractStatus(contractStatusRepository
-                                    .findContractStatusByValue((contractDtoRequest.getContractStatus() != null) ?
-                                            contractDtoRequest.getContractStatus() : PAID.name()
-                                    ).orElseThrow(() -> new InvalidContractStatusException(invalidContractStatusMessage)));
-                        }
-                    }
-                })
-                .register();
     }
 
     /**
@@ -395,17 +358,74 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                     public void mapAtoB(AuditEvent auditEvent, AuditEventDto auditEventDto, MappingContext context) {
                         auditEventDto.setParams(auditEvent.getParams());
                         auditEventDto.setReturnValue(auditEvent.getReturnValue());
-                        super.mapAtoB(auditEvent, auditEventDto, context);
                     }
 
                     @Override
                     public void mapBtoA(AuditEventDto auditEventDto, AuditEvent auditEvent, MappingContext context) {
                         auditEvent.setParams(auditEventDto.getParams());
                         auditEvent.setReturnValue(auditEventDto.getReturnValue());
-                        super.mapBtoA(auditEventDto, auditEvent, context);
                     }
                 })
                 .byDefault()
+                .register();
+    }
+
+
+    /**
+     * Метод конфигурирует маппер для преобразований: Contract --> BookKeepingReportDto
+     *
+     * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
+     *                      которые будут использоваться для выполнения функции отображения
+     */
+    private void bookKeepingReportDtoMapperConfigure(MapperFactory mapperFactory) {
+        mapperFactory.classMap(Contract.class, BookKeepingReportDto.class)
+                .byDefault()
+                .fieldMap("createdAt").converter("dateTimeFormatter").add()
+                .fieldMap("updatedAt").converter("dateTimeFormatter").add()
+                .customize(new CustomMapper<Contract, BookKeepingReportDto>() {
+                    @Override
+                    public void mapAtoB(Contract contract, BookKeepingReportDto bookKeepingReportDto, MappingContext context) {
+                        bookKeepingReportDto.setId(contract.getId());
+                        bookKeepingReportDto.setContractStatus(contract.getContractStatus().getValue());
+                    }
+                })
+                .register();
+    }
+
+
+    /**
+     * Метод конфигурирует маппер для преобразований: User --> BookKeepingReportDto.ClientReportData
+     *
+     * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
+     *                      которые будут использоваться для выполнения функции отображения
+     */
+    private void bookKeepingClientReportDtoMapperConfigure(MapperFactory mapperFactory) {
+        mapperFactory.classMap(User.class, BookKeepingReportDto.ClientReportData.class)
+                .byDefault()
+                .fieldMap("createdAt").converter("dateTimeFormatter").add()
+                .fieldMap("updatedAt").converter("dateTimeFormatter").add()
+                .register();
+    }
+
+
+    /**
+     * Метод конфигурирует маппер для преобразований: Task --> BookKeepingReportDto.TaskReportData
+     *
+     * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
+     *                      которые будут использоваться для выполнения функции отображения
+     */
+    private void bookKeepingTaskReportDtoMapperConfigure(MapperFactory mapperFactory) {
+        mapperFactory.classMap(Task.class, BookKeepingReportDto.TaskReportData.class)
+                .byDefault()
+                .fieldMap("createdAt").converter("dateTimeFormatter").add()
+                .fieldMap("updatedAt").converter("dateTimeFormatter").add()
+                .customize(new CustomMapper<Task, BookKeepingReportDto.TaskReportData>() {
+                    @Override
+                    public void mapAtoB(Task task, BookKeepingReportDto.TaskReportData taskReportData, MappingContext context) {
+                        taskReportData.setCustomerId(task.getCustomer().getId());
+                        taskReportData.setExecutorId(task.getExecutor().getId());
+                    }
+                })
                 .register();
     }
 

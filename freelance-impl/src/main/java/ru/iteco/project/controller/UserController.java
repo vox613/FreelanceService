@@ -157,7 +157,7 @@ public class UserController implements UserResource {
     }
 
     @InitBinder(value = {"userDtoRequest", "userDtoRequestList"})
-    private void initUserDtoRequestBinder(WebDataBinder binder) {
+    public void initUserDtoRequestBinder(WebDataBinder binder) {
         binder.setValidator(userDtoRequestValidator);
     }
 

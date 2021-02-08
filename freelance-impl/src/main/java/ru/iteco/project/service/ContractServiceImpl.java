@@ -3,20 +3,16 @@ package ru.iteco.project.service;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Contract;
-import ru.iteco.project.domain.ContractStatus;
-import ru.iteco.project.domain.Task;
-import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.*;
+import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.exception.InvalidContractStatusException;
-import ru.iteco.project.repository.ContractRepository;
-import ru.iteco.project.repository.ContractStatusRepository;
-import ru.iteco.project.repository.TaskRepository;
-import ru.iteco.project.repository.UserRepository;
+import ru.iteco.project.repository.*;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.dto.UserBaseDto;
@@ -24,6 +20,7 @@ import ru.iteco.project.resource.searching.ContractSearchDto;
 import ru.iteco.project.resource.searching.PageDto;
 import ru.iteco.project.resource.searching.SearchDto;
 import ru.iteco.project.resource.searching.SearchUnit;
+import ru.iteco.project.service.jms.BookKeepingService;
 import ru.iteco.project.service.specifications.CriteriaObject;
 import ru.iteco.project.service.specifications.SpecificationBuilder;
 
@@ -35,8 +32,7 @@ import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.DONE;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.EXECUTOR;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.BLOCKED;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.isEqualsUserStatus;
+import static ru.iteco.project.domain.UserStatus.UserStatusEnum.*;
 import static ru.iteco.project.service.specifications.SpecificationBuilder.isBetweenOperation;
 import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
 
@@ -48,15 +44,11 @@ import static ru.iteco.project.service.specifications.SpecificationBuilder.searc
 public class ContractServiceImpl implements ContractService {
     private static final Logger log = LogManager.getLogger(ContractServiceImpl.class.getName());
 
+    @Value("${errors.contract.status.invalid}")
+    private String invalidContractStatusMessage;
 
     /*** Объект доступа к репозиторию контрактов */
     private final ContractRepository contractRepository;
-
-    /*** Объект доступа к репозиторию пользователей */
-    private final UserRepository userRepository;
-
-    /*** Объект доступа к репозиторию заданий */
-    private final TaskRepository taskRepository;
 
     /*** Объект доступа к репозиторию статусов контрактов */
     private final ContractStatusRepository contractStatusRepository;
@@ -64,23 +56,28 @@ public class ContractServiceImpl implements ContractService {
     /*** Объект сервисного слоя заданий */
     private final TaskService taskService;
 
+    /*** Объект сервисного слоя заданий */
+    private final UserService userService;
+
     /*** Сервис для формирования спецификации поиска данных */
     private final SpecificationBuilder<Contract> specificationBuilder;
 
     /*** Объект маппера dto <-> сущность договога */
     private final MapperFacade mapperFacade;
 
+    private final BookKeepingService bookKeepingService;
 
-    public ContractServiceImpl(ContractRepository contractRepository, UserRepository userRepository, TaskRepository taskRepository,
-                               ContractStatusRepository contractStatusRepository, MapperFacade mapperFacade, TaskService taskService,
-                               SpecificationBuilder<Contract> specificationBuilder) {
+
+    public ContractServiceImpl(ContractRepository contractRepository, ContractStatusRepository contractStatusRepository,
+                               TaskService taskService, UserService userService, SpecificationBuilder<Contract> specificationBuilder,
+                               MapperFacade mapperFacade, BookKeepingService bookKeepingService) {
         this.contractRepository = contractRepository;
-        this.userRepository = userRepository;
-        this.taskRepository = taskRepository;
         this.contractStatusRepository = contractStatusRepository;
         this.taskService = taskService;
+        this.userService = userService;
         this.specificationBuilder = specificationBuilder;
         this.mapperFacade = mapperFacade;
+        this.bookKeepingService = bookKeepingService;
     }
 
     /**
@@ -100,14 +97,11 @@ public class ContractServiceImpl implements ContractService {
      * По умолчанию в Postgres isolation READ_COMMITTED + недоступна модификация данных
      */
     @Override
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     public ContractDtoResponse getContractById(UUID id) {
-        ContractDtoResponse contractDtoResponse = null;
-        Optional<Contract> optionalContract = contractRepository.findById(id);
-        if (optionalContract.isPresent()) {
-            Contract contract = optionalContract.get();
-            contractDtoResponse = enrichContractInfo(contract);
-        }
+        Contract contract = getContractEntityById(id);
+        ContractDtoResponse contractDtoResponse = enrichContractInfo(contract);
+        bookKeepingService.sendReportToBookKeeping(contract);
         return contractDtoResponse;
     }
 
@@ -120,27 +114,37 @@ public class ContractServiceImpl implements ContractService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ContractDtoResponse createContract(ContractDtoRequest contractDtoRequest) {
         ContractDtoResponse contractDtoResponse = null;
-        Optional<Task> taskById = taskRepository.findById(contractDtoRequest.getTaskId());
-        Optional<User> userById = userRepository.findById(contractDtoRequest.getUserId());
-        if (taskById.isPresent() && userById.isPresent()) {
-            Task task = taskById.get();
-            User executor = userById.get();
 
-            if (isEqualsTaskStatus(REGISTERED, task)
-                    && usersNotBlocked(task.getCustomer(), executor)
-                    && isEqualsUserRole(EXECUTOR, executor)
-                    && isCorrectConfirmCodes(contractDtoRequest.getConfirmationCode(), contractDtoRequest.getRepeatConfirmationCode())
-                    && customerHaveEnoughMoney(task)) {
+        Task task = taskService.getTaskEntityById(contractDtoRequest.getTaskId());
+        User executor = userService.getUserEntityById(contractDtoRequest.getExecutorId());
 
-                Contract contract = mapperFacade.map(contractDtoRequest, Contract.class);
-                contract.setId(UUID.randomUUID());
-                User taskCustomer = contract.getCustomer();
-                taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
-                Contract save = contractRepository.save(contract);
-                contractDtoResponse = enrichContractInfo(save);
+        if (isAllowToCreateContract(task, executor, contractDtoRequest)) {
+            Contract contract = new Contract();
+            contract.setId(UUID.randomUUID());
+            if (!UserStatus.UserStatusEnum.isEqualsUserStatus(ACTIVE, executor)) {
+                executor.setUserStatus(userService.getUserStatusByValue(ACTIVE.name()));
             }
+            contract.setCustomer(task.getCustomer());
+            contract.setExecutor(executor);
+            task.setTaskStatus(taskService.getTaskStatusByValue(IN_PROGRESS.name()));
+            task.setExecutor(executor);
+            contract.setTask(task);
+            contract.setContractStatus(getContractStatusByValue(PAID.name()));
+
+            User taskCustomer = contract.getCustomer();
+            taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
+            Contract save = contractRepository.save(contract);
+            contractDtoResponse = enrichContractInfo(save);
         }
         return contractDtoResponse;
+    }
+
+    private boolean isAllowToCreateContract(Task task, User executor, ContractDtoRequest contractDtoRequest) {
+        return isEqualsTaskStatus(REGISTERED, task)
+                && usersNotBlocked(task.getCustomer(), executor)
+                && isEqualsUserRole(EXECUTOR, executor)
+                && isCorrectConfirmCodes(contractDtoRequest.getConfirmationCode(), contractDtoRequest.getRepeatConfirmationCode())
+                && customerHaveEnoughMoney(task);
     }
 
     /**
@@ -151,26 +155,23 @@ public class ContractServiceImpl implements ContractService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ContractDtoResponse updateContract(ContractDtoRequest contractDtoRequest) {
         ContractDtoResponse contractDtoResponse = null;
-        if (contractDtoRequest.getUserId() != null
-                && contractRepository.existsById(contractDtoRequest.getId())) {
+        if (contractDtoRequest.getUserId() != null) {
 
-            Optional<User> userOptional = userRepository.findById(contractDtoRequest.getUserId());
-            Optional<Contract> contractById = contractRepository.findById(contractDtoRequest.getId());
-            if (userOptional.isPresent() && contractById.isPresent()) {
-                User user = userOptional.get();
-                Contract contract = contractById.get();
+            User user = userService.getUserEntityById(contractDtoRequest.getUserId());
+            Contract contract = getContractEntityById(contractDtoRequest.getId());
 
-                if (allowToUpdate(user, contract)) {
-                    mapperFacade.map(contractDtoRequest, contract);
-                    transferFunds(contract);
-                    Contract save = contractRepository.save(contract);
-                    contractDtoResponse = enrichContractInfo(save);
-                }
+            if (allowToUpdate(user, contract)) {
+                String contractStatus = (contractDtoRequest.getContractStatus() != null) ?
+                        contractDtoRequest.getContractStatus() : PAID.name();
+                contract.setContractStatus(getContractStatusByValue(contractStatus));
+                transferFunds(contract);
+                Contract save = contractRepository.save(contract);
+                bookKeepingService.sendReportToBookKeeping(save);
+                contractDtoResponse = enrichContractInfo(save);
             }
         }
         return contractDtoResponse;
     }
-
 
     /**
      * SERIALIZABLE - во время удаления внешние тразнзакции не должны иметь никакого доступа к записи
@@ -192,6 +193,18 @@ public class ContractServiceImpl implements ContractService {
         contractDtoResponse.setExecutor(mapperFacade.map(contract.getExecutor(), UserBaseDto.class));
         contractDtoResponse.setTask(taskService.enrichByUsersInfo(contract.getTask()));
         return contractDtoResponse;
+    }
+
+
+    @Override
+    public ContractStatus getContractStatusByValue(String contractStatus) {
+        return contractStatusRepository.findContractStatusByValue(contractStatus)
+                .orElseThrow(() -> new InvalidContractStatusException(invalidContractStatusMessage));
+    }
+
+    @Override
+    public Contract getContractEntityById(UUID id) {
+        return contractRepository.findById(id).orElseThrow(() -> new EntityRecordNotFoundException("errors.contract.notfound"));
     }
 
     /**
