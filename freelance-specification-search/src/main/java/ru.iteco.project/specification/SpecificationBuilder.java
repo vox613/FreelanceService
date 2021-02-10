@@ -1,10 +1,11 @@
-package ru.iteco.project.service.specifications;
+package ru.iteco.project.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import ru.iteco.project.resource.searching.SearchUnit;
-import ru.iteco.project.service.mappers.DateTimeMapper;
+import ru.iteco.project.enumaration.JoinOperations;
+import ru.iteco.project.enumaration.SearchOperations;
+import ru.iteco.project.resource.SearchUnit;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
@@ -12,8 +13,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.EnumMap;
 
-import static ru.iteco.project.service.specifications.SearchOperations.*;
-import static ru.iteco.project.service.specifications.SearchPredicatesUtil.*;
+import static ru.iteco.project.enumaration.SearchOperations.*;
+import static ru.iteco.project.specification.SearchPredicatesUtil.*;
 
 /**
  * Сервис предоставляет функционал универсального формировавния спецификаций для поиска данных

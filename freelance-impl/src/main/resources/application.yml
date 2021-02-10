@@ -107,7 +107,7 @@ logging:
     org.springframework: INFO
   appenders:
     console:
-      enabled: false
+      enabled: true
     file:
       enabled: true
       name: log

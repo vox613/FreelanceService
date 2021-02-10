@@ -1,4 +1,4 @@
-package ru.iteco.project.service.specifications;
+package ru.iteco.project.specification;
 
 /**
  * Функциональный интерфейс для производства предикатов поиска

@@ -1,4 +1,4 @@
-package ru.iteco.project.service.specifications;
+package ru.iteco.project.enumaration;
 
 
 import ru.iteco.project.exception.InvalidSearchOperationException;

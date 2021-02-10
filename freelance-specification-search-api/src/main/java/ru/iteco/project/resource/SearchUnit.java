@@ -1,12 +1,13 @@
-package ru.iteco.project.resource.searching;
+package ru.iteco.project.resource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import ru.iteco.project.resource.dto.DtoInterface;
+
+import java.io.Serializable;
 
 
 @ApiModel(description = "Модель-контейнер для параметров поиска, относящихся к одному полю сущности")
-public class SearchUnit implements DtoInterface {
+public class SearchUnit implements Serializable {
 
     @ApiModelProperty(value = "Тип операции поиска для предиката", example = "LIKE",
             allowableValues = "BETWEEN, NOT_BETWEEN, LIKE, NOT_LIKE, EQUAL, NOT_EQUAL, " +

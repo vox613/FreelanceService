@@ -25,10 +25,10 @@ import ru.iteco.project.resource.dto.TaskDtoResponse;
 import ru.iteco.project.resource.dto.UserBaseDto;
 import ru.iteco.project.resource.searching.PageDto;
 import ru.iteco.project.resource.searching.SearchDto;
-import ru.iteco.project.resource.searching.SearchUnit;
+import ru.iteco.project.resource.SearchUnit;
 import ru.iteco.project.resource.searching.TaskSearchDto;
-import ru.iteco.project.service.specifications.CriteriaObject;
-import ru.iteco.project.service.specifications.SpecificationBuilder;
+import ru.iteco.project.specification.CriteriaObject;
+import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,8 +38,9 @@ import static ru.iteco.project.domain.UserRole.UserRoleEnum.EXECUTOR;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
 import static ru.iteco.project.domain.UserStatus.UserStatusEnum.BLOCKED;
 import static ru.iteco.project.domain.UserStatus.UserStatusEnum.isEqualsUserStatus;
-import static ru.iteco.project.service.specifications.SpecificationBuilder.isBetweenOperation;
-import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
+import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+
 
 /**
  * Класс реализует функционал сервисного слоя для работы с заданиями

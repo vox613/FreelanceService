@@ -1,9 +1,12 @@
-package ru.iteco.project.service.specifications;
+package ru.iteco.project.specification;
+
+import ru.iteco.project.enumaration.JoinOperations;
+import ru.iteco.project.enumaration.SearchOperations;
 
 import java.util.List;
 
 /**
- * Объект - контейнер для критериеф поиска и ограничений
+ * Объект - контейнер для критериев поиска и ограничений
  */
 public class CriteriaObject {
 

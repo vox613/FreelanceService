@@ -1,17 +1,15 @@
-package ru.iteco.project.service.specifications;
+package ru.iteco.project.specification;
 
 import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.hibernate.query.criteria.internal.predicate.ComparisonPredicate;
-import ru.iteco.project.service.mappers.DateTimeMapper;
+import ru.iteco.project.enumaration.SearchOperations;
+import ru.iteco.project.mapper.DateTimeMapper;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-import static ru.iteco.project.service.specifications.SearchOperations.GREATER_THAN_OR_EQUAL;
-import static ru.iteco.project.service.specifications.SearchOperations.LESS_THAN_OR_EQUAL;
 
 /**
  * Утилитарный класс содержащий методы формирования предикатов поиска
@@ -181,14 +179,14 @@ public class SearchPredicatesUtil {
                                 CriteriaObject.RestrictionValues.newBuilder()
                                         .setKey(restriction.getKey())
                                         .setValue(restriction.getMaxValue())
-                                        .setSearchOperation(GREATER_THAN_OR_EQUAL)
+                                        .setSearchOperation(SearchOperations.GREATER_THAN_OR_EQUAL)
                                         .build()),
 
                         lessThan().produce(cb, path,
                                 CriteriaObject.RestrictionValues.newBuilder()
                                         .setKey(restriction.getKey())
                                         .setValue(restriction.getMinValue())
-                                        .setSearchOperation(LESS_THAN_OR_EQUAL)
+                                        .setSearchOperation(SearchOperations.LESS_THAN_OR_EQUAL)
                                         .build())
                 );
             }
@@ -199,13 +197,13 @@ public class SearchPredicatesUtil {
                                 CriteriaObject.RestrictionValues.newBuilder()
                                         .setKey(restriction.getKey())
                                         .setValue(restriction.getMaxValue())
-                                        .setSearchOperation(GREATER_THAN_OR_EQUAL)
+                                        .setSearchOperation(SearchOperations.GREATER_THAN_OR_EQUAL)
                                         .build()),
                         lessThan().produce(cb, path,
                                 CriteriaObject.RestrictionValues.newBuilder()
                                         .setKey(restriction.getKey())
                                         .setValue(restriction.getMinValue())
-                                        .setSearchOperation(LESS_THAN_OR_EQUAL)
+                                        .setSearchOperation(SearchOperations.LESS_THAN_OR_EQUAL)
                                         .build())
                 );
             }

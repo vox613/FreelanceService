@@ -20,16 +20,16 @@ import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
 import ru.iteco.project.resource.searching.PageDto;
 import ru.iteco.project.resource.searching.SearchDto;
-import ru.iteco.project.resource.searching.SearchUnit;
-import ru.iteco.project.service.specifications.CriteriaObject;
-import ru.iteco.project.service.specifications.SpecificationBuilder;
+import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.specification.CriteriaObject;
+import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.ADMIN;
 import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
-import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
 /**
  * Класс реализует функционал сервисного слоя для работы со статусами контрактов
@@ -129,7 +129,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     /**
      * По умолчанию в Postgres isolation READ_COMMITTED + недоступна модификация данных
      *
-     * @return
+     * @return List<ContractStatusDtoResponse> - список всех статусов контрактов
      */
     @Override
     @Transactional(readOnly = true)
