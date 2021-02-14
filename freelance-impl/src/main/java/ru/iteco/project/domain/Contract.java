@@ -7,7 +7,7 @@ import java.util.UUID;
  * Модель данных представляющая договор между исполнителем и заказчиком
  */
 @Entity
-@Table(name = "contract")
+@Table(schema = "freelance", name = "contract")
 public class Contract extends CreateAtIdentified implements Identified<UUID> {
 
     private static final long serialVersionUID = -7931737332645464539L;
@@ -20,12 +20,12 @@ public class Contract extends CreateAtIdentified implements Identified<UUID> {
     /*** Заказчик */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
-    private User customer;
+    private Client customer;
 
     /*** Исполнитель задания */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, optional = false)
     @JoinColumn(name = "executor_id", nullable = false)
-    private User executor;
+    private Client executor;
 
     /*** Задание - предмет договора */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, optional = false)
@@ -41,7 +41,7 @@ public class Contract extends CreateAtIdentified implements Identified<UUID> {
     public Contract() {
     }
 
-    public Contract(UUID id, User customer, User executor, Task task,
+    public Contract(UUID id, Client customer, Client executor, Task task,
                     ContractStatus contractStatus) {
         this.id = id;
         this.customer = customer;
@@ -59,11 +59,11 @@ public class Contract extends CreateAtIdentified implements Identified<UUID> {
         this.id = id;
     }
 
-    public User getExecutor() {
+    public Client getExecutor() {
         return executor;
     }
 
-    public void setExecutor(User executor) {
+    public void setExecutor(Client executor) {
         this.executor = executor;
     }
 
@@ -83,11 +83,11 @@ public class Contract extends CreateAtIdentified implements Identified<UUID> {
         this.contractStatus = contractStatus;
     }
 
-    public User getCustomer() {
+    public Client getCustomer() {
         return customer;
     }
 
-    public void setCustomer(User customer) {
+    public void setCustomer(Client customer) {
         this.customer = customer;
     }
 }

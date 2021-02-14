@@ -6,11 +6,11 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Данные модели контракта для ответа")
 public class ContractDtoResponse extends ContractBaseDto {
 
-    @ApiModelProperty(value = "Модель заказчика (в формате UserBaseDto)", required = true)
-    private UserBaseDto customer;
+    @ApiModelProperty(value = "Модель заказчика (в формате ClientBaseDto)", required = true)
+    private ClientBaseDto customer;
 
-    @ApiModelProperty(value = "Модель исполнителя (в формате UserBaseDto)", required = true)
-    private UserBaseDto executor;
+    @ApiModelProperty(value = "Модель исполнителя (в формате ClientBaseDto)", required = true)
+    private ClientBaseDto executor;
 
     @ApiModelProperty(value = "Модель задания (в формате TaskBaseDto)", required = true)
     private TaskBaseDto task;
@@ -26,19 +26,19 @@ public class ContractDtoResponse extends ContractBaseDto {
     public ContractDtoResponse() {
     }
 
-    public UserBaseDto getCustomer() {
+    public ClientBaseDto getCustomer() {
         return customer;
     }
 
-    public void setCustomer(UserBaseDto customer) {
+    public void setCustomer(ClientBaseDto customer) {
         this.customer = customer;
     }
 
-    public UserBaseDto getExecutor() {
+    public ClientBaseDto getExecutor() {
         return executor;
     }
 
-    public void setExecutor(UserBaseDto executor) {
+    public void setExecutor(ClientBaseDto executor) {
         this.executor = executor;
     }
 

@@ -1,0 +1,106 @@
+server:
+  port: ${APP_PORT:8082}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+    context-path: /freelance-auth
+    application-display-name: Freelance Auth
+  tomcat:
+    max-connections: 1000
+    accept-count: 100
+    connection-timeout: 30000
+
+spring:
+  application:
+    name: freelance-auth
+  datasource:
+    url: jdbc:postgresql://localhost:5432/freelance
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      data-source-properties:
+        stringtype: unspecified
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml
+    default-schema: freelance_auth
+  messages:
+    basename: "message_en_EN, message_ru_Ru"
+    encoding: UTF-8
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    properties:
+      hibernate.temp.use_jdbc_metadata_defaults: false
+    show-sql: false
+    hibernate:
+      hbm2ddl:
+        auto: none
+      default_schema: freelance_auth
+      use_sql_comments: true
+      format_sql: true
+  jackson:
+    defaultPropertyInclusion: NON_NULL
+    serialization:
+      write_dates_as_timestamps: false
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics
+  metrics:
+    export:
+      atlas:
+        enabled: true
+
+  # Регулярное выражение для валидации электронной почты
+user:
+  email:
+    regexp: '^([A-Za-z0-9._-]{1,40})@([A-Za-z0-9._-]{1,20}\.)([A-Za-z0-9._-]{1,15})$'
+  password:
+    length:
+      min: 8
+
+format:
+  date:
+    time: yyyy-MM-dd HH:mm:ss # Установленный формат даты и времени
+
+
+# Профиль для swagger
+swagger:
+  title: Админка Фриланс сервис
+  description: API админа для Фриланс сервис
+  contract:
+    mail: vox613@gmail.com
+    name: Алексей И
+    url: http://iteco.ru
+
+
+# Настройки логгера
+logging:
+  level:
+    ROOT: INFO
+    ru.iteco.project: DEBUG
+    org.springframework: INFO
+  appenders:
+    console:
+      enabled: true
+    file:
+      enabled: true
+      name: log
+      path: logs
+      maxHistory: 300
+  pattern:
+    audit: '%msg%n'
+
+
+# Настройки аудита
+audit:
+  logName: audit
+  logPath: /audit
+  maxHistory: 300

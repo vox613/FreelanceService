@@ -14,7 +14,7 @@ import ru.iteco.project.resource.dto.ContractBaseDto;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.service.ContractService;
 import ru.iteco.project.validator.ContractDtoRequestValidator;
 

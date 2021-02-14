@@ -11,7 +11,7 @@ import java.util.UUID;
  * Модель данных представляющая задание для исполнения
  */
 @Entity
-@Table(name = "task")
+@Table(schema = "freelance", name = "task")
 public class Task extends CreateAtIdentified implements Identified<UUID> {
 
     private static final long serialVersionUID = -7931737332645464539L;
@@ -24,12 +24,12 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
     /*** Уникальный id заказчика */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
-    private User customer;
+    private Client customer;
 
     /*** Уникальный id исполнителя */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "executor_id")
-    private User executor;
+    private Client executor;
 
     /*** Имя задания */
     @Column(name = "title", nullable = false)
@@ -61,7 +61,7 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
     public Task() {
     }
 
-    public Task(UUID id, User customer, User executor, String title, String description, LocalDateTime taskCompletionDate,
+    public Task(UUID id, Client customer, Client executor, String title, String description, LocalDateTime taskCompletionDate,
                 BigDecimal price, TaskStatus taskStatus, String taskDecision) {
         this.id = id;
         this.customer = customer;
@@ -78,19 +78,19 @@ public class Task extends CreateAtIdentified implements Identified<UUID> {
         this.id = id;
     }
 
-    public User getCustomer() {
+    public Client getCustomer() {
         return customer;
     }
 
-    public void setCustomer(User customer) {
+    public void setCustomer(Client customer) {
         this.customer = customer;
     }
 
-    public User getExecutor() {
+    public Client getExecutor() {
         return executor;
     }
 
-    public void setExecutor(User executor) {
+    public void setExecutor(Client executor) {
         this.executor = executor;
     }
 

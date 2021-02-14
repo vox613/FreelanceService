@@ -4,13 +4,13 @@
 //////////////////////////////////////
 
 Получить всех пользователей
-GET - http://localhost:8081/freelance/api/v1/users
+GET - http://localhost:8081/freelance/api/v1/clients
 
 Получить пользователя с {id}
-GET - http://localhost:8081/freelance/api/v1/users/{id}
+GET - http://localhost:8081/freelance/api/v1/clients/{id}
 
 Пагинация + сортировка данных опционально (?page=3&size=5&sort=firstName)
-POST - http://localhost:8081/freelance/api/v1/users/search
+POST - http://localhost:8081/freelance/api/v1/clients/search
 
 Опционально:
 Для некоторых полей сущностей реализован функционал комплексного поиска
@@ -22,7 +22,7 @@ POST - http://localhost:8081/freelance/api/v1/users/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
@@ -34,7 +34,7 @@ POST - http://localhost:8081/freelance/api/v1/users/search
 Пример запроса для поиска:
 {
     "joinOperation": "AND",
-    "userStatus": {
+    "clientStatus": {
         "searchOperation": "EQUAL",
         "value": "ACTIVE"
     },
@@ -59,7 +59,7 @@ POST - http://localhost:8081/freelance/api/v1/users/search
 
 
 Создать пользователя
-POST - http://localhost:8081/freelance/api/v1/users
+POST - http://localhost:8081/freelance/api/v1/clients
 {
     "firstName": "firstName",
     "secondName": "secondName",
@@ -69,14 +69,14 @@ POST - http://localhost:8081/freelance/api/v1/users
     "phoneNumber": "phoneNumber",
     "password": "password",
     "repeatPassword": "password",
-    "role": "EXECUTOR",
+    "clientRole": "EXECUTOR",
     "wallet": "8000"
 }
 
 
 
 Пакетное создание пользователей
-POST - http://localhost:8081/freelance/api/v1/users/batch
+POST - http://localhost:8081/freelance/api/v1/clients/batch
 [
     {
         "firstName": "firstName1",
@@ -87,8 +87,8 @@ POST - http://localhost:8081/freelance/api/v1/users/batch
         "phoneNumber": "phoneNumber1",
         "password": "password1",
         "repeatPassword": "password1",
-        "userRoleEnum": "EXECUTOR",
-        "userStatus": "CREATED",
+        "clientRoleEnum": "EXECUTOR",
+        "clientStatus": "CREATED",
         "wallet": "0"
     },
     {
@@ -100,8 +100,8 @@ POST - http://localhost:8081/freelance/api/v1/users/batch
         "phoneNumber": "phoneNumber2",
         "password": "password2",
         "repeatPassword": "password2",
-        "userRoleEnum": "CUSTOMER",
-        "userStatus": "CREATED",
+        "clientRoleEnum": "CUSTOMER",
+        "clientStatus": "CREATED",
         "wallet": "8000"
     }
 ]
@@ -109,7 +109,7 @@ POST - http://localhost:8081/freelance/api/v1/users/batch
 
 
 Обновить пользователя C {id}
-PUT - http://localhost:8081/freelance/api/v1/users/{id}
+PUT - http://localhost:8081/freelance/api/v1/clients/{id}
 {
     "id": {id},
     "firstName": "firstName",
@@ -120,14 +120,14 @@ PUT - http://localhost:8081/freelance/api/v1/users/{id}
     "phoneNumber": "phoneNumber",
     "password": "password",
     "repeatPassword": "password",
-    "userRoleEnum": "EXECUTOR",
-    "userStatus": "CREATED",
+    "clientRoleEnum": "EXECUTOR",
+    "clientStatus": "CREATED",
     "wallet": "8000"
 }
 
 
 Удалить пользователя с {id}
-DELETE - http://localhost:8081/freelance/api/v1/users/{id}
+DELETE - http://localhost:8081/freelance/api/v1/clients/{id}
 
 
 
@@ -164,7 +164,7 @@ POST - http://localhost:8081/freelance/api/v1/tasks/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
@@ -254,7 +254,7 @@ POST - http://localhost:8081/freelance/api/v1/contracts/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
@@ -316,15 +316,15 @@ DELETE - http://localhost:8081/freelance/api/v1/tasks/{id}
 //////////////////////////////////////
 
 Получить все роли пользователей
-GET - http://localhost:8081/freelance/api/v1/roles/users
+GET - http://localhost:8081/freelance/api/v1/roles/clients
 
 
 Получить роль пользователя с {id}
-GET - http://localhost:8081/freelance/api/v1/roles/users/{id}
+GET - http://localhost:8081/freelance/api/v1/roles/clients/{id}
 
 
 Пагинация + сортировка данных опционально (?page=3&size=5&sort=createdAt)
-POST - http://localhost:8081/freelance/api/v1/roles/users/search
+POST - http://localhost:8081/freelance/api/v1/roles/clients/search
 Опционально:
 Для некоторых полей сущностей реализован функционал комплексного поиска
 по значениям/диапазонам значений для ряда полей
@@ -335,7 +335,7 @@ POST - http://localhost:8081/freelance/api/v1/roles/users/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
@@ -360,7 +360,7 @@ POST - http://localhost:8081/freelance/api/v1/roles/users/search
 
 Создать роль пользователя. Необходим userId в теле запроса,
 доступно только пользователя с ролью администратора ADMIN
-POST - http://localhost:8081/freelance/api/v1/roles/users
+POST - http://localhost:8081/freelance/api/v1/roles/clients
 {
     "userId": {userId},
     "value": "MODERATOR"
@@ -369,7 +369,7 @@ POST - http://localhost:8081/freelance/api/v1/roles/users
 
 Обновить текстовое значение роли пользователя. Необходим userId в теле запроса,
 доступно только пользователя с ролью администратора ADMIN
-PUT - http://localhost:8081/freelance/api/v1/roles/users/{roleId}
+PUT - http://localhost:8081/freelance/api/v1/roles/clients/{roleId}
 {
     "id": {roleId},
     "userId": {userId},
@@ -378,7 +378,7 @@ PUT - http://localhost:8081/freelance/api/v1/roles/users/{roleId}
 
 
 Удалить роль пользователя с {id}
-DELETE - http://localhost:8081/freelance/api/v1/roles/users/{id}
+DELETE - http://localhost:8081/freelance/api/v1/roles/clients/{id}
 
 
 
@@ -389,15 +389,15 @@ DELETE - http://localhost:8081/freelance/api/v1/roles/users/{id}
 //////////////////////////////////////
 
 Получить все статусы пользователей
-GET - http://localhost:8081/freelance/api/v1/statuses/users
+GET - http://localhost:8081/freelance/api/v1/statuses/clients
 
 
 Получить статус пользователя с {id}
-GET - http://localhost:8081/freelance/api/v1/statuses/users/{id}
+GET - http://localhost:8081/freelance/api/v1/statuses/clients/{id}
 
 
 Пагинация + сортировка данных опционально (?page=3&size=5&sort=createdAt)
-POST - http://localhost:8081/freelance/api/v1/statuses/users/search
+POST - http://localhost:8081/freelance/api/v1/statuses/clients/search
 Опционально:
 Для некоторых полей сущностей реализован функционал комплексного поиска
 по значениям/диапазонам значений для ряда полей
@@ -408,7 +408,7 @@ POST - http://localhost:8081/freelance/api/v1/statuses/users/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
@@ -433,7 +433,7 @@ POST - http://localhost:8081/freelance/api/v1/statuses/users/search
 
 Создать статус пользователя. Необходим userId в теле запроса,
 доступно только пользователя с ролью администратора ADMIN
-POST - http://localhost:8081/freelance/api/v1/statuses/users
+POST - http://localhost:8081/freelance/api/v1/statuses/clients
 {
     "userId": {statusId},
     "value": "ACTIVE",
@@ -443,7 +443,7 @@ POST - http://localhost:8081/freelance/api/v1/statuses/users
 
 Обновить текстовое значение статуса пользователя. Необходим userId в теле запроса,
 доступно только пользователя с ролью администратора ADMIN
-PUT - http://localhost:8081/freelance/api/v1/statuses/users/{statusId}
+PUT - http://localhost:8081/freelance/api/v1/statuses/clients/{statusId}
 {
     "id": {statusId},
     "userId": {userId},
@@ -453,7 +453,7 @@ PUT - http://localhost:8081/freelance/api/v1/statuses/users/{statusId}
 
 
 Удалить статус пользователя с {id}
-DELETE - http://localhost:8081/freelance/api/v1/statuses/users/{id}
+DELETE - http://localhost:8081/freelance/api/v1/statuses/clients/{id}
 
 
 
@@ -484,7 +484,7 @@ POST - http://localhost:8081/freelance/api/v1/statuses/tasks/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
@@ -560,7 +560,7 @@ POST - http://localhost:8081/freelance/api/v1/statuses/contracts/search
 Общая структура запроса:
 {
     "joinOperation": "AND,              -   Логическая операция объединения различных предикатов AND / OR
-    "userStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
+    "clientStatus": {                     -   Наименование поля сущности для которого осуществляется поиск
         "searchOperation": "EQUAL",     -   Осуществляемая операция поиска для данного поля
         "value": "ACTIVE",              -   Искомое значение данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)
         "minValue": "",                 -   Максимальная величина искомого значения данного поля (Наличие обязательно для всех операций кроме диапазонных BETWEEN / NOT_BETWEEN)

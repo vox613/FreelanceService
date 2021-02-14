@@ -1,8 +1,15 @@
 -- Скрипт для заполнения таблиц с возможными статусами и ролями пользователей/заданий/договоров
 
-DROP TABLE IF EXISTS user_roles, user_statuses, task_statuses, contract_statuses, users, task, contract;
+DROP TABLE IF EXISTS
+    freelance.client_roles,
+    freelance.client_statuses,
+    freelance.task_statuses,
+    freelance.contract_statuses,
+    freelance.clients,
+    freelance.task,
+    freelance.contract;
 
-CREATE TABLE IF NOT EXISTS user_roles
+CREATE TABLE IF NOT EXISTS freelance.client_roles
 (
     id         uuid                     NOT NULL,
     value      varchar(255)             NOT NULL,
@@ -10,7 +17,7 @@ CREATE TABLE IF NOT EXISTS user_roles
     updated_at timestamp with time zone NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS user_statuses
+CREATE TABLE IF NOT EXISTS freelance.client_statuses
 (
     id          uuid                     NOT NULL,
     value       varchar(255)             NOT NULL,
@@ -19,7 +26,7 @@ CREATE TABLE IF NOT EXISTS user_statuses
     updated_at  timestamp with time zone NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS task_statuses
+CREATE TABLE IF NOT EXISTS freelance.task_statuses
 (
     id          uuid                     NOT NULL,
     value       varchar(255)             NOT NULL,
@@ -28,7 +35,7 @@ CREATE TABLE IF NOT EXISTS task_statuses
     updated_at  timestamp with time zone NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS contract_statuses
+CREATE TABLE IF NOT EXISTS freelance.contract_statuses
 (
     id          uuid                     NOT NULL,
     value       varchar(255)             NOT NULL,
@@ -37,14 +44,12 @@ CREATE TABLE IF NOT EXISTS contract_statuses
     updated_at  timestamp with time zone NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS users
+CREATE TABLE IF NOT EXISTS freelance.clients
 (
     id           uuid                     NOT NULL,
     first_name   varchar(255)             NOT NULL,
     last_name    varchar(255)             NOT NULL,
     second_name  varchar(255)             NOT NULL,
-    login        varchar(255)             NOT NULL,
-    password     varchar(255)             NOT NULL,
     email        varchar(255)             NOT NULL,
     phone_number varchar(255)             NOT NULL,
     role_id      uuid                     NOT NULL,
@@ -54,7 +59,7 @@ CREATE TABLE IF NOT EXISTS users
     updated_at   timestamp with time zone NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS task
+CREATE TABLE IF NOT EXISTS freelance.task
 (
     id                   uuid                     NOT NULL,
     customer_id          uuid                     NOT NULL,
@@ -69,7 +74,7 @@ CREATE TABLE IF NOT EXISTS task
     task_decision        varchar(255)
 );
 
-CREATE TABLE IF NOT EXISTS contract
+CREATE TABLE IF NOT EXISTS freelance.contract
 (
     id                 uuid                     NOT NULL,
     customer_id        uuid                     NOT NULL,
@@ -82,19 +87,19 @@ CREATE TABLE IF NOT EXISTS contract
 
 
 
-INSERT INTO user_roles (id, value, created_at, updated_at)
+INSERT INTO freelance.client_roles (id, value, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b9fa00', 'ADMIN', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa01', 'CUSTOMER', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa02', 'EXECUTOR', now(), now());
 
-INSERT INTO user_statuses (id, value, description, created_at, updated_at)
+INSERT INTO freelance.client_statuses (id, value, description, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b9fa03', 'NOT_EXIST', 'Пользователя не существует', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa04', 'CREATED', 'Создан', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa05', 'BLOCKED', 'Заблокирован', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa06', 'ACTIVE', 'Активен', now(), now());
 
 
-INSERT INTO task_statuses (id, value, description, created_at, updated_at)
+INSERT INTO freelance.task_statuses (id, value, description, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b9fa07', 'REGISTERED', 'Задание зарегистрировано', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa08', 'IN_PROGRESS', 'Задание на выполнении', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa09', 'ON_CHECK', 'Задание на проверке', now(), now()),
@@ -102,17 +107,15 @@ VALUES ('be363ce8-85f2-4d02-90ce-cb3738b9fa07', 'REGISTERED', 'Задание з
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa11', 'DONE', 'Задание выполнено', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa12', 'CANCELED', 'Задание отменено', now(), now());
 
-INSERT INTO contract_statuses (id, value, description, created_at, updated_at)
+INSERT INTO freelance.contract_statuses (id, value, description, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b9fa13', 'TERMINATED', 'Договор расторгнут', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa14', 'PAID', 'Договор оплачен', now(), now()),
        ('be363ce8-85f2-4d02-90ce-cb3738b9fa15', 'DONE', 'Договор исполнен', now(), now());
 
 
-INSERT INTO users(id, first_name, last_name, second_name, login, password, email, phone_number, role_id, status_id,
+INSERT INTO freelance.clients(id, first_name, last_name, second_name, email, phone_number, role_id, status_id,
                   wallet, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b10000',
-        'admin',
-        'admin',
         'admin',
         'admin',
         'admin',
@@ -125,11 +128,9 @@ VALUES ('be363ce8-85f2-4d02-90ce-cb3738b10000',
         now());
 
 
-INSERT INTO users(id, first_name, last_name, second_name, login, password, email, phone_number, role_id, status_id,
+INSERT INTO freelance.clients(id, first_name, last_name, second_name, email, phone_number, role_id, status_id,
                   wallet, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b10001',
-        'customer',
-        'customer',
         'customer',
         'customer',
         'customer',
@@ -142,11 +143,9 @@ VALUES ('be363ce8-85f2-4d02-90ce-cb3738b10001',
         now());
 
 
-INSERT INTO users(id, first_name, last_name, second_name, login, password, email, phone_number, role_id, status_id,
+INSERT INTO freelance.clients(id, first_name, last_name, second_name, email, phone_number, role_id, status_id,
                   wallet, created_at, updated_at)
 VALUES ('be363ce8-85f2-4d02-90ce-cb3738b10002',
-        'executor',
-        'executor',
         'executor',
         'executor',
         'executor',
@@ -161,7 +160,7 @@ VALUES ('be363ce8-85f2-4d02-90ce-cb3738b10002',
 --
 -- Формирование первого заказа - выполненного
 --
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c000',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
@@ -176,7 +175,7 @@ VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c000',
         'task_decision_1');
 
 
-INSERT INTO contract(id, customer_id, executor_id, created_at, task_id, contract_status_id, updated_at)
+INSERT INTO freelance.contract(id, customer_id, executor_id, created_at, task_id, contract_status_id, updated_at)
 VALUES ('5877195a-5097-4d6c-b272-9705e3c30100',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
         'be363ce8-85f2-4d02-90ce-cb3738b10002',
@@ -189,7 +188,7 @@ VALUES ('5877195a-5097-4d6c-b272-9705e3c30100',
 --
 -- Формирование второго заказа - выполненного
 --
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c001',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
@@ -204,7 +203,7 @@ VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c001',
         'task_decision_2');
 
 
-INSERT INTO contract(id, customer_id, executor_id, created_at, task_id, contract_status_id, updated_at)
+INSERT INTO freelance.contract(id, customer_id, executor_id, created_at, task_id, contract_status_id, updated_at)
 VALUES ('5877195a-5097-4d6c-b272-9705e3c30101',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
         'be363ce8-85f2-4d02-90ce-cb3738b10002',
@@ -219,7 +218,7 @@ VALUES ('5877195a-5097-4d6c-b272-9705e3c30101',
 -- Формирование заданий разных статусов для заказчика
 --
 -- CANCELLED
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c002',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
@@ -234,7 +233,7 @@ VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c002',
         NULL);
 
 -- REGISTERED
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c003',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
@@ -248,7 +247,7 @@ VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c003',
         1000,
         NULL);
 
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c004',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
@@ -260,9 +259,9 @@ VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c004',
         now(),
         'be363ce8-85f2-4d02-90ce-cb3738b9fa07',
         1500,
-        NULL );
+        NULL);
 
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c005',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',
@@ -274,11 +273,11 @@ VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c005',
         now(),
         'be363ce8-85f2-4d02-90ce-cb3738b9fa07',
         2000,
-        NULL );
+        NULL);
 
 
 -- IN_PROGRESS
-INSERT INTO task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
+INSERT INTO freelance.task(id, customer_id, executor_id, title, description, created_at, task_completion_date, updated_at,
                  task_status_id, price, task_decision)
 VALUES ('32e7c56a-7f3c-49af-a08e-d04b2e91c006',
         'be363ce8-85f2-4d02-90ce-cb3738b10001',

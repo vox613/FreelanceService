@@ -10,7 +10,7 @@ import java.util.UUID;
  * Модель данных пердставляющая статусы задания
  */
 @Entity
-@Table(name = "task_statuses")
+@Table(schema = "freelance", name = "task_statuses")
 public class TaskStatus extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id статуса задания */

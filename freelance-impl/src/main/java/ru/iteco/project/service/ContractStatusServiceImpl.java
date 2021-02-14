@@ -8,18 +8,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
-import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.Client;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
+import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.ContractStatusRepository;
-import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
 import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
@@ -27,8 +28,8 @@ import ru.iteco.project.specification.SpecificationBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.ADMIN;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
 import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
 /**
@@ -46,7 +47,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     private final ContractRepository contractRepository;
 
     /*** Объект доступа к репозиторию пользователей */
-    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     /*** Объект сервисного слоя контрактов */
     private final ContractService contractService;
@@ -59,12 +60,12 @@ public class ContractStatusServiceImpl implements ContractStatusService {
 
 
     public ContractStatusServiceImpl(ContractStatusRepository contractStatusRepository, ContractRepository contractRepository,
-                                     UserRepository userRepository, ContractService contractService,
+                                     ClientRepository clientRepository, ContractService contractService,
                                      SpecificationBuilder<ContractStatus> specificationBuilder, MapperFacade mapperFacade) {
 
         this.contractStatusRepository = contractStatusRepository;
         this.contractRepository = contractRepository;
-        this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
         this.contractService = contractService;
         this.specificationBuilder = specificationBuilder;
         this.mapperFacade = mapperFacade;
@@ -164,10 +165,10 @@ public class ContractStatusServiceImpl implements ContractStatusService {
      * @return true - операция разрешена, false - операция запрещена
      */
     private boolean operationIsAllow(ContractStatusDtoRequest contractStatusDtoRequest) {
-        if ((contractStatusDtoRequest != null) && (contractStatusDtoRequest.getUserId() != null)) {
-            Optional<User> userById = userRepository.findById(contractStatusDtoRequest.getUserId());
-            if (userById.isPresent()) {
-                return isEqualsUserRole(ADMIN, userById.get());
+        if ((contractStatusDtoRequest != null) && (contractStatusDtoRequest.getClientId() != null)) {
+            Optional<Client> clientById = clientRepository.findById(contractStatusDtoRequest.getClientId());
+            if (clientById.isPresent()) {
+                return ClientRole.ClientRoleEnum.isEqualsClientRole(ADMIN, clientById.get());
             }
         }
         return false;

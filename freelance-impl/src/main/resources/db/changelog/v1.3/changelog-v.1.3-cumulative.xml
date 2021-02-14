@@ -1,0 +1,11 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <include file="v1.3_01_rename_users_to_clients.xml" relativeToChangelogFile="true"/>
+    <include file="v1.3_02_rename_user_roles_to_client_roles.xml" relativeToChangelogFile="true"/>
+    <include file="v1.3_03_rename_user_statuses_to_client_statuses.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

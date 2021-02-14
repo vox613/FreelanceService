@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user_statuses"/>
+        </preConditions>
+
+        <renameTable schemaName="freelance" oldTableName="user_statuses" newTableName="client_statuses"/>
+
+        <comment>Переименовал таблицу из user_statuses в client_statuses
+        </comment>
+    </changeSet>
+
+
+</databaseChangeLog>

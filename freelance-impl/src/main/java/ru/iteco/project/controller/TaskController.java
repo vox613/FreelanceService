@@ -13,7 +13,7 @@ import ru.iteco.project.resource.TaskResource;
 import ru.iteco.project.resource.dto.TaskBaseDto;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoResponse;
-import ru.iteco.project.resource.searching.PageDto;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.TaskSearchDto;
 import ru.iteco.project.service.TaskService;
 import ru.iteco.project.validator.TaskDtoRequestValidator;
@@ -46,15 +46,15 @@ public class TaskController implements TaskResource {
 
 
     @Override
-    public ResponseEntity<List<TaskDtoResponse>> getAllUserTasks(UUID userId) {
-        beforeCall(Level.DEBUG, "getAllUserTasks()", userId);
+    public ResponseEntity<List<TaskDtoResponse>> getAllClientTasks(UUID clientId) {
+        beforeCall(Level.DEBUG, "getAllClientTasks()", clientId);
         List<TaskDtoResponse> allTasks;
-        if (userId != null) {
-            allTasks = taskService.getAllUserTasks(userId);
+        if (clientId != null) {
+            allTasks = taskService.getAllClientTasks(clientId);
         } else {
             allTasks = taskService.getAllTasks();
         }
-        afterCall(Level.DEBUG, "getAllUserTasks()", allTasks);
+        afterCall(Level.DEBUG, "getAllClientTasks()", allTasks);
         return ResponseEntity.ok().body(allTasks);
     }
 

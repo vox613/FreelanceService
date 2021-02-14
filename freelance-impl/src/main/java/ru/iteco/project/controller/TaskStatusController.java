@@ -13,7 +13,7 @@ import ru.iteco.project.resource.TaskStatusResource;
 import ru.iteco.project.resource.dto.TaskStatusBaseDto;
 import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
 import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
-import ru.iteco.project.resource.searching.PageDto;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.TaskStatusSearchDto;
 import ru.iteco.project.service.TaskStatusService;
 import ru.iteco.project.validator.TaskStatusDtoRequestValidator;

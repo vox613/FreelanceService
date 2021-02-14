@@ -8,21 +8,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Contract;
-import ru.iteco.project.domain.ContractStatus;
-import ru.iteco.project.domain.Task;
-import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.*;
 import ru.iteco.project.exception.InvalidContractStatusException;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.ContractStatusRepository;
 import ru.iteco.project.repository.TaskRepository;
-import ru.iteco.project.repository.UserRepository;
+import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
-import ru.iteco.project.resource.dto.UserBaseDto;
+import ru.iteco.project.resource.dto.ClientBaseDto;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
@@ -33,10 +30,10 @@ import java.util.*;
 import static ru.iteco.project.domain.ContractStatus.ContractStatusEnum.*;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.DONE;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.EXECUTOR;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.BLOCKED;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.isEqualsUserStatus;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.EXECUTOR;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
+import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.BLOCKED;
+import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.isEqualsClientStatus;
 import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
 import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
@@ -53,7 +50,7 @@ public class ContractServiceImpl implements ContractService {
     private final ContractRepository contractRepository;
 
     /*** Объект доступа к репозиторию пользователей */
-    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     /*** Объект доступа к репозиторию заданий */
     private final TaskRepository taskRepository;
@@ -71,11 +68,11 @@ public class ContractServiceImpl implements ContractService {
     private final MapperFacade mapperFacade;
 
 
-    public ContractServiceImpl(ContractRepository contractRepository, UserRepository userRepository, TaskRepository taskRepository,
+    public ContractServiceImpl(ContractRepository contractRepository, ClientRepository clientRepository, TaskRepository taskRepository,
                                ContractStatusRepository contractStatusRepository, MapperFacade mapperFacade, TaskService taskService,
                                SpecificationBuilder<Contract> specificationBuilder) {
         this.contractRepository = contractRepository;
-        this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
         this.taskRepository = taskRepository;
         this.contractStatusRepository = contractStatusRepository;
         this.taskService = taskService;
@@ -121,20 +118,20 @@ public class ContractServiceImpl implements ContractService {
     public ContractDtoResponse createContract(ContractDtoRequest contractDtoRequest) {
         ContractDtoResponse contractDtoResponse = null;
         Optional<Task> taskById = taskRepository.findById(contractDtoRequest.getTaskId());
-        Optional<User> userById = userRepository.findById(contractDtoRequest.getUserId());
-        if (taskById.isPresent() && userById.isPresent()) {
+        Optional<Client> clientById = clientRepository.findById(contractDtoRequest.getClientId());
+        if (taskById.isPresent() && clientById.isPresent()) {
             Task task = taskById.get();
-            User executor = userById.get();
+            Client executor = clientById.get();
 
             if (isEqualsTaskStatus(REGISTERED, task)
-                    && usersNotBlocked(task.getCustomer(), executor)
-                    && isEqualsUserRole(EXECUTOR, executor)
+                    && clientsNotBlocked(task.getCustomer(), executor)
+                    && ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, executor)
                     && isCorrectConfirmCodes(contractDtoRequest.getConfirmationCode(), contractDtoRequest.getRepeatConfirmationCode())
                     && customerHaveEnoughMoney(task)) {
 
                 Contract contract = mapperFacade.map(contractDtoRequest, Contract.class);
                 contract.setId(UUID.randomUUID());
-                User taskCustomer = contract.getCustomer();
+                Client taskCustomer = contract.getCustomer();
                 taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
                 Contract save = contractRepository.save(contract);
                 contractDtoResponse = enrichContractInfo(save);
@@ -151,16 +148,16 @@ public class ContractServiceImpl implements ContractService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ContractDtoResponse updateContract(ContractDtoRequest contractDtoRequest) {
         ContractDtoResponse contractDtoResponse = null;
-        if (contractDtoRequest.getUserId() != null
+        if (contractDtoRequest.getClientId() != null
                 && contractRepository.existsById(contractDtoRequest.getId())) {
 
-            Optional<User> userOptional = userRepository.findById(contractDtoRequest.getUserId());
+            Optional<Client> clientOptional = clientRepository.findById(contractDtoRequest.getClientId());
             Optional<Contract> contractById = contractRepository.findById(contractDtoRequest.getId());
-            if (userOptional.isPresent() && contractById.isPresent()) {
-                User user = userOptional.get();
+            if (clientOptional.isPresent() && contractById.isPresent()) {
+                Client client = clientOptional.get();
                 Contract contract = contractById.get();
 
-                if (allowToUpdate(user, contract)) {
+                if (allowToUpdate(client, contract)) {
                     mapperFacade.map(contractDtoRequest, contract);
                     transferFunds(contract);
                     Contract save = contractRepository.save(contract);
@@ -188,9 +185,9 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractDtoResponse enrichContractInfo(Contract contract) {
         ContractDtoResponse contractDtoResponse = mapperFacade.map(contract, ContractDtoResponse.class);
-        contractDtoResponse.setCustomer(mapperFacade.map(contract.getCustomer(), UserBaseDto.class));
-        contractDtoResponse.setExecutor(mapperFacade.map(contract.getExecutor(), UserBaseDto.class));
-        contractDtoResponse.setTask(taskService.enrichByUsersInfo(contract.getTask()));
+        contractDtoResponse.setCustomer(mapperFacade.map(contract.getCustomer(), ClientBaseDto.class));
+        contractDtoResponse.setExecutor(mapperFacade.map(contract.getExecutor(), ClientBaseDto.class));
+        contractDtoResponse.setTask(taskService.enrichByClientsInfo(contract.getTask()));
         return contractDtoResponse;
     }
 
@@ -202,10 +199,10 @@ public class ContractServiceImpl implements ContractService {
      */
     private void transferFunds(Contract contract) {
         if (isEqualsContractStatus(ContractStatus.ContractStatusEnum.DONE, contract)) {
-            User executor = contract.getExecutor();
+            Client executor = contract.getExecutor();
             executor.setWallet(executor.getWallet().add(contract.getTask().getPrice()));
         } else if (isEqualsContractStatus(TERMINATED, contract)) {
-            User customer = contract.getCustomer();
+            Client customer = contract.getCustomer();
             customer.setWallet(customer.getWallet().add(contract.getTask().getPrice()));
         }
     }
@@ -229,8 +226,8 @@ public class ContractServiceImpl implements ContractService {
      * @param executor  - исполниель
      * @return - true - пользователи не заблокированы, false - пользователи заблокированы
      */
-    private boolean usersNotBlocked(User customer, User executor) {
-        return !(isEqualsUserStatus(BLOCKED, customer) || isEqualsUserStatus(BLOCKED, executor));
+    private boolean clientsNotBlocked(Client customer, Client executor) {
+        return !(ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, customer) || ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, executor));
     }
 
 
@@ -248,19 +245,19 @@ public class ContractServiceImpl implements ContractService {
     /**
      * Метод проверяет возможность обновления контракта
      *
-     * @param user     - пользователь инициировавший процесс
+     * @param client     - пользователь инициировавший процесс
      * @param contract - контракт
      * @return - true - пользователь не заблокирован, пользователь - заказчик, задание находится в финальном статусе,
      * контракт оплачен, false - в любом ином случае
      */
-    private boolean allowToUpdate(User user, Contract contract) {
-        boolean userNotBlocked = !isEqualsUserStatus(BLOCKED, user);
-        boolean userIsCustomer = user.getId().equals(contract.getCustomer().getId());
+    private boolean allowToUpdate(Client client, Contract contract) {
+        boolean clientNotBlocked = !ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client);
+        boolean clientIsCustomer = client.getId().equals(contract.getCustomer().getId());
         boolean contractIsPaid = isEqualsContractStatus(PAID, contract);
         boolean taskInTerminatedStatus = isEqualsTaskStatus(DONE, contract.getTask())
                 || isEqualsTaskStatus(CANCELED, contract.getTask());
 
-        return userNotBlocked && userIsCustomer && contractIsPaid && taskInTerminatedStatus;
+        return clientNotBlocked && clientIsCustomer && contractIsPaid && taskInTerminatedStatus;
     }
 
 

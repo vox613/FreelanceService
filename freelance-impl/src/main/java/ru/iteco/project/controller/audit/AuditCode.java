@@ -5,29 +5,29 @@ package ru.iteco.project.controller.audit;
  */
 public class AuditCode {
 
-    /*** Создание пользователя*/
-    public static final String USER_CREATE = "USER_CREATE";
-    /*** Создание пакета пользователей*/
-    public static final String USER_BATCH_CREATE = "USER_BATCH_CREATE";
-    /*** Обновление пользователя*/
-    public static final String USER_UPDATE = "USER_UPDATE";
-    /*** Удаление пользователя*/
-    public static final String USER_DELETE = "USER_DELETE";
+    /*** Создание клиента*/
+    public static final String CLIENT_CREATE = "CLIENT_CREATE";
+    /*** Создание пакета клиента*/
+    public static final String CLIENT_BATCH_CREATE = "CLIENT_BATCH_CREATE";
+    /*** Обновление клиента*/
+    public static final String CLIENT_UPDATE = "CLIENT_UPDATE";
+    /*** Удаление клиента*/
+    public static final String CLIENT_DELETE = "CLIENT_DELETE";
 
 
-    /*** Создание роли пользователя*/
-    public static final String USER_ROLE_CREATE = "USER_ROLE_CREATE";
-    /*** Обновление роли пользователя*/
-    public static final String USER_ROLE_UPDATE = "USER_ROLE_UPDATE";
-    /*** Удаление роли пользователя*/
-    public static final String USER_ROLE_DELETE = "USER_ROLE_DELETE";
+    /*** Создание роли клиента*/
+    public static final String CLIENT_ROLE_CREATE = "CLIENT_ROLE_CREATE";
+    /*** Обновление роли клиента*/
+    public static final String CLIENT_ROLE_UPDATE = "CLIENT_ROLE_UPDATE";
+    /*** Удаление роли клиента*/
+    public static final String CLIENT_ROLE_DELETE = "CLIENT_ROLE_DELETE";
 
-    /*** Создание статуса пользователя*/
-    public static final String USER_STATUS_CREATE = "USER_STATUS_CREATE";
-    /*** Обновление статуса пользователя*/
-    public static final String USER_STATUS_UPDATE = "USER_STATUS_UPDATE";
-    /*** Удаление статуса пользователя*/
-    public static final String USER_STATUS_DELETE = "USER_STATUS_DELETE";
+    /*** Создание статуса клиента*/
+    public static final String CLIENT_STATUS_CREATE = "CLIENT_STATUS_CREATE";
+    /*** Обновление статуса клиента*/
+    public static final String CLIENT_STATUS_UPDATE = "CLIENT_STATUS_UPDATE";
+    /*** Удаление статуса клиента*/
+    public static final String CLIENT_STATUS_DELETE = "CLIENT_STATUS_DELETE";
 
     /*** Создание задания*/
     public static final String TASK_CREATE = "TASK_CREATE";

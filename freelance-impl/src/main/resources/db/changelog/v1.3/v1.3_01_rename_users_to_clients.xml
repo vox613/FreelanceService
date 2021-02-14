@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="users"/>
+        </preConditions>
+
+        <renameTable schemaName="freelance" oldTableName="users" newTableName="clients"/>
+        <dropColumn schemaName="freelance" tableName="clients" columnName="password"/>
+        <dropColumn schemaName="freelance" tableName="clients" columnName="login"/>
+
+        <comment>Переименовал таблицу из users в clients. Удалил колонки "пароль" и "логин"
+        </comment>
+    </changeSet>
+
+
+</databaseChangeLog>

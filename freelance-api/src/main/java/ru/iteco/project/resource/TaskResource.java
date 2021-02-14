@@ -13,7 +13,6 @@ import ru.iteco.project.resource.dto.ResponseError;
 import ru.iteco.project.resource.dto.TaskBaseDto;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoResponse;
-import ru.iteco.project.resource.searching.PageDto;
 import ru.iteco.project.resource.searching.TaskSearchDto;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -26,10 +25,10 @@ public interface TaskResource {
 
 
     /**
-     * Контроллер возвращает список всех заданий, а при наличии RequestParam {userId}
+     * Контроллер возвращает список всех заданий, а при наличии RequestParam {clientId}
      * возвращаетс список заданий пользователя с соответствующим id
      *
-     * @param userId - уникальный идентификатор пользователя
+     * @param clientId - уникальный идентификатор пользователя
      * @return список объектов TaskDtoResponse
      */
     @GetMapping
@@ -44,8 +43,8 @@ public interface TaskResource {
             @ApiResponse(code = 403, message = "Нет полномочий на выполнение запрашиваемой операции",
                     response = ResponseError.class)
     })
-    ResponseEntity<List<TaskDtoResponse>> getAllUserTasks(@ApiParam(value = "Идентификатор пользователя")
-                                                          @RequestParam(required = false) UUID userId);
+    ResponseEntity<List<TaskDtoResponse>> getAllClientTasks(@ApiParam(value = "Идентификатор пользователя")
+                                                          @RequestParam(required = false) UUID clientId);
 
 
     /**
@@ -136,7 +135,7 @@ public interface TaskResource {
 
 
     /**
-     * Обновляет существующее задание {id} от имени заказчика {userId}
+     * Обновляет существующее задание {id} от имени заказчика {clientId}
      *
      * @param id             - уникальный идентификатор задания
      * @param taskDtoRequest - тело запроса с данными для обновления

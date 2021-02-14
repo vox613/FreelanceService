@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.dto.*;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
@@ -100,7 +99,7 @@ public interface ContractResource {
                                  Pageable pageable);
 
     /**
-     * Создает новый контракт для исполнителя {userId}
+     * Создает новый контракт для исполнителя {clientId}
      *
      * @param contractDtoRequest - тело запроса на создание контракта
      * @return Тело запроса на создание контракта с уникальным проставленным id,
@@ -127,7 +126,7 @@ public interface ContractResource {
                                                              BindingResult result);
 
     /**
-     * Обновляет существующий контракт {id} от имени пользователя {userId}
+     * Обновляет существующий контракт {id} от имени пользователя {clientId}
      *
      * @param id                 - уникальный идентификатор контракта
      * @param contractDtoRequest - тело запроса с данными для обновления

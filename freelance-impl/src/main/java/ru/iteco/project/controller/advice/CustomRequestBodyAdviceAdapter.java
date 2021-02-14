@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAd
 import ru.iteco.project.exception.MismatchedIdException;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
-import ru.iteco.project.resource.dto.UserDtoRequest;
+import ru.iteco.project.resource.dto.ClientDtoRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
@@ -63,9 +63,9 @@ public class CustomRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
             boolean same = true;
             boolean instanceFound = false;
 
-            if (body instanceof UserDtoRequest) {
-                UserDtoRequest userDtoRequest = (UserDtoRequest) body;
-                same = Objects.equals(pathVariableId, String.valueOf(userDtoRequest.getId()));
+            if (body instanceof ClientDtoRequest) {
+                ClientDtoRequest clientDtoRequestDtoRequest = (ClientDtoRequest) body;
+                same = Objects.equals(pathVariableId, String.valueOf(clientDtoRequestDtoRequest.getId()));
                 instanceFound = true;
             }
             if (!instanceFound && (body instanceof TaskDtoRequest)) {
