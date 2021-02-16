@@ -4,6 +4,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,6 +19,8 @@ import java.util.UUID;
  */
 @RestControllerAdvice(basePackages = "ru.iteco.project.controller")
 public class GlobalExceptionHandler {
+
+    private final String SYSTEM_ID_KEY = "spring.application.name";
 
     /*** Экземпляр окружения*/
     private final Environment environment;
@@ -36,7 +39,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MismatchedIdException.class)
     public ResponseEntity<ResponseError> mismatchedIdException(MismatchedIdException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -49,7 +57,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidUserRoleException.class)
     public ResponseEntity<ResponseError> invalidUserRoleException(InvalidUserRoleException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -62,7 +75,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidUserStatusException.class)
     public ResponseEntity<ResponseError> invalidUserStatusException(InvalidUserStatusException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -75,7 +93,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(LocalDateTimeConvertException.class)
     public ResponseEntity<ResponseError> localDateTimeConvertException(LocalDateTimeConvertException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -88,7 +111,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidSearchOperationException.class)
     public ResponseEntity<ResponseError> invalidSearchOperationException(InvalidSearchOperationException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -103,13 +131,15 @@ public class GlobalExceptionHandler {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 environment.getProperty(e.getMessage(), "Entity with id not found!"),
-                e.getClass().getName());
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
     /**
      * Класс исключения NonUniquePersonalDataException, возникающего при попытке создания пользователя с уникальными
-     *  * персональными данными, которые уже принадлежат другой учетной записи
+     * * персональными данными, которые уже принадлежат другой учетной записи
      *
      * @param e - объект исключения
      * @return - объект ResponseError с полной информацией о возникшей проблеме
@@ -119,7 +149,9 @@ public class GlobalExceptionHandler {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 environment.getProperty(e.getMessage(), "Already exist!"),
-                e.getClass().getName());
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
@@ -135,8 +167,27 @@ public class GlobalExceptionHandler {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 environment.getProperty(e.getMessage(), "Unavailable operation!"),
-                e.getClass().getName());
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Класс исключения AuthenticationCredentialsNotFoundException, возникающего при
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<ResponseError> authenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
 
 
@@ -149,8 +200,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseError> exception(Exception e) {
         ObjectError objectError = new ObjectError(String.valueOf(e.getCause()), Arrays.toString(e.getStackTrace()));
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(),
-                e.getClass().getName(), Collections.singletonList(objectError));
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY),
+                Collections.singletonList(objectError)
+        );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -104,3 +104,10 @@ audit:
   logName: audit
   logPath: /audit
   maxHistory: 300
+
+
+authentication:
+  jwt:
+    secret: 'lxXAGgQnw/iYzjbHZuaqRHo70B5sdtMJ/Ls9xRnNJXCzkFH+T0E4vfTyYZBMg8bAcdQPjc/mSVp2zDZRd2uV3w=='
+    accessToken:
+      lifetime: 3600000

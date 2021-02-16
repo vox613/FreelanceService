@@ -2,6 +2,7 @@ package ru.iteco.project.domain;
 
 public enum UserStatus {
 
+    CREATED("Создан"),
     ACTIVE("Активен"),
     DELETED("Удален"),
     BLOCKED("Заблокирован");

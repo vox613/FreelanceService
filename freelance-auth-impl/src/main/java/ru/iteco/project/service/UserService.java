@@ -1,10 +1,10 @@
 package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.iteco.project.resource.dto.UserDtoRequest;
-import ru.iteco.project.resource.dto.UserDtoResponse;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.dto.UserDtoRequest;
+import ru.iteco.project.resource.dto.UserDtoResponse;
 import ru.iteco.project.resource.searching.UserSearchDto;
 
 import java.util.List;

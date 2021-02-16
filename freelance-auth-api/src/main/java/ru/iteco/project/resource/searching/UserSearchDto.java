@@ -19,7 +19,7 @@ public class UserSearchDto extends AbstractSearchDto {
     private SearchUnit role;
 
     @ApiModelProperty(value = "Статус пользователя", allowEmptyValue = true)
-    private SearchUnit userStatus;
+    private SearchUnit status;
 
 
     public UserSearchDto() {
@@ -50,12 +50,12 @@ public class UserSearchDto extends AbstractSearchDto {
         this.role = role;
     }
 
-    public SearchUnit getUserStatus() {
-        return userStatus;
+    public SearchUnit getStatus() {
+        return status;
     }
 
-    public void setUserStatus(SearchUnit userStatus) {
-        this.userStatus = userStatus;
+    public void setStatus(SearchUnit status) {
+        this.status = status;
     }
 
     @Override

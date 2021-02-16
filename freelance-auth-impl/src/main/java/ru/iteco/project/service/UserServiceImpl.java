@@ -9,10 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.UserRole;
 import ru.iteco.project.domain.UserStatus;
-import ru.iteco.project.exception.EntityRecordNotFoundException;
-import ru.iteco.project.exception.UnavailableOperationException;
-import ru.iteco.project.exception.NonUniquePersonalDataException;
+import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
@@ -164,7 +163,6 @@ public class UserServiceImpl implements UserService {
      *
      * @param username - логин пользователя
      * @param email    - email пользователя
-     * @return - true - логин и email не пусты и пользователя с такими данными не существует, false - в любом ином случае
      */
     private void isCorrectUsernameEmail(String username, String email) {
         if (userRepository.existsByEmailOrUsername(email, username)) {
@@ -172,13 +170,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void checkingUpdatedData(UserDtoRequest userDtoRequest, User user){
-        if(!user.getUsername().equals(userDtoRequest.getUsername())){
+    private void checkingUpdatedData(UserDtoRequest userDtoRequest, User user) {
+        if (!user.getUsername().equals(userDtoRequest.getUsername())) {
             throw new UnavailableOperationException("errors.user.username.update");
         }
 
         String requestEmail = userDtoRequest.getEmail();
-        if(!user.getEmail().equals(requestEmail) && userRepository.existsByEmail(requestEmail)){
+        if (!user.getEmail().equals(requestEmail) && userRepository.existsByEmail(requestEmail)) {
             throw new NonUniquePersonalDataException("errors.user.email.exist");
         }
     }
@@ -220,20 +218,26 @@ public class UserServiceImpl implements UserService {
 
         SearchUnit role = userSearchDto.getRole();
         if (searchUnitIsValid(role)) {
+            if (!UserRole.isCorrectValue(role.getValue())) {
+                throw new InvalidUserRoleException(role.getValue() + " - not valid value!");
+            }
             restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
                     .setKey("role")
                     .setSearchOperation(role.getSearchOperation())
-                    .setValue(role.getValue())
+                    .setTypedValue(UserRole.valueOf(role.getValue()))
                     .build());
         }
 
 
-        SearchUnit searchUserStatus = userSearchDto.getUserStatus();
+        SearchUnit searchUserStatus = userSearchDto.getStatus();
         if (searchUnitIsValid(searchUserStatus)) {
+            if (!UserStatus.isCorrectValue(searchUserStatus.getValue())) {
+                throw new InvalidUserStatusException(searchUserStatus.getValue() + " - not valid value!");
+            }
             restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("userStatus")
+                    .setKey("status")
                     .setSearchOperation(searchUserStatus.getSearchOperation())
-                    .setValue(searchUserStatus.getValue())
+                    .setTypedValue(UserStatus.valueOf(searchUserStatus.getValue()))
                     .build());
         }
 

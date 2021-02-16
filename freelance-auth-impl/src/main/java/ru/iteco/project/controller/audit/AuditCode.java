@@ -13,6 +13,8 @@ public class AuditCode {
     public static final String USER_UPDATE = "USER_UPDATE";
     /*** Удаление пользователя*/
     public static final String USER_DELETE = "USER_DELETE";
+    /*** Получение токена*/
+    public static final String TOKEN_CREATE = "TOKEN_CREATE";
 
 }
 

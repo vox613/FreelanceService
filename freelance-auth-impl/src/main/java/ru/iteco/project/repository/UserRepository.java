@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ru.iteco.project.domain.User;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,5 +31,13 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
      * false - пользователя с переданным email не существует
      */
     boolean existsByEmail(String email);
+
+
+    /**
+     * Метод поиска сущности пользователя по его username
+     * @param username - логин/уникальное имя пользователя
+     * @return - Optional c сущностью пользователя, если пользователь с данным username сущетвует, иначе Optional c null
+     */
+    Optional<User> findByUsername(String username);
 
 }

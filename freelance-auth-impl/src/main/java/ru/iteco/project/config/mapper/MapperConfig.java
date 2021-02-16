@@ -1,4 +1,4 @@
-package ru.iteco.project.config;
+package ru.iteco.project.config.mapper;
 
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.MappingContext;
@@ -9,6 +9,8 @@ import ma.glasnost.orika.metadata.Type;
 import net.rakugakibox.spring.boot.orika.OrikaMapperFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.iteco.project.config.mapper.converter.DateTimeConverter;
+import ru.iteco.project.config.mapper.converter.PasswordConverter;
 import ru.iteco.project.domain.User;
 import ru.iteco.project.resource.dto.UserBaseDto;
 import ru.iteco.project.resource.dto.UserDtoRequest;
@@ -26,6 +28,14 @@ import java.time.LocalDateTime;
 @Configuration
 public class MapperConfig implements OrikaMapperFactoryConfigurer {
 
+    private final DateTimeConverter dateTimeConverter;
+    private final PasswordConverter passwordConverter;
+
+    public MapperConfig(DateTimeConverter dateTimeConverter, PasswordConverter passwordConverter) {
+        this.dateTimeConverter = dateTimeConverter;
+        this.passwordConverter = passwordConverter;
+    }
+
     @Bean
     DatatypeFactory datatypeFactory() throws DatatypeConfigurationException {
         return DatatypeFactory.newInstance();
@@ -42,7 +52,8 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
     @Override
     public void configure(MapperFactory mapperFactory) {
         ConverterFactory converterFactory = mapperFactory.getConverterFactory();
-        converterFactory.registerConverter("dateTimeFormatter", new DateTimeFormatter());
+        converterFactory.registerConverter("dateTimeFormatter", dateTimeConverter);
+        converterFactory.registerConverter("passwordConverter", passwordConverter);
         userMapperConfigure(mapperFactory);
     }
 
@@ -66,6 +77,8 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         // POST/PUT  UserDtoRequest --> User
         mapperFactory
                 .classMap(UserDtoRequest.class, User.class)
+                .fieldMap("password", "password")
+                .bToA().converter("passwordConverter").aToB().exclude().add()
                 .byDefault()
                 .register();
 
@@ -74,21 +87,5 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                 .classMap(User.class, UserBaseDto.class)
                 .byDefault()
                 .register();
-    }
-
-    /**
-     * Класс-конвертер для преобразования типов и форматов дат
-     */
-    static class DateTimeFormatter extends BidirectionalConverter<LocalDateTime, String> {
-
-        @Override
-        public String convertTo(LocalDateTime source, Type<String> destinationType, MappingContext mappingContext) {
-            return DateTimeMapper.objectToString(source);
-        }
-
-        @Override
-        public LocalDateTime convertFrom(String source, Type<LocalDateTime> destinationType, MappingContext mappingContext) {
-            return DateTimeMapper.stringToObject(source);
-        }
     }
 }

@@ -20,6 +20,9 @@ public class ResponseError {
             required = true)
     private String codeError;
 
+    @ApiModelProperty(value = "Наименование системы", example = "freelance-service", required = true)
+    private String systemId;
+
     @ApiModelProperty(value = "Список ошибок",
             example = "\"objectErrorList\": [\n" +
                     "        {\n" +
@@ -43,16 +46,18 @@ public class ResponseError {
     public ResponseError() {
     }
 
-    public ResponseError(UUID id, String message, String codeError) {
+    public ResponseError(UUID id, String message, String codeError, String systemId) {
         this.id = id;
         this.message = message;
         this.codeError = codeError;
+        this.systemId = systemId;
     }
 
-    public ResponseError(UUID id, String message, String codeError, List<ObjectError> objectErrorList) {
+    public ResponseError(UUID id, String message, String codeError, String systemId, List<ObjectError> objectErrorList) {
         this.id = id;
         this.message = message;
         this.codeError = codeError;
+        this.systemId = systemId;
         this.objectErrorList = objectErrorList;
     }
 
@@ -86,5 +91,13 @@ public class ResponseError {
 
     public void setObjectErrorList(List<ObjectError> objectErrorList) {
         this.objectErrorList = objectErrorList;
+    }
+
+    public String getSystemId() {
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
     }
 }
