@@ -1,6 +1,7 @@
 package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
+import ru.iteco.project.domain.User;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.dto.UserDtoRequest;
@@ -72,4 +73,14 @@ public interface UserService {
      * @return - объект PageDto с результатами поиска данных по заданным критериям
      */
     PageDto<UserDtoResponse> getUsers(SearchDto<UserSearchDto> searchDto, Pageable pageable);
+
+
+    /**
+     * Метод получения пользователя по его username
+     *
+     * @param username - лолгин пользователя
+     * @return - объект пользователя или null
+     */
+    User findByUsername(String username);
+
 }

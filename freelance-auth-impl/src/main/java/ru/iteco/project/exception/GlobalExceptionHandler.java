@@ -4,6 +4,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -188,6 +189,16 @@ public class GlobalExceptionHandler {
                 environment.getProperty(SYSTEM_ID_KEY)
         );
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResponseError> accessDeniedException(AccessDeniedException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY));
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
 
 

@@ -9,15 +9,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.iteco.project.resource.dto.ResponseError;
 import ru.iteco.project.resource.dto.ClientBaseDto;
 import ru.iteco.project.resource.dto.ClientDtoRequest;
 import ru.iteco.project.resource.dto.ClientDtoResponse;
+import ru.iteco.project.resource.dto.ResponseError;
 import ru.iteco.project.resource.searching.ClientSearchDto;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +47,7 @@ public interface ClientResource {
      * Эндпоинт с реализацией пагинации и сортировки результатов поиска
      *
      * @param clientSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
-     * @param pageable      - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @param pageable        - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
      * @return - объект PageDto с результатами соответствующими критериям запроса
      */
     @PostMapping(path = "/search")
@@ -76,8 +74,8 @@ public interface ClientResource {
     })
     PageDto getClients(@RequestBody(required = false) ClientSearchDto clientSearchDto,
                        @ApiIgnore
-                     @PageableDefault(size = 5, page = 0, sort = {"createdAt"}, direction = Sort.Direction.DESC)
-                             Pageable pageable);
+                       @PageableDefault(size = 5, page = 0, sort = {"createdAt"}, direction = Sort.Direction.DESC)
+                               Pageable pageable);
 
 
     /**
@@ -101,7 +99,7 @@ public interface ClientResource {
                     response = ResponseError.class)
     })
     ResponseEntity<ClientDtoResponse> getClient(@ApiParam(value = "Идентификатор пользователя", required = true)
-                                            @PathVariable UUID id);
+                                                @PathVariable UUID id);
 
 
     /**
@@ -131,38 +129,10 @@ public interface ClientResource {
                                                          BindingResult result,
                                                          UriComponentsBuilder componentsBuilder);
 
-
-    /**
-     * Метод пакетного добаввления пользователей
-     *
-     * @param clientDtoRequestList - список пользователей для добавления
-     * @param componentsBuilder  - билдер для формирования url ресура
-     * @return - список созданных пользователей в представлении ClientDtoResponse
-     */
-    @PostMapping(value = "/batch")
-    @ApiOperation(value = "Пакетное создание пользователей")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Пользователи успешно созданы. " +
-                    "Описание пользователей будет возвращено в теле ответа",
-                    response = List.class, responseContainer = "ResponseEntity"),
-            @ApiResponse(code = 400, message = "Непредвиденная ошибка", response = ResponseError.class),
-            @ApiResponse(code = 401,
-                    message = "Полномочия не подтверждены. Например, JWT невалиден, отсутствует, либо неверного формата",
-                    response = ResponseError.class),
-            @ApiResponse(code = 403, message = "Нет полномочий на выполнение запрашиваемой операции",
-                    response = ResponseError.class),
-            @ApiResponse(code = 422, message = "Серверу не удалось обработать инструкции содержимого тела запроса",
-                    response = ResponseError.class)
-    })
-    ResponseEntity<List<? extends Serializable>> createBatchClient(@Validated @RequestBody ArrayList<ClientDtoRequest> clientDtoRequestList,
-                                                                   UriComponentsBuilder componentsBuilder,
-                                                                   BindingResult result);
-
-
     /**
      * Обновляет существующего пользователя {id}
      *
-     * @param id             - уникальный идентификатор пользователя
+     * @param id               - уникальный идентификатор пользователя
      * @param clientDtoRequest - тело запроса с данными для обновления
      */
     @PutMapping(value = "/{id}")
@@ -180,7 +150,7 @@ public interface ClientResource {
                     response = ResponseError.class)
     })
     ResponseEntity<? extends ClientBaseDto> updateClient(@ApiParam(value = "Идентификатор пользователя", required = true)
-                                                     @PathVariable UUID id,
+                                                         @PathVariable UUID id,
                                                          @Validated @RequestBody ClientDtoRequest clientDtoRequest,
                                                          BindingResult result);
 
@@ -206,6 +176,6 @@ public interface ClientResource {
                     response = ResponseError.class)
     })
     ResponseEntity<Object> deleteClient(@ApiParam(value = "Идентификатор пользователя", required = true)
-                                      @PathVariable UUID id);
+                                        @PathVariable UUID id);
 
 }

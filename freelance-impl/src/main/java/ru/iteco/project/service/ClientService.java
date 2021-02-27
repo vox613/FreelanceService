@@ -32,14 +32,6 @@ public interface ClientService {
     ClientDtoResponse createClient(ClientDtoRequest clientDtoRequest);
 
     /**
-     * Метод создания список пользователей
-     *
-     * @param clientDtoRequestList - список пользователей
-     * @return - список пользователей  с проставленными уникальными идентификатороми id
-     */
-    List<ClientDtoResponse> createBundleClients(List<ClientDtoRequest> clientDtoRequestList);
-
-    /**
      * Метод обновления данны пользователя
      *
      * @param clientDtoRequest - запрос с обновленными данными клиента

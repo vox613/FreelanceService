@@ -7,34 +7,38 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.domain.*;
+import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.exception.InvalidTaskStatusException;
 import ru.iteco.project.exception.UnavailableRoleOperationException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.TaskStatusRepository;
-import ru.iteco.project.resource.dto.TaskDtoRequest;
-import ru.iteco.project.resource.dto.TaskDtoResponse;
-import ru.iteco.project.resource.dto.ClientBaseDto;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.resource.dto.ClientBaseDto;
+import ru.iteco.project.resource.dto.TaskDtoRequest;
+import ru.iteco.project.resource.dto.TaskDtoResponse;
 import ru.iteco.project.resource.searching.TaskSearchDto;
+import ru.iteco.project.service.util.AuthenticationUtil;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
 import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.EXECUTOR;
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
 import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.BLOCKED;
-import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.isEqualsClientStatus;
+import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
 import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
 import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
@@ -87,6 +91,7 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<TaskDtoResponse> getAllTasks() {
         ArrayList<TaskDtoResponse> taskDtoResponses = new ArrayList<>();
         for (Task task : taskRepository.findAll()) {
@@ -101,6 +106,7 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<TaskDtoResponse> getAllClientTasks(UUID clientId) {
         return taskRepository.findTasksByCustomerId(clientId).stream()
                 .map(this::enrichByClientsInfo)
@@ -113,6 +119,7 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public TaskDtoResponse getTaskById(UUID id) {
         TaskDtoResponse taskDtoResponse = null;
         Optional<Task> optionalTask = taskRepository.findById(id);
@@ -130,18 +137,15 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('USER')")
     public TaskDtoResponse createTask(TaskDtoRequest taskDtoRequest) {
-        TaskDtoResponse taskDtoResponse = null;
-        Optional<Client> clientOptional = clientRepository.findById(taskDtoRequest.getClientId());
-        if (clientOptional.isPresent()) {
-            Client client = clientOptional.get();
-            checkClientPermissions(client);
-            Task task = mapperFacade.map(taskDtoRequest, Task.class);
-            task.setId(UUID.randomUUID());
-            Task save = taskRepository.save(task);
-            taskDtoResponse = enrichByClientsInfo(save);
-        }
-        return taskDtoResponse;
+        Client client = clientRepository.findById(taskDtoRequest.getClientId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        checkClientPermissions(client);
+        Task task = mapperFacade.map(taskDtoRequest, Task.class);
+        task.setId(UUID.randomUUID());
+        Task save = taskRepository.save(task);
+        return enrichByClientsInfo(save);
     }
 
 
@@ -151,24 +155,17 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('USER')")
     public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
-        TaskDtoResponse taskDtoResponse = null;
-        if (taskDtoRequest.getClientId() != null
-                && taskRepository.existsById(taskDtoRequest.getId())) {
+        Client client = clientRepository.findById(taskDtoRequest.getClientId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        Task task = taskRepository.findById(taskDtoRequest.getId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
 
-            Optional<Client> clientOptional = clientRepository.findById(taskDtoRequest.getClientId());
-            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getId());
-            if (clientOptional.isPresent() && taskById.isPresent()) {
-                Client client = clientOptional.get();
-                Task task = taskById.get();
-
-                allowToUpdate(client, task);
-                mapperFacade.map(taskDtoRequest, task);
-                Task save = taskRepository.save(task);
-                taskDtoResponse = enrichByClientsInfo(save);
-            }
-        }
-        return taskDtoResponse;
+        allowToUpdate(client, task);
+        mapperFacade.map(taskDtoRequest, task);
+        Task save = taskRepository.save(task);
+        return enrichByClientsInfo(save);
     }
 
 
@@ -179,17 +176,22 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Boolean deleteTask(UUID id) {
-        Optional<Task> optionalTask = taskRepository.findById(id);
-        if (optionalTask.isPresent()) {
-            Optional<Contract> optionalContract = contractRepository.findContractByTask(optionalTask.get());
-            optionalContract.ifPresent(contractRepository::delete);
-            taskRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        Task task = taskRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        checkPermissions(task.getCustomer().getId());
+        Optional<Contract> optionalContract = contractRepository.findContractByTask(task);
+        optionalContract.ifPresent(contractRepository::delete);
+        taskRepository.deleteById(id);
+        return true;
     }
 
+    private void checkPermissions(UUID clientId) {
+        if (AuthenticationUtil.userHasRole(AuthenticationUtil.ROLE_USER)) {
+            AuthenticationUtil.userIdAndClientIdIsMatched(clientId);
+        }
+    }
 
     /**
      * Метод формирует ответ TaskDtoResponse и обогащает его данными о заказчике и исполнителе
@@ -215,7 +217,7 @@ public class TaskServiceImpl implements TaskService {
      * Метод проверяет возможность обновления контракта
      *
      * @param client - пользователь инициировавший процесс
-     * @param task - задание
+     * @param task   - задание
      */
     private void allowToUpdate(Client client, Task task) {
         boolean clientNotBlocked = !ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client);
@@ -224,6 +226,13 @@ public class TaskServiceImpl implements TaskService {
         boolean clientIsExecutorAndTaskOnExecutor = (task.getExecutor() != null) &&
                 client.getId().equals(task.getExecutor().getId()) &&
                 (isEqualsTaskStatus(IN_PROGRESS, task) || isEqualsTaskStatus(ON_FIX, task));
+
+        if (clientIsCustomerAndTaskOnCustomer) {
+            AuthenticationUtil.userIdAndClientIdIsMatched(task.getCustomer().getId());
+        } else if (clientIsExecutorAndTaskOnExecutor) {
+            AuthenticationUtil.userIdAndClientIdIsMatched(task.getExecutor().getId());
+        }
+
         boolean isAllowed = clientNotBlocked && (clientIsCustomerAndTaskOnCustomer || clientIsExecutorAndTaskOnExecutor);
         if (!isAllowed) {
             throw new UnavailableRoleOperationException(unavailableOperationMessage);
@@ -237,11 +246,17 @@ public class TaskServiceImpl implements TaskService {
      * @param client - сущность пользователя
      */
     private void checkClientPermissions(Client client) {
-        if (ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, client) || ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client)) {
+        AuthenticationUtil.userIdAndClientIdIsMatched(client.getId());
+        if (ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, client) ||
+                ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client)) {
             throw new UnavailableRoleOperationException(unavailableOperationMessage);
         }
     }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public PageDto<TaskDtoResponse> getTasks(SearchDto<TaskSearchDto> searchDto, Pageable pageable) {
         Page<Task> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

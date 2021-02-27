@@ -22,7 +22,7 @@ dependencies {
     implementation deps."commons-lang3"
     implementation deps."orika-spring-boot-starter"
     implementation deps."springfox-boot-starter"
-    implementation deps."spring-security-core"
+    implementation deps."spring-security"
     implementation deps."jwt"
 
 }

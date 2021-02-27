@@ -68,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
     private String generateAccessToken(User user, AuthUserDto authUserDto) {
         Map<String, Object> payload = new HashMap<>();
         Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        payload.put("userId", String.valueOf(user.getId()));
         payload.put("role", user.getRole().name());
         payload.put("email", user.getEmail());
         return Jwts.builder()

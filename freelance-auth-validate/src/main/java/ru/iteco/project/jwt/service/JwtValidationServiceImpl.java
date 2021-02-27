@@ -38,10 +38,9 @@ public class JwtValidationServiceImpl implements JwtValidationService {
 
 
     @Override
-    public CustomClaims validateToken(String token, String secret, String applicationName) {
-        CustomClaims tokenClaims = getTokenClaims(token, secret);
-
+    public CustomClaims validateToken(CustomClaims tokenClaims, String secret, String applicationName) {
         if (ObjectUtils.isEmpty(tokenClaims.getId()) ||
+                ObjectUtils.isEmpty(tokenClaims.getUserId()) ||
                 ObjectUtils.isEmpty(tokenClaims.getSubject()) ||
                 ObjectUtils.isEmpty(tokenClaims.getAudience()) ||
                 ObjectUtils.isEmpty(tokenClaims.getIssuer()) ||

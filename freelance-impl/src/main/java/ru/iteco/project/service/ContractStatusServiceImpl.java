@@ -5,23 +5,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iteco.project.domain.Client;
 import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
-import ru.iteco.project.domain.Client;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.ContractStatusRepository;
-import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
-import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
-import ru.iteco.project.resource.searching.ContractStatusSearchDto;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
+import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
+import ru.iteco.project.resource.searching.ContractStatusSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
@@ -29,7 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
 import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
 /**
@@ -78,6 +78,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public ContractStatusDtoResponse getContractStatusById(UUID id) {
         ContractStatusDtoResponse contractStatusDtoResponse = new ContractStatusDtoResponse();
         Optional<ContractStatus> optionalContractStatusById = contractStatusRepository.findById(id);
@@ -94,6 +95,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ContractStatusDtoResponse createContractStatus(ContractStatusDtoRequest contractStatusDtoRequest) {
         ContractStatusDtoResponse contractStatusDtoResponse = new ContractStatusDtoResponse();
         if (operationIsAllow(contractStatusDtoRequest)) {
@@ -111,6 +113,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ContractStatusDtoResponse updateContractStatus(UUID id, ContractStatusDtoRequest contractStatusDtoRequest) {
         ContractStatusDtoResponse contractStatusDtoResponse = new ContractStatusDtoResponse();
         if (operationIsAllow(contractStatusDtoRequest) &&
@@ -134,6 +137,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ContractStatusDtoResponse> getAllContractsStatuses() {
         return contractStatusRepository.findAll().stream()
                 .map(contractStatus -> mapperFacade.map(contractStatus, ContractStatusDtoResponse.class))
@@ -147,6 +151,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteContractStatus(UUID id) {
         Optional<ContractStatus> contractStatusById = contractStatusRepository.findById(id);
         if (contractStatusById.isPresent()) {
@@ -174,6 +179,9 @@ public class ContractStatusServiceImpl implements ContractStatusService {
         return false;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ContractStatusDtoResponse> getStatus(SearchDto<ContractStatusSearchDto> searchDto, Pageable pageable) {
         Page<ContractStatus> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

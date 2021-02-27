@@ -6,6 +6,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.util.UriBuilder;
@@ -75,9 +77,18 @@ public class AspectService {
         auditEvent.setId(uuid);
         auditEvent.setAuditCode(auditCode);
         auditEvent.setTimeStart(LocalDateTime.now());
-
-        auditEvent.setUserName("");
+        auditEvent.setUserName(getUsername());
         return auditEvent;
+    }
+
+    private String getUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal == null) {
+            throw new IllegalArgumentException("Authentication field \"username\" can't be empty!");
+        } else if ((principal instanceof UserDetails)) {
+            return ((UserDetails) principal).getUsername();
+        }
+        return principal.toString();
     }
 
     private AuditEvent prepareStartEvent(UUID uuid, String operation, ProceedingJoinPoint joinPoint) {

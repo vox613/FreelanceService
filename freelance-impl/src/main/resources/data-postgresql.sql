@@ -1,89 +1,89 @@
 -- Скрипт для заполнения таблиц с возможными статусами и ролями пользователей/заданий/договоров
 
-DROP TABLE IF EXISTS
-    freelance.client_roles,
-    freelance.client_statuses,
-    freelance.task_statuses,
-    freelance.contract_statuses,
-    freelance.clients,
-    freelance.task,
-    freelance.contract;
-
-CREATE TABLE IF NOT EXISTS freelance.client_roles
-(
-    id         uuid                     NOT NULL,
-    value      varchar(255)             NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS freelance.client_statuses
-(
-    id          uuid                     NOT NULL,
-    value       varchar(255)             NOT NULL,
-    description varchar(255)             NOT NULL,
-    created_at  timestamp with time zone NOT NULL,
-    updated_at  timestamp with time zone NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS freelance.task_statuses
-(
-    id          uuid                     NOT NULL,
-    value       varchar(255)             NOT NULL,
-    description varchar(255)             NOT NULL,
-    created_at  timestamp with time zone NOT NULL,
-    updated_at  timestamp with time zone NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS freelance.contract_statuses
-(
-    id          uuid                     NOT NULL,
-    value       varchar(255)             NOT NULL,
-    description varchar(255)             NOT NULL,
-    created_at  timestamp with time zone NOT NULL,
-    updated_at  timestamp with time zone NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS freelance.clients
-(
-    id           uuid                     NOT NULL,
-    first_name   varchar(255)             NOT NULL,
-    last_name    varchar(255)             NOT NULL,
-    second_name  varchar(255)             NOT NULL,
-    email        varchar(255)             NOT NULL,
-    phone_number varchar(255)             NOT NULL,
-    role_id      uuid                     NOT NULL,
-    status_id    uuid                     NOT NULL,
-    wallet       numeric(1000, 2)         NOT NULL,
-    created_at   timestamp with time zone NOT NULL,
-    updated_at   timestamp with time zone NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS freelance.task
-(
-    id                   uuid                     NOT NULL,
-    customer_id          uuid                     NOT NULL,
-    executor_id          uuid,
-    title                varchar(255)             NOT NULL,
-    description          varchar(255)             NOT NULL,
-    created_at           timestamp with time zone NOT NULL,
-    task_completion_date timestamp with time zone NOT NULL,
-    updated_at           timestamp with time zone NOT NULL,
-    task_status_id       uuid                     NOT NULL,
-    price                numeric(1000, 2)         NOT NULL,
-    task_decision        varchar(255)
-);
-
-CREATE TABLE IF NOT EXISTS freelance.contract
-(
-    id                 uuid                     NOT NULL,
-    customer_id        uuid                     NOT NULL,
-    executor_id        uuid                     NOT NULL,
-    created_at         timestamp with time zone NOT NULL,
-    task_id            uuid                     NOT NULL,
-    contract_status_id uuid                     NOT NULL,
-    updated_at         timestamp with time zone NOT NULL
-);
+-- DROP TABLE IF EXISTS
+--     freelance.client_roles,
+--     freelance.client_statuses,
+--     freelance.task_statuses,
+--     freelance.contract_statuses,
+--     freelance.clients,
+--     freelance.task,
+--     freelance.contract;
+--
+-- CREATE TABLE IF NOT EXISTS freelance.client_roles
+-- (
+--     id         uuid                     NOT NULL,
+--     value      varchar(255)             NOT NULL,
+--     created_at timestamp with time zone NOT NULL,
+--     updated_at timestamp with time zone NOT NULL
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS freelance.client_statuses
+-- (
+--     id          uuid                     NOT NULL,
+--     value       varchar(255)             NOT NULL,
+--     description varchar(255)             NOT NULL,
+--     created_at  timestamp with time zone NOT NULL,
+--     updated_at  timestamp with time zone NOT NULL
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS freelance.task_statuses
+-- (
+--     id          uuid                     NOT NULL,
+--     value       varchar(255)             NOT NULL,
+--     description varchar(255)             NOT NULL,
+--     created_at  timestamp with time zone NOT NULL,
+--     updated_at  timestamp with time zone NOT NULL
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS freelance.contract_statuses
+-- (
+--     id          uuid                     NOT NULL,
+--     value       varchar(255)             NOT NULL,
+--     description varchar(255)             NOT NULL,
+--     created_at  timestamp with time zone NOT NULL,
+--     updated_at  timestamp with time zone NOT NULL
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS freelance.clients
+-- (
+--     id           uuid                     NOT NULL,
+--     first_name   varchar(255)             NOT NULL,
+--     last_name    varchar(255)             NOT NULL,
+--     second_name  varchar(255)             NOT NULL,
+--     email        varchar(255)             NOT NULL,
+--     phone_number varchar(255)             NOT NULL,
+--     role_id      uuid                     NOT NULL,
+--     status_id    uuid                     NOT NULL,
+--     wallet       numeric(1000, 2)         NOT NULL,
+--     created_at   timestamp with time zone NOT NULL,
+--     updated_at   timestamp with time zone NOT NULL
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS freelance.task
+-- (
+--     id                   uuid                     NOT NULL,
+--     customer_id          uuid                     NOT NULL,
+--     executor_id          uuid,
+--     title                varchar(255)             NOT NULL,
+--     description          varchar(255)             NOT NULL,
+--     created_at           timestamp with time zone NOT NULL,
+--     task_completion_date timestamp with time zone NOT NULL,
+--     updated_at           timestamp with time zone NOT NULL,
+--     task_status_id       uuid                     NOT NULL,
+--     price                numeric(1000, 2)         NOT NULL,
+--     task_decision        varchar(255)
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS freelance.contract
+-- (
+--     id                 uuid                     NOT NULL,
+--     customer_id        uuid                     NOT NULL,
+--     executor_id        uuid                     NOT NULL,
+--     created_at         timestamp with time zone NOT NULL,
+--     task_id            uuid                     NOT NULL,
+--     contract_status_id uuid                     NOT NULL,
+--     updated_at         timestamp with time zone NOT NULL
+-- );
 
 
 

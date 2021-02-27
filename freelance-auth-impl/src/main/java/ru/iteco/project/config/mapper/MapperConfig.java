@@ -78,7 +78,7 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         mapperFactory
                 .classMap(UserDtoRequest.class, User.class)
                 .fieldMap("password", "password")
-                .bToA().converter("passwordConverter").aToB().exclude().add()
+                .aToB().converter("passwordConverter").add()
                 .byDefault()
                 .register();
 

@@ -5,35 +5,39 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.domain.*;
+import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.exception.InvalidContractStatusException;
+import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.ContractStatusRepository;
 import ru.iteco.project.repository.TaskRepository;
-import ru.iteco.project.repository.ClientRepository;
-import ru.iteco.project.resource.dto.ContractDtoRequest;
-import ru.iteco.project.resource.dto.ContractDtoResponse;
-import ru.iteco.project.resource.dto.ClientBaseDto;
-import ru.iteco.project.resource.searching.ContractSearchDto;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.resource.dto.ClientBaseDto;
+import ru.iteco.project.resource.dto.ContractDtoRequest;
+import ru.iteco.project.resource.dto.ContractDtoResponse;
+import ru.iteco.project.resource.searching.ContractSearchDto;
+import ru.iteco.project.service.util.AuthenticationUtil;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.EXECUTOR;
+import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.BLOCKED;
 import static ru.iteco.project.domain.ContractStatus.ContractStatusEnum.*;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.DONE;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.EXECUTOR;
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
-import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.BLOCKED;
-import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.isEqualsClientStatus;
 import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
 import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
@@ -85,6 +89,7 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ContractDtoResponse> getAllContracts() {
         ArrayList<ContractDtoResponse> contractDtoResponses = new ArrayList<>();
         for (Contract contract : contractRepository.findAll()) {
@@ -98,6 +103,7 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ContractDtoResponse getContractById(UUID id) {
         ContractDtoResponse contractDtoResponse = null;
         Optional<Contract> optionalContract = contractRepository.findById(id);
@@ -115,27 +121,22 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('USER')")
     public ContractDtoResponse createContract(ContractDtoRequest contractDtoRequest) {
+        Task task = taskRepository.findById(contractDtoRequest.getTaskId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        Client executor = clientRepository.findById(contractDtoRequest.getClientId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+
         ContractDtoResponse contractDtoResponse = null;
-        Optional<Task> taskById = taskRepository.findById(contractDtoRequest.getTaskId());
-        Optional<Client> clientById = clientRepository.findById(contractDtoRequest.getClientId());
-        if (taskById.isPresent() && clientById.isPresent()) {
-            Task task = taskById.get();
-            Client executor = clientById.get();
-
-            if (isEqualsTaskStatus(REGISTERED, task)
-                    && clientsNotBlocked(task.getCustomer(), executor)
-                    && ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, executor)
-                    && isCorrectConfirmCodes(contractDtoRequest.getConfirmationCode(), contractDtoRequest.getRepeatConfirmationCode())
-                    && customerHaveEnoughMoney(task)) {
-
-                Contract contract = mapperFacade.map(contractDtoRequest, Contract.class);
-                contract.setId(UUID.randomUUID());
-                Client taskCustomer = contract.getCustomer();
-                taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
-                Contract save = contractRepository.save(contract);
-                contractDtoResponse = enrichContractInfo(save);
-            }
+        if (checkClientPermissions(contractDtoRequest, executor, task)) {
+            Contract contract = mapperFacade.map(contractDtoRequest, Contract.class);
+            contract.setId(UUID.randomUUID());
+            Client taskCustomer = contract.getCustomer();
+            taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
+            Contract save = contractRepository.save(contract);
+            contractDtoResponse = enrichContractInfo(save);
         }
         return contractDtoResponse;
     }
@@ -146,24 +147,19 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('USER')")
     public ContractDtoResponse updateContract(ContractDtoRequest contractDtoRequest) {
+        Client customer = clientRepository.findById(contractDtoRequest.getClientId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        Contract contract = contractRepository.findById(contractDtoRequest.getId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+
         ContractDtoResponse contractDtoResponse = null;
-        if (contractDtoRequest.getClientId() != null
-                && contractRepository.existsById(contractDtoRequest.getId())) {
-
-            Optional<Client> clientOptional = clientRepository.findById(contractDtoRequest.getClientId());
-            Optional<Contract> contractById = contractRepository.findById(contractDtoRequest.getId());
-            if (clientOptional.isPresent() && contractById.isPresent()) {
-                Client client = clientOptional.get();
-                Contract contract = contractById.get();
-
-                if (allowToUpdate(client, contract)) {
-                    mapperFacade.map(contractDtoRequest, contract);
-                    transferFunds(contract);
-                    Contract save = contractRepository.save(contract);
-                    contractDtoResponse = enrichContractInfo(save);
-                }
-            }
+        if (allowToUpdate(customer, contract)) {
+            mapperFacade.map(contractDtoRequest, contract);
+            transferFunds(contract);
+            Contract save = contractRepository.save(contract);
+            contractDtoResponse = enrichContractInfo(save);
         }
         return contractDtoResponse;
     }
@@ -176,6 +172,7 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Boolean deleteContract(UUID id) {
         contractRepository.deleteById(id);
         return true;
@@ -227,7 +224,8 @@ public class ContractServiceImpl implements ContractService {
      * @return - true - пользователи не заблокированы, false - пользователи заблокированы
      */
     private boolean clientsNotBlocked(Client customer, Client executor) {
-        return !(ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, customer) || ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, executor));
+        return !(ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, customer) ||
+                ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, executor));
     }
 
 
@@ -245,14 +243,15 @@ public class ContractServiceImpl implements ContractService {
     /**
      * Метод проверяет возможность обновления контракта
      *
-     * @param client     - пользователь инициировавший процесс
+     * @param customer   - пользователь инициировавший процесс
      * @param contract - контракт
      * @return - true - пользователь не заблокирован, пользователь - заказчик, задание находится в финальном статусе,
      * контракт оплачен, false - в любом ином случае
      */
-    private boolean allowToUpdate(Client client, Contract contract) {
-        boolean clientNotBlocked = !ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client);
-        boolean clientIsCustomer = client.getId().equals(contract.getCustomer().getId());
+    private boolean allowToUpdate(Client customer, Contract contract) {
+        AuthenticationUtil.userIdAndClientIdIsMatched(customer.getId());
+        boolean clientNotBlocked = !ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, customer);
+        boolean clientIsCustomer = customer.getId().equals(contract.getCustomer().getId());
         boolean contractIsPaid = isEqualsContractStatus(PAID, contract);
         boolean taskInTerminatedStatus = isEqualsTaskStatus(DONE, contract.getTask())
                 || isEqualsTaskStatus(CANCELED, contract.getTask());
@@ -260,7 +259,26 @@ public class ContractServiceImpl implements ContractService {
         return clientNotBlocked && clientIsCustomer && contractIsPaid && taskInTerminatedStatus;
     }
 
+    /**
+     * Метод проверяет разрешения пользователя для действия создания контракта
+     * @param contractDtoRequest - модель с данными для заклюения контракта
+     * @param executor - сущность исполнителя
+     * @param task - сущность задания - предмета заключения контракта
+     * @return - true - заключение контракта доступно, false - заключение контракта недоступно
+     */
+    private boolean checkClientPermissions(ContractDtoRequest contractDtoRequest, Client executor, Task task) {
+        AuthenticationUtil.userIdAndClientIdIsMatched(executor.getId());
+        return isEqualsTaskStatus(REGISTERED, task)
+                && clientsNotBlocked(task.getCustomer(), executor)
+                && ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, executor)
+                && isCorrectConfirmCodes(contractDtoRequest.getConfirmationCode(), contractDtoRequest.getRepeatConfirmationCode())
+                && customerHaveEnoughMoney(task);
+    }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ContractDtoResponse> getContracts(SearchDto<ContractSearchDto> searchDto, Pageable pageable) {
         Page<Contract> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

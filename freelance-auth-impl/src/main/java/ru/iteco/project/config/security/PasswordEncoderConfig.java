@@ -1,18 +1,19 @@
-package ru.iteco.project.config;
+package ru.iteco.project.config.security;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 /**
- * Класс-конфигурация для энкодера паролей
+ * Конфигурация PasswordEncoder для шифрования паролей
  */
-@Configuration
+@Component
 public class PasswordEncoderConfig {
 
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

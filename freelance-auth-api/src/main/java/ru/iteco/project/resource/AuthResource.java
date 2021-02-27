@@ -12,7 +12,7 @@ import ru.iteco.project.resource.dto.AuthUserDto;
 
 import java.io.Serializable;
 
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @Api(value = "API для получения токена аутенификации")
 public interface AuthResource {
 
