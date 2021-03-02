@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
 import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,0 +1,13 @@
+bootJar {
+    enabled = false
+}
+
+dependencies {
+    implementation deps."spring-context"
+    implementation deps."spring-security-core"
+    implementation deps."jwt"
+}
+
+jar {
+    enabled = true
+}

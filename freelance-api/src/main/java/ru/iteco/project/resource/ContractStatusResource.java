@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.resource.dto.*;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;

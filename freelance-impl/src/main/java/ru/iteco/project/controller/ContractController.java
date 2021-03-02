@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.ContractResource;
 import ru.iteco.project.resource.dto.ContractBaseDto;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.service.ContractService;
 import ru.iteco.project.validator.ContractDtoRequestValidator;
 
@@ -23,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
 
@@ -77,7 +77,7 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    @Audit(operation = AuditCode.CONTRACT_CREATE)
+    @Audit(operation = CONTRACT_CREATE)
     public ResponseEntity<? extends ContractBaseDto> createContract(ContractDtoRequest contractDtoRequest,
                                                                     UriComponentsBuilder componentsBuilder,
                                                                     BindingResult result) {
@@ -105,7 +105,7 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    @Audit(operation = AuditCode.CONTRACT_UPDATE)
+    @Audit(operation = CONTRACT_UPDATE)
     public ResponseEntity<? extends ContractBaseDto> updateContract(ContractDtoRequest contractDtoRequest, UUID id,
                                                                     BindingResult result) {
 
@@ -126,7 +126,7 @@ public class ContractController implements ContractResource {
 
 
     @Override
-    @Audit(operation = AuditCode.CONTRACT_DELETE)
+    @Audit(operation = CONTRACT_DELETE)
     public ResponseEntity<ContractDtoResponse> deleteContract(UUID id) {
         beforeCall(Level.DEBUG, "deleteContract()", id);
         Boolean isDeleted = contractService.deleteContract(id);
@@ -140,7 +140,7 @@ public class ContractController implements ContractResource {
 
 
     @InitBinder(value = "contractDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(contractDtoRequestValidator);
     }
 

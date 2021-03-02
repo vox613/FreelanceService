@@ -66,27 +66,27 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Перехватчик исключения InvalidUserRoleException, возникающего при попытке создать или получить из БД
+     * Перехватчик исключения InvalidClientRoleException, возникающего при попытке создать или получить из БД
      * пользователя с невалидной ролью
      *
      * @param e - объект исключения
      * @return - объект ResponseError с полной информацией о возникшей проблеме
      */
-    @ExceptionHandler(InvalidUserRoleException.class)
-    public ResponseEntity<ResponseError> invalidUserRoleException(InvalidUserRoleException e) {
+    @ExceptionHandler(InvalidClientRoleException.class)
+    public ResponseEntity<ResponseError> invalidClientRoleException(InvalidClientRoleException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     /**
-     * Перехватчик исключения InvalidUserStatusException, возникающего при попытке создать пользователя с невалидным
+     * Перехватчик исключения InvalidClientStatusException, возникающего при попытке создать пользователя с невалидным
      * статусом
      *
      * @param e - объект исключения
      * @return - объект ResponseError с полной информацией о возникшей проблеме
      */
-    @ExceptionHandler(InvalidUserStatusException.class)
-    public ResponseEntity<ResponseError> invalidUserStatusException(InvalidUserStatusException e) {
+    @ExceptionHandler(InvalidClientStatusException.class)
+    public ResponseEntity<ResponseError> invalidClientStatusException(InvalidClientStatusException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
@@ -150,12 +150,28 @@ public class GlobalExceptionHandler {
      * @return - объект ResponseError с полной информацией о возникшей проблеме
      */
     @ExceptionHandler(EntityRecordNotFoundException.class)
-    public ResponseEntity<ResponseError> userNotFoundException(EntityRecordNotFoundException e) {
+    public ResponseEntity<ResponseError> clientNotFoundException(EntityRecordNotFoundException e) {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 environment.getProperty(e.getMessage(), "Entity with id not found!"),
                 e.getClass().getName());
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Класс исключения NonUniquePersonalDataException, возникающего при попытке создания пользователя с уникальными
+     *  * персональными данными, которые уже принадлежат другой учетной записи
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(NonUniquePersonalDataException.class)
+    public ResponseEntity<ResponseError> userAlreadyExistException(NonUniquePersonalDataException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), "Already exist!"),
+                e.getClass().getName());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
     /**

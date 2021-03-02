@@ -1,0 +1,63 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Aleksey Aleksandrov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="freelance_auth" tableName="users"/>
+            </not>
+        </preConditions>
+
+        <createTable schemaName="freelance_auth" tableName="users" remarks="Таблица пользователей">
+            <column name="id" type="uuid" remarks="Идентификатор записи">
+                <constraints primaryKey="true"
+                             primaryKeyName="user_pk"
+                             nullable="false"
+                />
+            </column>
+
+            <column name="username" type="varchar(255)" remarks="Логин пользователя">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)" remarks="Пароль пользователя">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)" remarks="email адрес пользователя">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(255)" remarks="Роль пользователя">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(255)" remarks="Статус пользователя">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" remarks="Дата и время создания">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" remarks="Дата и время последнего обновления">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+        <comment>Задача по созданию пользователя</comment>
+    </changeSet>
+
+
+
+    <changeSet id="2" author="Aleksey Aleksandrov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists schemaName="freelance_auth" tableName="users" indexName="user_login_email_idx"/>
+            </not>
+        </preConditions>
+        <createIndex schemaName="freelance_auth" tableName="users" indexName="user_login_email_idx">
+            <column name="username"/>
+            <column name="email"/>
+        </createIndex>
+        <comment>Индекс для поиска по логину и email пользователя</comment>
+    </changeSet>
+
+</databaseChangeLog>

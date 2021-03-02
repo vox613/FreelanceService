@@ -4,8 +4,8 @@ package ru.iteco.project.service;
 import org.springframework.data.domain.Pageable;
 import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
 import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.searching.TaskStatusSearchDto;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public interface TaskStatusService {
      * Метод создания нового статуса задания
      *
      * @param taskStatusDtoRequest - запрос с данными о статусе задания
-     * @return - объект UserRoleDtoResponse с уникальным идентификатором id
+     * @return - объект TaskStatusDtoResponse с уникальным идентификатором id
      */
     TaskStatusDtoResponse createTaskStatus(TaskStatusDtoRequest taskStatusDtoRequest);
 

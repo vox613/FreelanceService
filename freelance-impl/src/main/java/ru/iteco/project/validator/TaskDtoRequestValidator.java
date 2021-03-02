@@ -55,9 +55,9 @@ public class TaskDtoRequestValidator extends AbstractDtoValidator implements Val
 
         TaskDtoRequest taskForm = (TaskDtoRequest) target;
 
-        if (ObjectUtils.isEmpty(taskForm.getUserId())) {
-            logger.error("user Id is empty");
-            prepareErrorMessage(errors, "task.user.id.empty", "userId");
+        if (ObjectUtils.isEmpty(taskForm.getClientId())) {
+            logger.error("client Id is empty");
+            prepareErrorMessage(errors, "task.client.id.empty", "clientId");
         }
         if (errors.hasErrors()) return;
 

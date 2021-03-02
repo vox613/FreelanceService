@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.iteco.project.domain.*;
-import ru.iteco.project.domain.audit.AuditEvent;
-import ru.iteco.project.dto.AuditEventDto;
 import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.*;
 import ru.iteco.project.resource.dto.*;
@@ -25,8 +23,8 @@ import java.time.LocalDateTime;
 
 import static ru.iteco.project.domain.ContractStatus.ContractStatusEnum.PAID;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.*;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.ACTIVE;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.*;
+import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.ACTIVE;
 
 /**
  * Класс - конфигурация для Orika маппера
@@ -34,11 +32,11 @@ import static ru.iteco.project.domain.UserStatus.UserStatusEnum.ACTIVE;
 @Configuration
 public class MapperConfig implements OrikaMapperFactoryConfigurer {
 
-    @Value("${errors.user.role.operation.unavailable}")
+    @Value("${errors.client.role.operation.unavailable}")
     private String unavailableOperationMessage;
 
-    @Value("${errors.user.role.invalid}")
-    private String userRoleIsInvalidMessage;
+    @Value("${errors.client.role.invalid}")
+    private String clientRoleIsInvalidMessage;
 
     @Value("${errors.task.status.invalid}")
     private String invalidTaskStatusMessage;
@@ -51,13 +49,13 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
     private final TaskRepository taskRepository;
 
     /*** Объект доступа к репозиторию пользователей */
-    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     /*** Объект доступа к репозиторию ролей пользователей */
-    private final UserRoleRepository userRoleRepository;
+    private final ClientRoleRepository clientRoleRepository;
 
     /*** Объект доступа к репозиторию статусов пользователей */
-    private final UserStatusRepository userStatusRepository;
+    private final ClientStatusRepository clientStatusRepository;
 
     /*** Объект доступа к репозиторию статусов заданий */
     private final TaskStatusRepository taskStatusRepository;
@@ -66,13 +64,13 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
     private final ContractStatusRepository contractStatusRepository;
 
 
-    public MapperConfig(TaskRepository taskRepository, UserRepository userRepository,
-                        UserRoleRepository userRoleRepository, UserStatusRepository userStatusRepository,
+    public MapperConfig(TaskRepository taskRepository, ClientRepository clientRepository,
+                        ClientRoleRepository clientRoleRepository, ClientStatusRepository clientStatusRepository,
                         TaskStatusRepository taskStatusRepository, ContractStatusRepository contractStatusRepository) {
         this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
-        this.userRoleRepository = userRoleRepository;
-        this.userStatusRepository = userStatusRepository;
+        this.clientRepository = clientRepository;
+        this.clientRoleRepository = clientRoleRepository;
+        this.clientStatusRepository = clientStatusRepository;
         this.taskStatusRepository = taskStatusRepository;
         this.contractStatusRepository = contractStatusRepository;
     }
@@ -96,115 +94,114 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         ConverterFactory converterFactory = mapperFactory.getConverterFactory();
         converterFactory.registerConverter("dateTimeFormatter", new DateTimeFormatter());
 
-        userMapperConfigure(mapperFactory);
-        userStatusMapperConfigure(mapperFactory);
-        userRoleMapperConfigure(mapperFactory);
+        clientMapperConfigure(mapperFactory);
+        clientStatusMapperConfigure(mapperFactory);
+        clientRoleMapperConfigure(mapperFactory);
         taskMapperConfigure(mapperFactory);
         taskStatusMapperConfigure(mapperFactory);
         contractMapperConfigure(mapperFactory);
         contractStatusMapperConfigure(mapperFactory);
-        auditEventMapperConfigure(mapperFactory);
     }
 
 
     /**
-     * Метод конфигурирует маппер для преобразований: User --> UserDtoResponse,
-     * UserDtoRequest --> User, User --> UserBaseDto
+     * Метод конфигурирует маппер для преобразований: Client --> ClientDtoResponse,
+     * ClientDtoRequest --> Client, Client --> ClientBaseDto
      *
      * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
      *                      которые будут использоваться для выполнения функции отображения
      */
-    private void userMapperConfigure(MapperFactory mapperFactory) {
-        // GET  User --> UserDtoResponse
+    private void clientMapperConfigure(MapperFactory mapperFactory) {
+        // GET  Client --> ClientDtoResponse
         mapperFactory
-                .classMap(User.class, UserDtoResponse.class)
+                .classMap(Client.class, ClientDtoResponse.class)
                 .byDefault()
-                .customize(new CustomMapper<User, UserDtoResponse>() {
+                .customize(new CustomMapper<Client, ClientDtoResponse>() {
                     @Override
-                    public void mapAtoB(User user, UserDtoResponse userDtoResponse, MappingContext context) {
-                        taskRepository.findTasksByUser(user)
-                                .forEach(task -> userDtoResponse.getTasksIdList().add(task.getId()));
-                        userDtoResponse.setRole(user.getRole().getValue());
-                        userDtoResponse.setUserStatus(user.getUserStatus().getValue());
+                    public void mapAtoB(Client client, ClientDtoResponse clientDtoResponse, MappingContext context) {
+                        taskRepository.findTasksByClient(client)
+                                .forEach(task -> clientDtoResponse.getTasksIdList().add(task.getId()));
+                        clientDtoResponse.setClientRole(client.getClientRole().getValue());
+                        clientDtoResponse.setClientStatus(client.getClientStatus().getValue());
                     }
                 })
                 .fieldMap("createdAt").converter("dateTimeFormatter").add()
                 .fieldMap("updatedAt").converter("dateTimeFormatter").add()
                 .register();
 
-        // POST/PUT  UserDtoRequest --> User
+        // POST/PUT  ClientDtoRequest --> Client
         mapperFactory
-                .classMap(UserDtoRequest.class, User.class)
+                .classMap(ClientDtoRequest.class, Client.class)
                 .byDefault()
-                .customize(new CustomMapper<UserDtoRequest, User>() {
+                .customize(new CustomMapper<ClientDtoRequest, Client>() {
                     @Override
-                    public void mapAtoB(UserDtoRequest userDtoRequest, User user, MappingContext context) {
-                        if (user.getRole().getId() == null) {
-                            user.setRole(userRoleRepository.findUserRoleByValue(userDtoRequest.getRole())
-                                    .orElseThrow(() -> new InvalidUserRoleException(userRoleIsInvalidMessage)));
+                    public void mapAtoB(ClientDtoRequest clientDtoRequest, Client client, MappingContext context) {
+                        if (client.getClientRole().getId() == null) {
+                            client.setClientRole(clientRoleRepository.findClientRoleByValue(clientDtoRequest.getClientRole())
+                                    .orElseThrow(() -> new InvalidClientRoleException(clientRoleIsInvalidMessage)));
                         }
-                        user.setUserStatus(userStatusRepository.findUserStatusByValue(userDtoRequest.getUserStatus())
-                                .orElseThrow(() -> new InvalidUserStatusException(unavailableOperationMessage)));
+                        client.setClientStatus(clientStatusRepository.findClientStatusByValue(clientDtoRequest.getClientStatus())
+                                .orElseThrow(() -> new InvalidClientStatusException(unavailableOperationMessage)));
                     }
                 })
                 .register();
 
-        // GET  User --> UserBaseDto
+        // GET  Client --> ClientBaseDto
         mapperFactory
-                .classMap(User.class, UserBaseDto.class)
+                .classMap(Client.class, ClientBaseDto.class)
                 .byDefault()
-                .customize(new CustomMapper<User, UserBaseDto>() {
+                .customize(new CustomMapper<Client, ClientBaseDto>() {
                     @Override
-                    public void mapAtoB(User user, UserBaseDto userBaseDto, MappingContext context) {
-                        userBaseDto.setRole(user.getRole().getValue());
-                        userBaseDto.setUserStatus(user.getUserStatus().getValue());
+                    public void mapAtoB(Client client, ClientBaseDto clientBaseDto, MappingContext context) {
+                        clientBaseDto.setClientRole(client.getClientRole().getValue());
+                        clientBaseDto.setClientStatus(client.getClientStatus().getValue());
                     }
                 })
                 .register();
     }
 
     /**
-     * Метод конфигурирует маппер для преобразований: UserStatus --> UserStatusDtoResponse,
-     * UserStatusDtoRequest --> UserStatus
+     * Метод конфигурирует маппер для преобразований: ClientStatus --> ClientStatusDtoResponse,
+     * ClientStatusDtoRequest --> ClientStatus
      *
      * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
      *                      которые будут использоваться для выполнения функции отображения
      */
-    private void userStatusMapperConfigure(MapperFactory mapperFactory) {
-        // GET  UserStatus --> UserStatusDtoResponse
+    private void clientStatusMapperConfigure(MapperFactory mapperFactory) {
+        // GET  ClientStatus --> ClientStatusDtoResponse
         mapperFactory
-                .classMap(UserStatus.class, UserStatusDtoResponse.class)
+                .classMap(ClientStatus.class, ClientStatusDtoResponse.class)
                 .byDefault()
                 .fieldMap("createdAt").converter("dateTimeFormatter").add()
                 .fieldMap("updatedAt").converter("dateTimeFormatter").add()
                 .register();
 
-        // POST/PUT  UserStatusDtoRequest --> UserStatus
+        // POST/PUT  ClientStatusDtoRequest --> ClientStatus
         mapperFactory
-                .classMap(UserStatusDtoRequest.class, UserStatus.class)
+                .classMap(ClientStatusDtoRequest.class, ClientStatus.class)
                 .byDefault()
                 .register();
     }
 
     /**
-     * Метод конфигурирует маппер для преобразований: UserRole --> UserRoleDtoResponse,
-     * UserRoleDtoRequest --> UserRole
+     * Метод конфигурирует маппер для преобразований: ClientRole --> ClientRoleDtoResponse,
+     * ClientRoleDtoRequest --> ClientRole
      *
      * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
      *                      которые будут использоваться для выполнения функции отображения
      */
-    private void userRoleMapperConfigure(MapperFactory mapperFactory) {
-        // GET  UserRole --> UserRoleDtoResponse
+    private void clientRoleMapperConfigure(MapperFactory mapperFactory) {
+        // GET  ClientRole --> ClientRoleDtoResponse
         mapperFactory
-                .classMap(UserRole.class, UserRoleDtoResponse.class)
+                .classMap(ClientRole.class, ClientRoleDtoResponse.class)
                 .byDefault()
                 .fieldMap("createdAt").converter("dateTimeFormatter").add()
                 .fieldMap("updatedAt").converter("dateTimeFormatter").add()
                 .register();
 
-        // POST/PUT  UserRoleDtoRequest --> UserRole
+        // POST/PUT  ClientRoleDtoRequest --> ClientRole
         mapperFactory
-                .classMap(UserStatusDtoRequest.class, UserStatus.class)
+                .classMap(ClientStatusDtoRequest.class, ClientStatus.class)
                 .byDefault()
                 .register();
     }
@@ -243,10 +240,10 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                 .customize(new CustomMapper<TaskDtoRequest, Task>() {
                     @Override
                     public void mapAtoB(TaskDtoRequest taskDtoRequest, Task task, MappingContext context) {
-                        User user = userRepository.findById(taskDtoRequest.getUserId()).orElseThrow(
+                        Client client = clientRepository.findById(taskDtoRequest.getClientId()).orElseThrow(
                                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
                         );
-                        if (isEqualsUserRole(CUSTOMER, user)) {
+                        if (isEqualsClientRole(CUSTOMER, client)) {
                             task.setTitle(taskDtoRequest.getTitle());
                             task.setDescription(taskDtoRequest.getDescription());
                             task.setTaskCompletionDate(DateTimeMapper.stringToObject(taskDtoRequest.getTaskCompletionDate()));
@@ -258,11 +255,11 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                                     ).orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage)));
 
                             task.setTaskDecision(taskDtoRequest.getTaskDecision());
-                            user.setUserStatus(userStatusRepository.findUserStatusByValue(ACTIVE.name())
-                                    .orElseThrow(InvalidUserRoleException::new));
-                            task.setCustomer(user);
+                            client.setClientStatus(clientStatusRepository.findClientStatusByValue(ACTIVE.name())
+                                    .orElseThrow(InvalidClientRoleException::new));
+                            task.setCustomer(client);
 
-                        } else if (isEqualsUserRole(EXECUTOR, user)) {
+                        } else if (isEqualsClientRole(EXECUTOR, client)) {
                             task.setTaskDecision(taskDtoRequest.getTaskDecision());
                             task.setTaskStatus(taskStatusRepository.findTaskStatusByValue(ON_CHECK.name())
                                     .orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage)));
@@ -333,13 +330,13 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                                     () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
                             );
                             task.setTaskStatus(taskStatusRepository.findTaskStatusByValue(IN_PROGRESS.name())
-                                    .orElseThrow(InvalidUserRoleException::new));
+                                    .orElseThrow(InvalidClientRoleException::new));
 
-                            User executor = userRepository.findById(contractDtoRequest.getExecutorId()).orElseThrow(
+                            Client executor = clientRepository.findById(contractDtoRequest.getExecutorId()).orElseThrow(
                                     () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
                             );
-                            executor.setUserStatus(userStatusRepository.findUserStatusByValue(ACTIVE.name())
-                                    .orElseThrow(InvalidUserRoleException::new));
+                            executor.setClientStatus(clientStatusRepository.findClientStatusByValue(ACTIVE.name())
+                                    .orElseThrow(InvalidClientRoleException::new));
 
                             contract.setCustomer(task.getCustomer());
                             contract.setExecutor(executor);
@@ -378,33 +375,6 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
         // POST/PUT  ContractStatusDtoRequest --> ContractStatus
         mapperFactory
                 .classMap(ContractStatusDtoRequest.class, ContractStatus.class)
-                .byDefault()
-                .register();
-    }
-
-    /**
-     * Метод конфигурирует маппер для преобразований: AuditEvent <--> AuditEventDto
-     *
-     * @param mapperFactory - объект фабрики маппера, используется для настройки и регистрации моделей,
-     *                      которые будут использоваться для выполнения функции отображения
-     */
-    private void auditEventMapperConfigure(MapperFactory mapperFactory) {
-        mapperFactory.classMap(AuditEvent.class, AuditEventDto.class)
-                .customize(new CustomMapper<AuditEvent, AuditEventDto>() {
-                    @Override
-                    public void mapAtoB(AuditEvent auditEvent, AuditEventDto auditEventDto, MappingContext context) {
-                        auditEventDto.setParams(auditEvent.getParams());
-                        auditEventDto.setReturnValue(auditEvent.getReturnValue());
-                        super.mapAtoB(auditEvent, auditEventDto, context);
-                    }
-
-                    @Override
-                    public void mapBtoA(AuditEventDto auditEventDto, AuditEvent auditEvent, MappingContext context) {
-                        auditEvent.setParams(auditEventDto.getParams());
-                        auditEvent.setReturnValue(auditEventDto.getReturnValue());
-                        super.mapBtoA(auditEventDto, auditEvent, context);
-                    }
-                })
                 .byDefault()
                 .register();
     }

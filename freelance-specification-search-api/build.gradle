@@ -1,0 +1,11 @@
+bootJar {
+    enabled = false
+}
+
+dependencies {
+    implementation deps."swagger-annotations"
+}
+
+jar {
+    enabled = true
+}

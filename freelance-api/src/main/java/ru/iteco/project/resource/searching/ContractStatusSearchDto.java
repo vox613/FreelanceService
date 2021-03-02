@@ -2,6 +2,8 @@ package ru.iteco.project.resource.searching;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import ru.iteco.project.resource.AbstractSearchDto;
+import ru.iteco.project.resource.SearchUnit;
 
 
 @ApiModel(description = "Модель запроса для поиска статусов контрактов")

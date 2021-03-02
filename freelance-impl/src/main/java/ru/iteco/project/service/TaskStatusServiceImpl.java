@@ -8,28 +8,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
-import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.Client;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
+import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.TaskStatusRepository;
-import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
 import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
-import ru.iteco.project.resource.searching.SearchUnit;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.SearchUnit;
 import ru.iteco.project.resource.searching.TaskStatusSearchDto;
-import ru.iteco.project.service.specifications.CriteriaObject;
-import ru.iteco.project.service.specifications.SpecificationBuilder;
+import ru.iteco.project.specification.CriteriaObject;
+import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.ADMIN;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
-import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
+import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
 /**
  * Класс реализует функционал сервисного слоя для работы со статусами заданий
@@ -47,7 +48,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     private final TaskRepository taskRepository;
 
     /*** Объект доступа к репозиторию пользователей */
-    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     /*** Объект сервисного слоя заданий */
     private final TaskService taskService;
@@ -60,11 +61,11 @@ public class TaskStatusServiceImpl implements TaskStatusService {
 
 
     public TaskStatusServiceImpl(TaskStatusRepository taskStatusRepository, TaskRepository taskRepository,
-                                 UserRepository userRepository, TaskService taskService, MapperFacade mapperFacade,
+                                 ClientRepository clientRepository, TaskService taskService, MapperFacade mapperFacade,
                                  SpecificationBuilder<TaskStatus> specificationBuilder) {
         this.taskStatusRepository = taskStatusRepository;
         this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
         this.taskService = taskService;
         this.mapperFacade = mapperFacade;
         this.specificationBuilder = specificationBuilder;
@@ -129,7 +130,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     /**
      * По умолчанию в Postgres isolation READ_COMMITTED + недоступна модификация данных
      *
-     * @return
+     * @return List<TaskStatusDtoResponse> - список всех статусов заданий
      */
     @Override
     @Transactional(readOnly = true)
@@ -165,10 +166,10 @@ public class TaskStatusServiceImpl implements TaskStatusService {
      * @return true - операция разрешена, false - операция запрещена
      */
     private boolean operationIsAllow(TaskStatusDtoRequest taskStatusDtoRequest) {
-        if ((taskStatusDtoRequest != null) && (taskStatusDtoRequest.getUserId() != null)) {
-            Optional<User> userById = userRepository.findById(taskStatusDtoRequest.getUserId());
-            if (userById.isPresent()) {
-                return isEqualsUserRole(ADMIN, userById.get());
+        if ((taskStatusDtoRequest != null) && (taskStatusDtoRequest.getClientId() != null)) {
+            Optional<Client> clientById = clientRepository.findById(taskStatusDtoRequest.getClientId());
+            if (clientById.isPresent()) {
+                return ClientRole.ClientRoleEnum.isEqualsClientRole(ADMIN, clientById.get());
             }
         }
         return false;

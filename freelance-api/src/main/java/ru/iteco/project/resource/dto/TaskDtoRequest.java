@@ -15,7 +15,7 @@ public class TaskDtoRequest extends TaskBaseDto {
     @ApiModelProperty(value = "Идентификатор пользователя совершающего действие",
             example = "748b310e-486d-11eb-94e0-0242ac130002",
             required = true)
-    private UUID userId;
+    private UUID clientId;
 
     @ApiModelProperty(value = "Решение задания", example = "Решение задания", allowEmptyValue = true)
     private String taskDecision;
@@ -29,12 +29,12 @@ public class TaskDtoRequest extends TaskBaseDto {
     }
 
 
-    public UUID getUserId() {
-        return userId;
+    public UUID getClientId() {
+        return clientId;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setClientId(UUID clientId) {
+        this.clientId = clientId;
     }
 
     public String getTaskDecision() {

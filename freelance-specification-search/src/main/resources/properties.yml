@@ -1,0 +1,4 @@
+# Файл свойств и констант для модуля specification-search
+format:
+  date:
+    time: yyyy-MM-dd HH:mm:ss # Установленный формат даты и времени

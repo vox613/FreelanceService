@@ -1,0 +1,29 @@
+springBoot {
+    buildInfo()
+}
+
+bootJar {
+    launchScript {
+    }
+}
+
+dependencies {
+    implementation project(":freelance-auth-api")
+    implementation project(":freelance-audit")
+    implementation project(":freelance-specification-search")
+    implementation project(":freelance-specification-search-api")
+    implementation project(":freelance-auth-validate")
+
+
+    implementation deps."spring-boot-starter-web"
+    implementation deps."spring-boot-starter-actuator"
+    implementation deps."spring-boot-starter-data-jpa"
+    implementation deps."liquibase"
+    implementation deps."commons-lang3"
+    implementation deps."orika-spring-boot-starter"
+    implementation deps."springfox-boot-starter"
+    implementation deps."spring-security-core"
+    implementation deps."jwt"
+
+}
+

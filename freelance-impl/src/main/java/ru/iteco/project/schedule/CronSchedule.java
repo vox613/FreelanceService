@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import ru.iteco.project.service.SchedulerService;
+import ru.iteco.project.service.scheduler.SchedulerService;
 
 import java.time.Clock;
 import java.time.Instant;

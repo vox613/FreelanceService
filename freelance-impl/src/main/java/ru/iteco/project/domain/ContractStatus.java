@@ -10,7 +10,7 @@ import java.util.UUID;
  * Перечисление возможных статусов договора
  */
 @Entity
-@Table(name = "contract_statuses")
+@Table(schema = "freelance", name = "contract_statuses")
 public class ContractStatus extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id статуса контракта */

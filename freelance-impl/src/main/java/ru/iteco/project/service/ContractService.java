@@ -5,8 +5,8 @@ import ru.iteco.project.domain.Contract;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 
 import java.util.List;
 import java.util.UUID;

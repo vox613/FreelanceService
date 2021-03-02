@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.enumaration.AuditCode;
 import ru.iteco.project.resource.ContractStatusResource;
 import ru.iteco.project.resource.dto.ContractStatusBaseDto;
 import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
 import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
-import ru.iteco.project.resource.searching.PageDto;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.service.ContractStatusService;
 import ru.iteco.project.validator.ContractStatusDtoRequestValidator;
 
@@ -25,6 +24,7 @@ import java.util.UUID;
 
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
+import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с ContractStatus
@@ -76,7 +76,7 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.CONTRACT_STATUS_CREATE)
+    @Audit(operation = CONTRACT_STATUS_CREATE)
     public ResponseEntity<? extends ContractStatusBaseDto> createContractStatus(ContractStatusDtoRequest contractStatusDtoRequest,
                                                                                 BindingResult result,
                                                                                 UriComponentsBuilder componentsBuilder) {
@@ -99,7 +99,7 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.CONTRACT_STATUS_UPDATE)
+    @Audit(operation = CONTRACT_STATUS_UPDATE)
     public ResponseEntity<? extends ContractStatusBaseDto> updateTaskStatus(UUID id, ContractStatusDtoRequest contractStatusDtoRequest,
                                                                             BindingResult result) {
         beforeCall(Level.DEBUG, "updateTaskStatus()", id, contractStatusDtoRequest);
@@ -119,7 +119,7 @@ public class ContractStatusController implements ContractStatusResource {
 
 
     @Override
-    @Audit(operation = AuditCode.CONTRACT_STATUS_DELETE)
+    @Audit(operation = CONTRACT_STATUS_DELETE)
     public ResponseEntity<Object> deleteTaskStatus(UUID id) {
         beforeCall(Level.DEBUG, "deleteTaskStatus()", id);
         Boolean isDeleted = contractStatusService.deleteContractStatus(id);
@@ -132,7 +132,7 @@ public class ContractStatusController implements ContractStatusResource {
     }
 
     @InitBinder(value = "contractStatusDtoRequest")
-    private void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
         binder.setValidator(contractStatusDtoRequestValidator);
     }
 

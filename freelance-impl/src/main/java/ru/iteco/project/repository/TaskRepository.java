@@ -7,14 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
-import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.Client;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.*;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.*;
 
 /**
  * Интерфейс JPA репозитория для предоставления методов взаимодействия с данными сущности Task
@@ -40,14 +40,14 @@ public interface TaskRepository extends JpaRepository<Task, UUID>, JpaSpecificat
     /**
      * Метод получения всех заданий пользователя по его id
      *
-     * @param user - сущность пользователя
+     * @param client - сущность пользователя
      * @return - коллекция заданий пользователя или пустая коллекция если у пользователя нет заданий
      */
-    default Collection<Task> findTasksByUser(User user) {
-        if (isEqualsUserRole(CUSTOMER, user)) {
-            return findTasksByCustomerId(user.getId());
-        } else if (isEqualsUserRole(EXECUTOR, user)) {
-            return findTasksByExecutorId(user.getId());
+    default Collection<Task> findTasksByClient(Client client) {
+        if (isEqualsClientRole(CUSTOMER, client)) {
+            return findTasksByCustomerId(client.getId());
+        } else if (isEqualsClientRole(EXECUTOR, client)) {
+            return findTasksByExecutorId(client.getId());
         } else {
             return Collections.emptyList();
         }

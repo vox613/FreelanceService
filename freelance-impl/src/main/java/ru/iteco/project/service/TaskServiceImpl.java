@@ -10,36 +10,34 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Contract;
-import ru.iteco.project.domain.Task;
-import ru.iteco.project.domain.TaskStatus;
-import ru.iteco.project.domain.User;
+import ru.iteco.project.domain.*;
 import ru.iteco.project.exception.InvalidTaskStatusException;
 import ru.iteco.project.exception.UnavailableRoleOperationException;
+import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.TaskStatusRepository;
-import ru.iteco.project.repository.UserRepository;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoResponse;
-import ru.iteco.project.resource.dto.UserBaseDto;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
-import ru.iteco.project.resource.searching.SearchUnit;
+import ru.iteco.project.resource.dto.ClientBaseDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.SearchUnit;
 import ru.iteco.project.resource.searching.TaskSearchDto;
-import ru.iteco.project.service.specifications.CriteriaObject;
-import ru.iteco.project.service.specifications.SpecificationBuilder;
+import ru.iteco.project.specification.CriteriaObject;
+import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.EXECUTOR;
-import static ru.iteco.project.domain.UserRole.UserRoleEnum.isEqualsUserRole;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.BLOCKED;
-import static ru.iteco.project.domain.UserStatus.UserStatusEnum.isEqualsUserStatus;
-import static ru.iteco.project.service.specifications.SpecificationBuilder.isBetweenOperation;
-import static ru.iteco.project.service.specifications.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.EXECUTOR;
+import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
+import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.BLOCKED;
+import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.isEqualsClientStatus;
+import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
+import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+
 
 /**
  * Класс реализует функционал сервисного слоя для работы с заданиями
@@ -50,7 +48,7 @@ public class TaskServiceImpl implements TaskService {
 
     private static final Logger log = LogManager.getLogger(TaskServiceImpl.class.getName());
 
-    @Value("${errors.user.role.operation.unavailable}")
+    @Value("${errors.client.role.operation.unavailable}")
     private String unavailableOperationMessage;
 
 
@@ -58,7 +56,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
 
     /*** Объект доступа к репозиторию пользователей */
-    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     /*** Объект доступа к репозиторию контрактов */
     private final ContractRepository contractRepository;
@@ -73,10 +71,10 @@ public class TaskServiceImpl implements TaskService {
     private final SpecificationBuilder<Task> specificationBuilder;
 
 
-    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository, ContractRepository contractRepository,
+    public TaskServiceImpl(TaskRepository taskRepository, ClientRepository clientRepository, ContractRepository contractRepository,
                            TaskStatusRepository taskStatusRepository, MapperFacade mapperFacade, SpecificationBuilder<Task> specificationBuilder) {
         this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
         this.contractRepository = contractRepository;
         this.taskStatusRepository = taskStatusRepository;
         this.mapperFacade = mapperFacade;
@@ -92,7 +90,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskDtoResponse> getAllTasks() {
         ArrayList<TaskDtoResponse> taskDtoResponses = new ArrayList<>();
         for (Task task : taskRepository.findAll()) {
-            taskDtoResponses.add(enrichByUsersInfo(task));
+            taskDtoResponses.add(enrichByClientsInfo(task));
         }
         return taskDtoResponses;
     }
@@ -103,9 +101,9 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<TaskDtoResponse> getAllUserTasks(UUID userId) {
-        return taskRepository.findTasksByCustomerId(userId).stream()
-                .map(this::enrichByUsersInfo)
+    public List<TaskDtoResponse> getAllClientTasks(UUID clientId) {
+        return taskRepository.findTasksByCustomerId(clientId).stream()
+                .map(this::enrichByClientsInfo)
                 .collect(Collectors.toList());
     }
 
@@ -120,7 +118,7 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> optionalTask = taskRepository.findById(id);
         if (optionalTask.isPresent()) {
             Task task = optionalTask.get();
-            taskDtoResponse = enrichByUsersInfo(task);
+            taskDtoResponse = enrichByClientsInfo(task);
         }
         return taskDtoResponse;
     }
@@ -134,14 +132,14 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public TaskDtoResponse createTask(TaskDtoRequest taskDtoRequest) {
         TaskDtoResponse taskDtoResponse = null;
-        Optional<User> userOptional = userRepository.findById(taskDtoRequest.getUserId());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            checkUserPermissions(user);
+        Optional<Client> clientOptional = clientRepository.findById(taskDtoRequest.getClientId());
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get();
+            checkClientPermissions(client);
             Task task = mapperFacade.map(taskDtoRequest, Task.class);
             task.setId(UUID.randomUUID());
             Task save = taskRepository.save(task);
-            taskDtoResponse = enrichByUsersInfo(save);
+            taskDtoResponse = enrichByClientsInfo(save);
         }
         return taskDtoResponse;
     }
@@ -155,19 +153,19 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
         TaskDtoResponse taskDtoResponse = null;
-        if (taskDtoRequest.getUserId() != null
-                && taskRepository.existsById(taskDtoRequest.getUserId())) {
+        if (taskDtoRequest.getClientId() != null
+                && taskRepository.existsById(taskDtoRequest.getId())) {
 
-            Optional<User> userOptional = userRepository.findById(taskDtoRequest.getUserId());
-            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getUserId());
-            if (userOptional.isPresent() && taskById.isPresent()) {
-                User user = userOptional.get();
+            Optional<Client> clientOptional = clientRepository.findById(taskDtoRequest.getClientId());
+            Optional<Task> taskById = taskRepository.findById(taskDtoRequest.getId());
+            if (clientOptional.isPresent() && taskById.isPresent()) {
+                Client client = clientOptional.get();
                 Task task = taskById.get();
-                if (allowToUpdate(user, task)) {
-                    mapperFacade.map(taskDtoRequest, task);
-                    Task save = taskRepository.save(task);
-                    taskDtoResponse = enrichByUsersInfo(save);
-                }
+
+                allowToUpdate(client, task);
+                mapperFacade.map(taskDtoRequest, task);
+                Task save = taskRepository.save(task);
+                taskDtoResponse = enrichByClientsInfo(save);
             }
         }
         return taskDtoResponse;
@@ -200,11 +198,11 @@ public class TaskServiceImpl implements TaskService {
      * @return - объект TaskDtoResponse с подготовленными данными о задании, исполнителе и заказчике
      */
     @Override
-    public TaskDtoResponse enrichByUsersInfo(Task task) {
+    public TaskDtoResponse enrichByClientsInfo(Task task) {
         TaskDtoResponse taskDtoResponse = mapperFacade.map(task, TaskDtoResponse.class);
-        taskDtoResponse.setCustomer(mapperFacade.map(task.getCustomer(), UserBaseDto.class));
+        taskDtoResponse.setCustomer(mapperFacade.map(task.getCustomer(), ClientBaseDto.class));
         if (task.getExecutor() != null) {
-            taskDtoResponse.setExecutor(mapperFacade.map(task.getExecutor(), UserBaseDto.class));
+            taskDtoResponse.setExecutor(mapperFacade.map(task.getExecutor(), ClientBaseDto.class));
         }
         return taskDtoResponse;
     }
@@ -216,30 +214,30 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Метод проверяет возможность обновления контракта
      *
-     * @param user - пользователь инициировавший процесс
+     * @param client - пользователь инициировавший процесс
      * @param task - задание
-     * @return - true - пользователь не заблокирован, роль пользователя позволяет менять статаус задания,
-     * false - в любом ином случае
      */
-    private boolean allowToUpdate(User user, Task task) {
-        boolean userNotBlocked = !isEqualsUserStatus(BLOCKED, user);
-        boolean userIsCustomerAndTaskOnCustomer = user.getId().equals(task.getCustomer().getId()) &&
+    private void allowToUpdate(Client client, Task task) {
+        boolean clientNotBlocked = !ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client);
+        boolean clientIsCustomerAndTaskOnCustomer = client.getId().equals(task.getCustomer().getId()) &&
                 (isEqualsTaskStatus(REGISTERED, task) || isEqualsTaskStatus(ON_CHECK, task));
-        boolean userIsExecutorAndTaskOnExecutor = (task.getExecutor() != null) &&
-                user.getId().equals(task.getExecutor().getId()) &&
+        boolean clientIsExecutorAndTaskOnExecutor = (task.getExecutor() != null) &&
+                client.getId().equals(task.getExecutor().getId()) &&
                 (isEqualsTaskStatus(IN_PROGRESS, task) || isEqualsTaskStatus(ON_FIX, task));
-
-        return userNotBlocked && (userIsCustomerAndTaskOnCustomer || userIsExecutorAndTaskOnExecutor);
+        boolean isAllowed = clientNotBlocked && (clientIsCustomerAndTaskOnCustomer || clientIsExecutorAndTaskOnExecutor);
+        if (!isAllowed) {
+            throw new UnavailableRoleOperationException(unavailableOperationMessage);
+        }
     }
 
 
     /**
      * Метод проверяет доступна ли для пользователя операция создания задания
      *
-     * @param user - сущность пользователя
+     * @param client - сущность пользователя
      */
-    private void checkUserPermissions(User user) {
-        if (isEqualsUserRole(EXECUTOR, user) || isEqualsUserStatus(BLOCKED, user)) {
+    private void checkClientPermissions(Client client) {
+        if (ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, client) || ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client)) {
             throw new UnavailableRoleOperationException(unavailableOperationMessage);
         }
     }
@@ -252,7 +250,7 @@ public class TaskServiceImpl implements TaskService {
             page = taskRepository.findAll(pageable);
         }
 
-        List<TaskDtoResponse> taskDtoResponses = page.map(this::enrichByUsersInfo).toList();
+        List<TaskDtoResponse> taskDtoResponses = page.map(this::enrichByClientsInfo).toList();
         return new PageDto<>(taskDtoResponses, page.getTotalElements(), page.getTotalPages());
 
     }

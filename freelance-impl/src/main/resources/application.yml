@@ -27,6 +27,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
+    default-schema: freelance
   messages:
     basename: "message_en_EN, message_ru_Ru"
     encoding: UTF-8
@@ -38,7 +39,7 @@ spring:
     hibernate:
       hbm2ddl:
         auto: none
-      default_schema: public
+      default_schema: freelance
       use_sql_comments: true
       format_sql: true
   jackson:
@@ -58,7 +59,7 @@ management:
         enabled: true
 
   # Регулярное выражение для валидации электронной почты
-user:
+client:
   email:
     regexp: '^([A-Za-z0-9._-]{1,40})@([A-Za-z0-9._-]{1,20}\.)([A-Za-z0-9._-]{1,15})$'
 
@@ -73,8 +74,8 @@ task:
   price:
     min: 0  # Минимальная стоимость задания
   scheduler:
-      taskCompletionDate:
-        expiredDays: 10  # Количество дней через которое будет удалено просроченное, невостребованное задание
+    taskCompletionDate:
+      expiredDays: 10  # Количество дней через которое будет удалено просроченное, невостребованное задание
 
 
 format:
@@ -107,7 +108,7 @@ logging:
     org.springframework: INFO
   appenders:
     console:
-      enabled: false
+      enabled: true
     file:
       enabled: true
       name: log

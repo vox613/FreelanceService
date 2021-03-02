@@ -32,9 +32,9 @@ public class ContractDtoRequestValidator extends AbstractDtoValidator implements
 
         ContractDtoRequest contractForm = (ContractDtoRequest) target;
 
-        if (ObjectUtils.isEmpty(contractForm.getUserId())) {
-            logger.error("user Id is empty");
-            prepareErrorMessage(errors, "contract.user.id.empty", "userId");
+        if (ObjectUtils.isEmpty(contractForm.getClientId())) {
+            logger.error("client Id is empty");
+            prepareErrorMessage(errors, "contract.client.id.empty", "clientId");
         }
         if (errors.hasErrors()) return;
 

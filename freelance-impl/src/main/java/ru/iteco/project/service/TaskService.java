@@ -4,8 +4,8 @@ import org.springframework.data.domain.Pageable;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoResponse;
-import ru.iteco.project.resource.searching.PageDto;
-import ru.iteco.project.resource.searching.SearchDto;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.searching.TaskSearchDto;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public interface TaskService {
      *
      * @return - список всех договоров пользователя из коллекции
      */
-    List<TaskDtoResponse> getAllUserTasks(UUID userId);
+    List<TaskDtoResponse> getAllClientTasks(UUID clientId);
 
     /**
      * Метод получения задания по его id
@@ -69,7 +69,7 @@ public interface TaskService {
      * @param task - объект задания
      * @return - объект TaskDtoResponse с подготовленными данными о задании, исполнителе и заказчике
      */
-    TaskDtoResponse enrichByUsersInfo(Task task);
+    TaskDtoResponse enrichByClientsInfo(Task task);
 
     /**
      * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска
