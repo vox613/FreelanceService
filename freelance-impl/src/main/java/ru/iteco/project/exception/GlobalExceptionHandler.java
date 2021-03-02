@@ -4,6 +4,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -172,6 +173,37 @@ public class GlobalExceptionHandler {
                 environment.getProperty(e.getMessage(), "Already exist!"),
                 e.getClass().getName());
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Класс исключения AccessDeniedException, возникающего при попытке совершения пользователем
+     * недоступной ему операции
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResponseError> accessDeniedException(AccessDeniedException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Класс исключения IllegalArgumentException, возникающего при получении некорректных/неполных данных
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ResponseError> illegalArgumentException(IllegalArgumentException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName());
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     /**

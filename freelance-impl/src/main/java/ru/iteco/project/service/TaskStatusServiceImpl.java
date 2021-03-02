@@ -5,22 +5,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iteco.project.domain.Client;
 import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
-import ru.iteco.project.domain.Client;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.TaskStatusRepository;
-import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
-import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
+import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
 import ru.iteco.project.resource.searching.TaskStatusSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
@@ -29,7 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
 import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
 
 /**
@@ -78,6 +78,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public TaskStatusDtoResponse getTaskStatusById(UUID id) {
         TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
         Optional<TaskStatus> optionalTaskStatusById = taskStatusRepository.findById(id);
@@ -94,6 +95,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public TaskStatusDtoResponse createTaskStatus(TaskStatusDtoRequest taskStatusDtoRequest) {
         TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
         if (operationIsAllow(taskStatusDtoRequest)) {
@@ -111,6 +113,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public TaskStatusDtoResponse updateTaskStatus(UUID id, TaskStatusDtoRequest taskStatusDtoRequest) {
         TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
         if (operationIsAllow(taskStatusDtoRequest) &&
@@ -134,6 +137,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<TaskStatusDtoResponse> getAllTasksStatuses() {
         return taskStatusRepository.findAll().stream()
                 .map(taskStatus -> mapperFacade.map(taskStatus, TaskStatusDtoResponse.class))
@@ -147,6 +151,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteTaskStatus(UUID id) {
         Optional<TaskStatus> taskStatusById = taskStatusRepository.findById(id);
         if (taskStatusById.isPresent()) {
@@ -175,7 +180,9 @@ public class TaskStatusServiceImpl implements TaskStatusService {
         return false;
     }
 
-
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<TaskStatusDtoResponse> getStatus(SearchDto<TaskStatusSearchDto> searchDto, Pageable pageable) {
         Page<TaskStatus> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

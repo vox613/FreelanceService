@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +14,11 @@ import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ClientRoleRepository;
-import ru.iteco.project.resource.dto.ClientRoleDtoRequest;
-import ru.iteco.project.resource.dto.ClientRoleDtoResponse;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.resource.dto.ClientRoleDtoRequest;
+import ru.iteco.project.resource.dto.ClientRoleDtoResponse;
 import ru.iteco.project.resource.searching.ClientRoleSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
@@ -70,6 +71,7 @@ public class ClientRoleServiceImpl implements ClientRoleService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientRoleDtoResponse getClientRoleById(UUID id) {
         ClientRoleDtoResponse clientRoleDtoResponse = new ClientRoleDtoResponse();
         Optional<ClientRole> optionalClientRole = clientRoleRepository.findById(id);
@@ -87,6 +89,7 @@ public class ClientRoleServiceImpl implements ClientRoleService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientRoleDtoResponse createClientRole(ClientRoleDtoRequest clientRoleDtoRequest) {
         ClientRoleDtoResponse clientRoleDtoResponse = new ClientRoleDtoResponse();
         if (operationIsAllow(clientRoleDtoRequest)) {
@@ -105,6 +108,7 @@ public class ClientRoleServiceImpl implements ClientRoleService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientRoleDtoResponse updateClientRole(UUID id, ClientRoleDtoRequest clientRoleDtoRequest) {
         ClientRoleDtoResponse clientRoleDtoResponse = new ClientRoleDtoResponse();
         if (operationIsAllow(clientRoleDtoRequest) &&
@@ -129,6 +133,7 @@ public class ClientRoleServiceImpl implements ClientRoleService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ClientRoleDtoResponse> getAllClientsRoles() {
         return clientRoleRepository.findAll().stream()
                 .map(clientRole -> mapperFacade.map(clientRole, ClientRoleDtoResponse.class))
@@ -143,6 +148,7 @@ public class ClientRoleServiceImpl implements ClientRoleService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteClientRole(UUID id) {
         Optional<ClientRole> clientRoleOptional = clientRoleRepository.findById(id);
         if (clientRoleOptional.isPresent()) {
@@ -173,6 +179,9 @@ public class ClientRoleServiceImpl implements ClientRoleService {
         return false;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ClientRoleDtoResponse> getRoles(SearchDto<ClientRoleSearchDto> searchDto, Pageable pageable) {
         Page<ClientRole> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

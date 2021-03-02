@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,18 +18,22 @@ import ru.iteco.project.exception.InvalidClientStatusException;
 import ru.iteco.project.exception.NonUniquePersonalDataException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ClientRoleRepository;
-import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.ClientStatusRepository;
-import ru.iteco.project.resource.dto.ClientDtoRequest;
-import ru.iteco.project.resource.dto.ClientDtoResponse;
+import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.SearchUnit;
+import ru.iteco.project.resource.dto.ClientDtoRequest;
+import ru.iteco.project.resource.dto.ClientDtoResponse;
 import ru.iteco.project.resource.searching.ClientSearchDto;
+import ru.iteco.project.service.util.AuthenticationUtil;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.CREATED;
@@ -84,6 +89,7 @@ public class ClientServiceImpl implements ClientService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ClientDtoResponse getClientById(UUID uuid) {
         ClientDtoResponse clientDtoResponse = new ClientDtoResponse();
         Optional<Client> optionalClient = clientRepository.findById(uuid);
@@ -100,39 +106,21 @@ public class ClientServiceImpl implements ClientService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('USER')")
     public ClientDtoResponse createClient(ClientDtoRequest clientDtoRequest) {
         ClientDtoResponse clientDtoResponse = null;
+        UUID userId = AuthenticationUtil.getUserPrincipalId();
         if (isEqualsClientStatus(CREATED, clientDtoRequest.getClientStatus())) {
             emailIsAvailable(clientDtoRequest.getEmail());
+            clientIdIsAvailable(userId);
             Client newClient = mapperFacade.map(clientDtoRequest, Client.class);
-            newClient.setId(UUID.randomUUID());
+            newClient.setId(userId);
             Client save = clientRepository.save(newClient);
             clientDtoResponse = mapperFacade.map(save, ClientDtoResponse.class);
         }
         return clientDtoResponse;
     }
 
-    /**
-     * SERIALIZABLE - т.к. во время модификации и создание новых данных не должно быть влияния извне
-     * REQUIRED - в транзакции внешней или новой
-     */
-    @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public List<ClientDtoResponse> createBundleClients(List<ClientDtoRequest> clientDtoRequestList) {
-        List<Client> clientList = clientDtoRequestList.stream()
-                .map(requestDto -> {
-                    emailIsAvailable(requestDto.getEmail());
-                    Client mappedClient = mapperFacade.map(requestDto, Client.class);
-                    mappedClient.setId(UUID.randomUUID());
-                    return mappedClient;
-                })
-                .collect(Collectors.toList());
-
-        List<Client> clients = clientRepository.saveAll(clientList);
-        return clients.stream()
-                .map(entity -> mapperFacade.map(entity, ClientDtoResponse.class))
-                .collect(Collectors.toList());
-    }
 
     /**
      * SERIALIZABLE - т.к. во время модификации и создание новых данных не должно быть влияния извне
@@ -140,6 +128,7 @@ public class ClientServiceImpl implements ClientService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('USER')")
     public ClientDtoResponse updateClient(ClientDtoRequest clientDtoRequest) {
         Client client = clientRepository.findById(clientDtoRequest.getId()).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
@@ -157,6 +146,7 @@ public class ClientServiceImpl implements ClientService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<ClientDtoResponse> getAllClients() {
         return clientRepository.findAll().stream()
                 .map(client -> mapperFacade.map(client, ClientDtoResponse.class))
@@ -170,24 +160,24 @@ public class ClientServiceImpl implements ClientService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Boolean deleteClient(UUID id) {
-        Optional<Client> optionalClient = clientRepository.findById(id);
-        if (optionalClient.isPresent()) {
-            Client client = optionalClient.get();
-            taskRepository.findTasksByClient(client)
-                    .forEach(task -> taskService.deleteTask(task.getId()));
-            clientRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        Client client = clientRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        checkPermissions(client.getId());
+        taskRepository.findTasksByClient(client)
+                .forEach(task -> taskService.deleteTask(task.getId()));
+        clientRepository.deleteById(id);
+        return true;
     }
 
 
     private void checkUpdatedData(ClientDtoRequest clientDtoRequest, Client client) {
         String requestEmail = clientDtoRequest.getEmail();
-        if(!requestEmail.equals(client.getEmail()) && clientRepository.existsByEmail(requestEmail)){
+        if (!requestEmail.equals(client.getEmail()) && clientRepository.existsByEmail(requestEmail)) {
             throw new NonUniquePersonalDataException("errors.client.email.exist");
         }
+        AuthenticationUtil.userIdAndClientIdIsMatched(client.getId());
     }
 
     private void emailIsAvailable(String email) {
@@ -196,8 +186,22 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
+    private void clientIdIsAvailable(UUID id) {
+        if (clientRepository.existsById(id)) {
+            throw new NonUniquePersonalDataException("errors.persistence.entity.exist");
+        }
+    }
+
+    private void checkPermissions(UUID clientId) {
+        if (AuthenticationUtil.userHasRole(AuthenticationUtil.ROLE_USER)) {
+            AuthenticationUtil.userIdAndClientIdIsMatched(clientId);
+        }
+    }
+
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public PageDto<ClientDtoResponse> getClients(SearchDto<ClientSearchDto> searchDto, Pageable pageable) {
         Page<Client> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

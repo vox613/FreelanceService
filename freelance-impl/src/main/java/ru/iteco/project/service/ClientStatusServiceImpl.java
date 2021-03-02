@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +72,7 @@ public class ClientStatusServiceImpl implements ClientStatusService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientStatusDtoResponse getClientStatusById(UUID id) {
         ClientStatusDtoResponse clientStatusDtoResponse = new ClientStatusDtoResponse();
         Optional<ClientStatus> clientStatusOptional = clientStatusRepository.findById(id);
@@ -87,6 +89,7 @@ public class ClientStatusServiceImpl implements ClientStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientStatusDtoResponse createClientStatus(ClientStatusDtoRequest clientStatusDtoRequest) {
         ClientStatusDtoResponse clientStatusDtoResponse = new ClientStatusDtoResponse();
         if (operationIsAllow(clientStatusDtoRequest)) {
@@ -105,6 +108,7 @@ public class ClientStatusServiceImpl implements ClientStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientStatusDtoResponse updateClientStatus(UUID id, ClientStatusDtoRequest clientStatusDtoRequest) {
         ClientStatusDtoResponse clientStatusDtoResponse = new ClientStatusDtoResponse();
         if (operationIsAllow(clientStatusDtoRequest) &&
@@ -128,6 +132,7 @@ public class ClientStatusServiceImpl implements ClientStatusService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ClientStatusDtoResponse> getAllClientStatuses() {
         return clientStatusRepository.findAll().stream()
                 .map(clientStatus -> mapperFacade.map(clientStatus, ClientStatusDtoResponse.class))
@@ -142,6 +147,7 @@ public class ClientStatusServiceImpl implements ClientStatusService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteClientStatus(UUID id) {
         Optional<ClientStatus> clientStatusById = clientStatusRepository.findById(id);
         if (clientStatusById.isPresent()) {
@@ -170,7 +176,9 @@ public class ClientStatusServiceImpl implements ClientStatusService {
         return false;
     }
 
-
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ClientStatusDtoResponse> getStatus(SearchDto<ClientStatusSearchDto> searchDto, Pageable pageable) {
         Page<ClientStatus> page;
         if ((searchDto != null) && (searchDto.searchData() != null)) {

@@ -3,17 +3,21 @@ package ru.iteco.project.controller;
 import org.apache.logging.log4j.Level;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
+import ru.iteco.project.config.security.TokenAuthentication;
+import ru.iteco.project.config.security.UserPrincipal;
 import ru.iteco.project.resource.UserResource;
 import ru.iteco.project.resource.dto.UserBaseDto;
 import ru.iteco.project.resource.dto.UserDtoRequest;
 import ru.iteco.project.resource.dto.UserDtoResponse;
 import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.dto.UserInfoDTO;
 import ru.iteco.project.resource.searching.UserSearchDto;
 import ru.iteco.project.service.UserService;
 import ru.iteco.project.validator.UserDtoRequestValidator;
@@ -21,6 +25,7 @@ import ru.iteco.project.validator.UserDtoRequestValidator;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -155,6 +160,22 @@ public class UserController implements UserResource {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @Override
+    public ResponseEntity<UserInfoDTO> getUserInfo() {
+        TokenAuthentication tokenAuthentication = (TokenAuthentication) (SecurityContextHolder.getContext().getAuthentication());
+        UserPrincipal principal = (UserPrincipal) tokenAuthentication.getPrincipal();
+        UserInfoDTO userInfoDTO = UserInfoDTO.builder()
+                .setUsername(principal.getUsername())
+                .setAccountNonExpired(principal.isAccountNonExpired())
+                .setAccountNonLocked(principal.isAccountNonLocked())
+                .setCredentialsNonExpired(principal.isCredentialsNonExpired())
+                .setEnabled(principal.isEnabled())
+                .setAuthenticated(tokenAuthentication.isAuthenticated())
+                .setAuthorities(Arrays.asList(principal.getAuthorities().toArray())).build();
+        return ResponseEntity.ok(userInfoDTO);
+    }
+
 
     @InitBinder(value = {"userDtoRequest", "userDtoRequestList"})
     public void initUserDtoRequestBinder(WebDataBinder binder) {

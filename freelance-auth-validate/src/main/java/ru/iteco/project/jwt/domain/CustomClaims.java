@@ -9,6 +9,9 @@ import java.util.Map;
  */
 public class CustomClaims extends DefaultClaims {
 
+    /*** Ключ для id пользователя*/
+    private static final String USER_ID = "userId";
+
     /*** Ключ для email пользователя*/
     private static final String EMAIL = "email";
 
@@ -20,6 +23,14 @@ public class CustomClaims extends DefaultClaims {
         super(map);
     }
 
+
+    public String getUserId() {
+        return getString(USER_ID);
+    }
+
+    public void setUserId(String userId) {
+        setValue(USER_ID, userId);
+    }
 
     public String getEmail() {
         return getString(EMAIL);

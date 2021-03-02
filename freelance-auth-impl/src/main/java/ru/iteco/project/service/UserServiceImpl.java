@@ -3,8 +3,11 @@ package ru.iteco.project.service;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger log = LogManager.getLogger(UserServiceImpl.class.getName());
 
+    @Value("${errors.auth.data.invalid}")
+    private String invalidLoginOrPassMessage;
+
     /*** Объект доступа к репозиторию пользователей */
     private final UserRepository userRepository;
 
@@ -62,6 +68,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDtoResponse getUserById(UUID uuid) {
         UserDtoResponse userDtoResponse = new UserDtoResponse();
         Optional<User> optionalUser = userRepository.findById(uuid);
@@ -78,6 +85,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDtoResponse createUser(UserDtoRequest userDtoRequest) {
         isCorrectUsernameEmail(userDtoRequest.getUsername(), userDtoRequest.getEmail());
 
@@ -93,6 +101,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserDtoResponse> createBundleUsers(List<UserDtoRequest> userDtoRequestList) {
         List<User> usersList = userDtoRequestList.stream()
                 .map(requestDto -> {
@@ -115,6 +124,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDtoResponse updateUser(UserDtoRequest userDtoRequest) {
         User user = userRepository.findById(userDtoRequest.getId()).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
@@ -133,6 +143,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserDtoResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(user -> mapperFacade.map(user, UserDtoResponse.class))
@@ -146,6 +157,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Boolean deleteUser(UUID id) {
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
@@ -192,7 +204,13 @@ public class UserServiceImpl implements UserService {
 
         List<UserDtoResponse> userDtoResponses = page.map(entity -> mapperFacade.map(entity, UserDtoResponse.class)).toList();
         return new PageDto<>(userDtoResponses, page.getTotalElements(), page.getTotalPages());
+    }
 
+
+    @Override
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException(invalidLoginOrPassMessage));
     }
 
     /**

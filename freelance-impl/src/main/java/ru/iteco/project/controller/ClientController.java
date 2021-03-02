@@ -10,23 +10,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.resource.ClientResource;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.dto.ClientBaseDto;
 import ru.iteco.project.resource.dto.ClientDtoRequest;
 import ru.iteco.project.resource.dto.ClientDtoResponse;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.ClientSearchDto;
 import ru.iteco.project.service.ClientService;
 import ru.iteco.project.validator.ClientDtoRequestValidator;
 
-import java.io.Serializable;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
-import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с Client
@@ -97,27 +95,6 @@ public class ClientController implements ClientResource {
             return ResponseEntity.unprocessableEntity().build();
         }
 
-    }
-
-
-    @Override
-    @Audit(operation = CLIENT_BATCH_CREATE)
-    public ResponseEntity<List<? extends Serializable>> createBatchClient(ArrayList<ClientDtoRequest> clientDtoRequestList,
-                                                                          UriComponentsBuilder componentsBuilder,
-                                                                          BindingResult result) {
-        beforeCall(Level.DEBUG, "createBatchClient()", clientDtoRequestList);
-
-
-        if (result.hasErrors()) {
-            return ResponseEntity.unprocessableEntity().body(result.getAllErrors());
-        }
-
-        List<ClientDtoResponse> bundleClients = clientService.createBundleClients(clientDtoRequestList);
-        afterCall(Level.DEBUG, "createBatchClient()", bundleClients);
-
-
-        URI uri = componentsBuilder.path("/").build().toUri();
-        return ResponseEntity.created(uri).body(bundleClients);
     }
 
 

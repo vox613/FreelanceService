@@ -2,6 +2,7 @@ package ru.iteco.project.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
 import ru.iteco.project.domain.Task;
@@ -13,6 +14,7 @@ import java.util.UUID;
 /**
  * Интерфейс JPA репозитория для предоставления методов взаимодействия с данными сущности Contract
  */
+@Repository
 public interface ContractRepository extends JpaRepository<Contract, UUID>, JpaSpecificationExecutor<Contract> {
 
     /**

@@ -19,9 +19,9 @@ public interface JwtValidationService {
     /**
      * Метод осуществляет валидацию токена
      *
-     * @param token - токен для валидации
+     * @param tokenClaims - набор данных для проверки
      * @return - набор Claims - провалидированных атрибутов
      */
-    CustomClaims validateToken(String token, String secret, String applicationName);
+    CustomClaims validateToken(CustomClaims tokenClaims, String secret, String applicationName);
 
 }

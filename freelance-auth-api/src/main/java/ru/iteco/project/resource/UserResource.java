@@ -9,10 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.iteco.project.resource.dto.ResponseError;
-import ru.iteco.project.resource.dto.UserBaseDto;
-import ru.iteco.project.resource.dto.UserDtoRequest;
-import ru.iteco.project.resource.dto.UserDtoResponse;
+import ru.iteco.project.resource.dto.*;
 import ru.iteco.project.resource.searching.UserSearchDto;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -207,5 +204,17 @@ public interface UserResource {
     })
     ResponseEntity<Object> deleteUser(@ApiParam(value = "Идентификатор пользователя", required = true)
                                       @PathVariable UUID id);
+
+
+    @GetMapping("/info")
+    @ApiOperation(value = "Получение информации о текущем пользователе")
+    @ApiResponses({@ApiResponse(code = 200, message = "Информация получена успешно"),
+            @ApiResponse(code = 401,
+                    message = "Полномочия не подтверждены. Например, JWT невалиден, отсутствует, либо неверного формата",
+                    response = ResponseError.class),
+            @ApiResponse(code = 403, message = "Нет полномочий на выполнение запрашиваемой операции",
+                    response = ResponseError.class)})
+    ResponseEntity<UserInfoDTO> getUserInfo();
+
 
 }

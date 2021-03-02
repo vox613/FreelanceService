@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.domain.Client;
@@ -19,6 +20,7 @@ import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.*;
 /**
  * Интерфейс JPA репозитория для предоставления методов взаимодействия с данными сущности Task
  */
+@Repository
 public interface TaskRepository extends JpaRepository<Task, UUID>, JpaSpecificationExecutor<Task> {
 
     /**
