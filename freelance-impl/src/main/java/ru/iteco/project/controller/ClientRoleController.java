@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.resource.ClientRoleResource;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.dto.ClientRoleBaseDto;
 import ru.iteco.project.resource.dto.ClientRoleDtoRequest;
 import ru.iteco.project.resource.dto.ClientRoleDtoResponse;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.ClientRoleSearchDto;
 import ru.iteco.project.service.ClientRoleService;
 import ru.iteco.project.validator.ClientRoleDtoRequestValidator;
@@ -22,9 +22,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
-import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с Client
@@ -58,11 +58,7 @@ public class ClientRoleController implements ClientRoleResource {
         beforeCall(Level.DEBUG, "getClientRole()", id);
         ClientRoleDtoResponse clientRoleById = clientRoleService.getClientRoleById(id);
         afterCall(Level.DEBUG, "getClientRole()", clientRoleById);
-        if ((clientRoleById != null) && (clientRoleById.getId() != null)) {
-            return ResponseEntity.ok().body(clientRoleById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(clientRoleById);
     }
 
 
@@ -88,13 +84,8 @@ public class ClientRoleController implements ClientRoleResource {
 
         ClientRoleDtoResponse roleDtoResponse = clientRoleService.createClientRole(clientRoleDtoRequest);
         afterCall(Level.DEBUG, "createClientRole()", roleDtoResponse);
-
-        if (roleDtoResponse.getId() != null) {
-            URI uri = componentsBuilder.path("/roles/" + roleDtoResponse.getId()).buildAndExpand(roleDtoResponse).toUri();
-            return ResponseEntity.created(uri).body(roleDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
+        URI uri = componentsBuilder.path("/api/v1/roles/clients/" + roleDtoResponse.getId()).buildAndExpand(roleDtoResponse).toUri();
+        return ResponseEntity.created(uri).body(roleDtoResponse);
     }
 
 
@@ -110,12 +101,7 @@ public class ClientRoleController implements ClientRoleResource {
 
         ClientRoleDtoResponse clientRoleDtoResponse = clientRoleService.updateClientRole(id, clientRoleDtoRequest);
         afterCall(Level.DEBUG, "updateClientRole()", clientRoleDtoResponse);
-
-        if (clientRoleDtoResponse != null) {
-            return ResponseEntity.ok().body(clientRoleDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(clientRoleDtoRequest);
-        }
+        return ResponseEntity.ok().body(clientRoleDtoResponse);
     }
 
 
@@ -125,11 +111,7 @@ public class ClientRoleController implements ClientRoleResource {
         beforeCall(Level.DEBUG, "deleteClientRole()", id);
         Boolean isDeleted = clientRoleService.deleteClientRole(id);
         afterCall(Level.DEBUG, "deleteClientRole()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @InitBinder(value = "clientRoleDtoRequest")

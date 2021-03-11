@@ -4,7 +4,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.iteco.project.config.security.UserPrincipal;
+import ru.iteco.project.security.UserPrincipal;
 
 import java.util.UUID;
 
@@ -61,6 +61,19 @@ public class AuthenticationUtil {
 
         if (!clientId.equals(getUserPrincipalId())) {
             throw new AccessDeniedException("errors.operation.forbidden");
+        }
+    }
+
+    /**
+     * Метод проверяет совпадают ли переданный clientId и userId из объекта Authentication,
+     * проверка осуществляется если роль клиента совпадает с переданным значением role
+     *
+     * @param role     - переданная роль пользователя при которой происходит сравнение
+     * @param clientId - уникальный идентификатор клиента
+     */
+    public static void checkIdForRole(String role, UUID clientId) {
+        if (AuthenticationUtil.userHasRole(role)) {
+            AuthenticationUtil.userIdAndClientIdIsMatched(clientId);
         }
     }
 

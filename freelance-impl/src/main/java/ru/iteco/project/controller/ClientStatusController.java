@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.resource.ClientStatusResource;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.dto.ClientStatusBaseDto;
 import ru.iteco.project.resource.dto.ClientStatusDtoRequest;
 import ru.iteco.project.resource.dto.ClientStatusDtoResponse;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.ClientStatusSearchDto;
 import ru.iteco.project.service.ClientStatusService;
 import ru.iteco.project.validator.ClientStatusDtoRequestValidator;
@@ -22,9 +22,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
-import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с ClientStatus
@@ -58,11 +58,7 @@ public class ClientStatusController implements ClientStatusResource {
         beforeCall(Level.DEBUG, "getClientStatus()", id);
         ClientStatusDtoResponse clientStatusById = clientStatusService.getClientStatusById(id);
         afterCall(Level.DEBUG, "getClientStatus()", clientStatusById);
-        if ((clientStatusById != null) && (clientStatusById.getId() != null)) {
-            return ResponseEntity.ok().body(clientStatusById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(clientStatusById);
     }
 
 
@@ -89,13 +85,8 @@ public class ClientStatusController implements ClientStatusResource {
 
         ClientStatusDtoResponse clientStatusDtoResponse = clientStatusService.createClientStatus(clientStatusDtoRequest);
         afterCall(Level.DEBUG, "createClientStatus()", clientStatusDtoResponse);
-
-        if (clientStatusDtoResponse.getId() != null) {
-            URI uri = componentsBuilder.path("/statuses/clients/" + clientStatusDtoResponse.getId()).buildAndExpand(clientStatusDtoResponse).toUri();
-            return ResponseEntity.created(uri).body(clientStatusDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
+        URI uri = componentsBuilder.path("/api/v1/statuses/clients/" + clientStatusDtoResponse.getId()).buildAndExpand(clientStatusDtoResponse).toUri();
+        return ResponseEntity.created(uri).body(clientStatusDtoResponse);
     }
 
     @Override
@@ -111,12 +102,7 @@ public class ClientStatusController implements ClientStatusResource {
 
         ClientStatusDtoResponse statusDtoResponse = clientStatusService.updateClientStatus(id, clientStatusDtoRequest);
         afterCall(Level.DEBUG, "updateClientStatus()", statusDtoResponse);
-
-        if (statusDtoResponse != null) {
-            return ResponseEntity.ok().body(statusDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(null);
-        }
+        return ResponseEntity.ok().body(statusDtoResponse);
     }
 
     @Override
@@ -125,11 +111,7 @@ public class ClientStatusController implements ClientStatusResource {
         beforeCall(Level.DEBUG, "deleteClientStatus()", id);
         Boolean isDeleted = clientStatusService.deleteClientStatus(id);
         afterCall(Level.DEBUG, "deleteClientStatus()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @InitBinder(value = "clientStatusDtoRequest")

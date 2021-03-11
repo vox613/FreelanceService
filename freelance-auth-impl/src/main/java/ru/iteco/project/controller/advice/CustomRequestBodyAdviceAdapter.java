@@ -26,7 +26,7 @@ import java.util.Objects;
  * Класс-расширение функционала контроллеров
  */
 @RestControllerAdvice
-@PropertySource(value = {"classpath:errors.properties"})
+@PropertySource(value = {"classpath:errors.properties"}, encoding = "UTF-8")
 public class CustomRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
     private static final Logger log = LogManager.getLogger(CustomRequestBodyAdviceAdapter.class.getName());
 

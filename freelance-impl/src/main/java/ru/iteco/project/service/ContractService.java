@@ -2,11 +2,11 @@ package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
 import ru.iteco.project.domain.Contract;
+import ru.iteco.project.resource.PageDto;
+import ru.iteco.project.resource.SearchDto;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.PageDto;
-import ru.iteco.project.resource.SearchDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности Contract
  */
-public interface ContractService {
+public interface ContractService extends CommonService<ContractDtoRequest, Contract> {
 
     /**
      * Метод получает вссе договоры из коллекции

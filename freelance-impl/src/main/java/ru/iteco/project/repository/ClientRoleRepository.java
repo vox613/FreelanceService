@@ -22,4 +22,14 @@ public interface ClientRoleRepository extends JpaRepository<ClientRole, UUID>, J
      */
     Optional<ClientRole> findClientRoleByValue(String value);
 
+    /**
+     * Метод проверяет существование роли клиента с переданным значением поля value
+     *
+     * @param value - наименование роли клиента
+     * @return true - роль клиента с переданным значением существует,
+     * false - роли клиента с переданным значением роли не существует
+     */
+    Boolean existsClientRoleByValue(String value);
+
+
 }

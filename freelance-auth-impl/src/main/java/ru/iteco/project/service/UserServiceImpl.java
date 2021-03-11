@@ -1,9 +1,8 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,20 +26,17 @@ import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 /**
  * Класс реализует функционал сервисного слоя для работы с пользователями
  */
 @Service
+@PropertySource(value = {"classpath:errors.properties"}, encoding = "UTF-8")
 public class UserServiceImpl implements UserService {
-
-    private static final Logger log = LogManager.getLogger(UserServiceImpl.class.getName());
 
     @Value("${errors.auth.data.invalid}")
     private String invalidLoginOrPassMessage;
@@ -70,13 +66,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDtoResponse getUserById(UUID uuid) {
-        UserDtoResponse userDtoResponse = new UserDtoResponse();
-        Optional<User> optionalUser = userRepository.findById(uuid);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            userDtoResponse = mapperFacade.map(user, UserDtoResponse.class);
-        }
-        return userDtoResponse;
+        User user = userRepository.findById(uuid).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        return mapperFacade.map(user, UserDtoResponse.class);
     }
 
     /**
@@ -112,8 +105,7 @@ public class UserServiceImpl implements UserService {
                 })
                 .collect(Collectors.toList());
 
-        List<User> users = userRepository.saveAll(usersList);
-        return users.stream()
+        return userRepository.saveAll(usersList).stream()
                 .map(entity -> mapperFacade.map(entity, UserDtoResponse.class))
                 .collect(Collectors.toList());
     }
@@ -127,7 +119,8 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDtoResponse updateUser(UserDtoRequest userDtoRequest) {
         User user = userRepository.findById(userDtoRequest.getId()).orElseThrow(
-                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
         checkingUpdatedData(userDtoRequest, user);
 
         mapperFacade.map(userDtoRequest, user);
@@ -159,14 +152,12 @@ public class UserServiceImpl implements UserService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Boolean deleteUser(UUID id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setStatus(UserStatus.DELETED);
-            userRepository.save(user);
-            return true;
-        }
-        return false;
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
+        return true;
     }
 
 
@@ -177,8 +168,11 @@ public class UserServiceImpl implements UserService {
      * @param email    - email пользователя
      */
     private void isCorrectUsernameEmail(String username, String email) {
-        if (userRepository.existsByEmailOrUsername(email, username)) {
-            throw new NonUniquePersonalDataException("errors.persistence.entity.exist");
+        if (userRepository.existsByEmail(email)) {
+            throw new NonUniquePersonalDataException("errors.user.email.exist");
+        }
+        if (userRepository.existsByUsername(username)) {
+            throw new NonUniquePersonalDataException("errors.user.username.exist");
         }
     }
 
@@ -196,10 +190,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageDto<UserDtoResponse> getUsers(SearchDto<UserSearchDto> searchDto, Pageable pageable) {
         Page<User> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = userRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = userRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = userRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = userRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
         List<UserDtoResponse> userDtoResponses = page.map(entity -> mapperFacade.map(entity, UserDtoResponse.class)).toList();
@@ -235,49 +233,27 @@ public class UserServiceImpl implements UserService {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
         SearchUnit role = userSearchDto.getRole();
-        if (searchUnitIsValid(role)) {
+        prepareRestrictionValue(restrictionValues, role, "role", o -> {
             if (!UserRole.isCorrectValue(role.getValue())) {
                 throw new InvalidUserRoleException(role.getValue() + " - not valid value!");
             }
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("role")
-                    .setSearchOperation(role.getSearchOperation())
-                    .setTypedValue(UserRole.valueOf(role.getValue()))
-                    .build());
-        }
-
+            return UserRole.valueOf(role.getValue());
+        });
 
         SearchUnit searchUserStatus = userSearchDto.getStatus();
-        if (searchUnitIsValid(searchUserStatus)) {
+        prepareRestrictionValue(restrictionValues, searchUserStatus, "status", o -> {
             if (!UserStatus.isCorrectValue(searchUserStatus.getValue())) {
                 throw new InvalidUserStatusException(searchUserStatus.getValue() + " - not valid value!");
             }
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("status")
-                    .setSearchOperation(searchUserStatus.getSearchOperation())
-                    .setTypedValue(UserStatus.valueOf(searchUserStatus.getValue()))
-                    .build());
-        }
-
+            return UserStatus.valueOf(searchUserStatus.getValue());
+        });
 
         SearchUnit createdAt = userSearchDto.getCreatedAt();
-        if (searchUnitIsValid(createdAt)) {
-            if (isBetweenOperation(createdAt)) {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("createdAt")
-                        .setSearchOperation(createdAt.getSearchOperation())
-                        .setValue(createdAt.getValue())
-                        .setMinValue(createdAt.getMinValue())
-                        .setMaxValue(createdAt.getMaxValue())
-                        .build());
-            } else {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("createdAt")
-                        .setValue(createdAt.getValue())
-                        .setSearchOperation(createdAt.getSearchOperation())
-                        .build());
-            }
-        }
+        prepareRestrictionValue(restrictionValues, createdAt, "createdAt", searchUnit -> createdAt.getValue());
+
+        SearchUnit email = userSearchDto.getEmail();
+        prepareRestrictionValue(restrictionValues, email, "email", searchUnit -> email.getValue());
+
         return restrictionValues;
     }
 }

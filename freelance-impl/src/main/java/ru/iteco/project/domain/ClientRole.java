@@ -12,7 +12,7 @@ import java.util.UUID;
  * Модель данных пердставляющая роли пользователей
  */
 @Entity
-@Table(schema = "freelance", name = "Client_roles")
+@Table(schema = "freelance", name = "client_roles")
 public class ClientRole extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id роли пользователя */

@@ -1,4 +1,4 @@
-package ru.iteco.project.config.security;
+package ru.iteco.project.security;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    protected TokenAuthenticationFilter(String defaultFilterProcessesUrl) {
+    public TokenAuthenticationFilter(String defaultFilterProcessesUrl) {
         super(defaultFilterProcessesUrl);
         setAuthenticationSuccessHandler((request, response, authentication) -> {
             SecurityContextHolder.getContext().setAuthentication(authentication);

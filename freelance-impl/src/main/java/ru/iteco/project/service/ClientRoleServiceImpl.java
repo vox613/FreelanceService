@@ -1,17 +1,15 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Client;
 import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
+import ru.iteco.project.exception.InvalidSearchExpressionException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ClientRoleRepository;
 import ru.iteco.project.resource.PageDto;
@@ -23,12 +21,12 @@ import ru.iteco.project.resource.searching.ClientRoleSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.isEqualsClientRole;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 
 /**
@@ -36,8 +34,6 @@ import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsVa
  */
 @Service
 public class ClientRoleServiceImpl implements ClientRoleService {
-
-    private static final Logger log = LogManager.getLogger(ClientRoleServiceImpl.class.getName());
 
     /*** Объект доступа к репозиторию ролей пользователей */
     private final ClientRoleRepository clientRoleRepository;
@@ -73,13 +69,9 @@ public class ClientRoleServiceImpl implements ClientRoleService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public ClientRoleDtoResponse getClientRoleById(UUID id) {
-        ClientRoleDtoResponse clientRoleDtoResponse = new ClientRoleDtoResponse();
-        Optional<ClientRole> optionalClientRole = clientRoleRepository.findById(id);
-        if (optionalClientRole.isPresent()) {
-            ClientRole clientRole = optionalClientRole.get();
-            clientRoleDtoResponse = mapperFacade.map(clientRole, ClientRoleDtoResponse.class);
-        }
-        return clientRoleDtoResponse;
+        ClientRole clientRole = clientRoleRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        return mapperFacade.map(clientRole, ClientRoleDtoResponse.class);
     }
 
 
@@ -91,14 +83,11 @@ public class ClientRoleServiceImpl implements ClientRoleService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public ClientRoleDtoResponse createClientRole(ClientRoleDtoRequest clientRoleDtoRequest) {
-        ClientRoleDtoResponse clientRoleDtoResponse = new ClientRoleDtoResponse();
-        if (operationIsAllow(clientRoleDtoRequest)) {
-            ClientRole newClientRole = mapperFacade.map(clientRoleDtoRequest, ClientRole.class);
-            newClientRole.setId(UUID.randomUUID());
-            ClientRole save = clientRoleRepository.save(newClientRole);
-            clientRoleDtoResponse = mapperFacade.map(save, ClientRoleDtoResponse.class);
-        }
-        return clientRoleDtoResponse;
+        checkPossibilityToCreate(clientRoleDtoRequest);
+        ClientRole newClientRole = mapperFacade.map(clientRoleDtoRequest, ClientRole.class);
+        newClientRole.setId(UUID.randomUUID());
+        ClientRole save = clientRoleRepository.save(newClientRole);
+        return mapperFacade.map(save, ClientRoleDtoResponse.class);
     }
 
 
@@ -110,19 +99,12 @@ public class ClientRoleServiceImpl implements ClientRoleService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public ClientRoleDtoResponse updateClientRole(UUID id, ClientRoleDtoRequest clientRoleDtoRequest) {
-        ClientRoleDtoResponse clientRoleDtoResponse = new ClientRoleDtoResponse();
-        if (operationIsAllow(clientRoleDtoRequest) &&
-                Objects.equals(id, clientRoleDtoRequest.getId()) &&
-                clientRoleRepository.existsById(clientRoleDtoRequest.getId())) {
-
-            ClientRole clientRole = clientRoleRepository.findById(clientRoleDtoRequest.getId()).orElseThrow(
-                    () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-
-            mapperFacade.map(clientRoleDtoRequest, clientRole);
-            ClientRole save = clientRoleRepository.save(clientRole);
-            clientRoleDtoResponse = mapperFacade.map(save, ClientRoleDtoResponse.class);
-        }
-        return clientRoleDtoResponse;
+        ClientRole clientRole = clientRoleRepository.findById(clientRoleDtoRequest.getId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        checkUpdatedData(clientRoleDtoRequest, clientRole);
+        mapperFacade.map(clientRoleDtoRequest, clientRole);
+        ClientRole save = clientRoleRepository.save(clientRole);
+        return mapperFacade.map(save, ClientRoleDtoResponse.class);
     }
 
 
@@ -150,44 +132,43 @@ public class ClientRoleServiceImpl implements ClientRoleService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteClientRole(UUID id) {
-        Optional<ClientRole> clientRoleOptional = clientRoleRepository.findById(id);
-        if (clientRoleOptional.isPresent()) {
-            ClientRole clientRole = clientRoleOptional.get();
-            Collection<Client> allClientsByRole = clientRepository.findAllByClientRole(clientRole);
-            allClientsByRole.forEach(client -> clientService.deleteClient(client.getId()));
-            clientRoleRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        ClientRole clientRole = clientRoleRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        clientRepository.findAllByClientRole(clientRole)
+                .forEach(client -> clientService.deleteClient(client.getId()));
+        clientRoleRepository.deleteById(id);
+        return true;
     }
 
-
-    /**
-     * Метод проверяет разрешена ли для пользователя данная операция
-     *
-     * @param clientRoleDtoRequest - запрос
-     * @return true - операция разрешена, false - операция запрещена
-     */
-    private boolean operationIsAllow(ClientRoleDtoRequest clientRoleDtoRequest) {
-        if ((clientRoleDtoRequest != null) && (clientRoleDtoRequest.getClientId() != null)) {
-            Optional<Client> clientOptional = clientRepository.findById(clientRoleDtoRequest.getClientId());
-            if (clientOptional.isPresent()) {
-                ClientRole role = clientOptional.get().getClientRole();
-                return (role != null) && isEqualsClientRole(ADMIN, role.getValue());
-            }
+    @Override
+    public void checkPossibilityToCreate(ClientRoleDtoRequest clientRoleDtoRequest) {
+        if (clientRoleRepository.existsClientRoleByValue(clientRoleDtoRequest.getValue())) {
+            throw new IllegalArgumentException("errors.persistence.entity.exist");
         }
-        return false;
     }
+
+    @Override
+    public void checkUpdatedData(ClientRoleDtoRequest clientRoleDtoRequest, ClientRole clientRole) {
+        String value = clientRoleDtoRequest.getValue();
+        if (!value.equals(clientRole.getValue())) {
+            checkPossibilityToCreate(clientRoleDtoRequest);
+        }
+    }
+
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ClientRoleDtoResponse> getRoles(SearchDto<ClientRoleSearchDto> searchDto, Pageable pageable) {
         Page<ClientRole> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = clientRoleRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = clientRoleRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = clientRoleRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = clientRoleRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
         List<ClientRoleDtoResponse> clientRoleDtoResponses = page
@@ -218,13 +199,8 @@ public class ClientRoleServiceImpl implements ClientRoleService {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
         SearchUnit value = clientRoleSearchDto.getValue();
-        if (searchUnitIsValid(value)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("value")
-                    .setTypedValue(value.getValue())
-                    .setSearchOperation(value.getSearchOperation())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, value, "value", searchUnit -> value.getValue());
+
         return restrictionValues;
     }
 

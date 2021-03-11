@@ -1,4 +1,4 @@
-package ru.iteco.project.config.security;
+package ru.iteco.project.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +19,7 @@ public class TokenAuthentication implements Authentication {
 
     /*** Токен jwt*/
     private final String token;
+
 
     public TokenAuthentication(UserDetails principal, String token) {
         this.principal = principal;

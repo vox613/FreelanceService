@@ -67,11 +67,7 @@ public class ClientController implements ClientResource {
         beforeCall(Level.DEBUG, "getClient()", id);
         ClientDtoResponse clientById = clientService.getClientById(id);
         afterCall(Level.DEBUG, "getClient()", clientById);
-        if ((clientById != null) && (clientById.getId() != null)) {
-            return ResponseEntity.ok().body(clientById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(clientById);
     }
 
     @Override
@@ -87,14 +83,8 @@ public class ClientController implements ClientResource {
 
         ClientDtoResponse clientDtoResponse = clientService.createClient(clientDtoRequest);
         afterCall(Level.DEBUG, "createClient()", clientDtoResponse);
-
-        if (clientDtoResponse != null) {
-            URI uri = componentsBuilder.path("/clients/" + clientDtoResponse.getId()).buildAndExpand(clientDtoResponse).toUri();
-            return ResponseEntity.created(uri).body(clientDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
+        URI uri = componentsBuilder.path("/api/v1/clients/" + clientDtoResponse.getId()).buildAndExpand(clientDtoResponse).toUri();
+        return ResponseEntity.created(uri).body(clientDtoResponse);
     }
 
 
@@ -111,14 +101,17 @@ public class ClientController implements ClientResource {
 
         ClientDtoResponse clientDtoResponse = clientService.updateClient(clientDtoRequest);
         afterCall(Level.DEBUG, "updateClient()", clientDtoResponse);
-
-        if (clientDtoResponse != null) {
-            return ResponseEntity.ok().body(clientDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(clientDtoRequest);
-        }
+        return ResponseEntity.ok().body(clientDtoResponse);
     }
 
+    @Override
+    @Audit(operation = UPDATE_CLIENT_STATUS)
+    public ResponseEntity<? extends ClientBaseDto> updateClientStatus(UUID id, String val) {
+        beforeCall(Level.DEBUG, "updateClientStatus()", id, val);
+        ClientDtoResponse responseEntity = clientService.updateClientStatus(id, val);
+        afterCall(Level.DEBUG, "updateClientStatus()", responseEntity);
+        return ResponseEntity.ok().body(responseEntity);
+    }
 
     @Override
     @Audit(operation = CLIENT_DELETE)
@@ -126,11 +119,7 @@ public class ClientController implements ClientResource {
         beforeCall(Level.DEBUG, "deleteClient()", id);
         Boolean isDeleted = clientService.deleteClient(id);
         afterCall(Level.DEBUG, "deleteClient()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @InitBinder(value = {"clientDtoRequest", "clientDtoRequestList"})

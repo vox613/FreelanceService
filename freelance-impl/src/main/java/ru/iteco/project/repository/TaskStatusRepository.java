@@ -22,4 +22,12 @@ public interface TaskStatusRepository extends JpaRepository<TaskStatus, UUID>, J
      */
     Optional<TaskStatus> findTaskStatusByValue(String value);
 
+    /**
+     * Метод проверяет существование статуса задания с переданным значением поля value
+     *
+     * @param value - наименование статуса задания
+     * @return true - статус задания с переданным значением существует,
+     * false - статус задания с переданным значением статуса не существует
+     */
+    Boolean existsTaskStatusByValue(String value);
 }

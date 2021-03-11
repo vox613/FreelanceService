@@ -24,6 +24,9 @@ public class ClientDtoRequestValidator extends AbstractDtoValidator implements V
     @Value("${client.email.regexp}")
     private String emailRegExpValidator;
 
+    @Value("${client.phone.regexp}")
+    private String phoneRegExpValidator;
+
     public ClientDtoRequestValidator(MessageSource messageSource) {
         super(messageSource);
     }
@@ -71,6 +74,16 @@ public class ClientDtoRequestValidator extends AbstractDtoValidator implements V
         } else if (!clientForm.getEmail().matches(emailRegExpValidator)) {
             logger.error("email is incorrect");
             prepareErrorMessage(errors, "client.email.incorrect", "email");
+        }
+        if (errors.hasErrors()) return;
+
+
+        if (ObjectUtils.isEmpty(clientForm.getPhoneNumber())) {
+            logger.error("phone is empty");
+            prepareErrorMessage(errors, "client.phone.empty", "phoneNumber");
+        } else if (!clientForm.getPhoneNumber().matches(phoneRegExpValidator)) {
+            logger.error("phone is incorrect");
+            prepareErrorMessage(errors, "client.phone.incorrect", "phoneNumber");
         }
         if (errors.hasErrors()) return;
 

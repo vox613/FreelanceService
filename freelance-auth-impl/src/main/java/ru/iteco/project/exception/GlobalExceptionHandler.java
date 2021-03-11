@@ -1,9 +1,12 @@
 package ru.iteco.project.exception;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.ObjectError;
@@ -20,6 +23,8 @@ import java.util.UUID;
  */
 @RestControllerAdvice(basePackages = "ru.iteco.project.controller")
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LogManager.getLogger(GlobalExceptionHandler.class.getName());
 
     private final String SYSTEM_ID_KEY = "spring.application.name";
 
@@ -46,6 +51,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -64,6 +70,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -82,6 +89,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -100,6 +108,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -118,6 +127,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -135,6 +145,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
@@ -153,6 +164,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
@@ -167,10 +179,48 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseError> unavailableOperationException(UnavailableOperationException e) {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
-                environment.getProperty(e.getMessage(), "Unavailable operation!"),
+                environment.getProperty(e.getMessage(), e.getLocalizedMessage()),
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
+     * Класс исключения InvalidSearchExpressionException, возникающего при некооректном выражени для поиска
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(InvalidSearchExpressionException.class)
+    public ResponseEntity<ResponseError> invalidSearchExpressionException(InvalidSearchExpressionException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), "Invalid search expression!"),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
+        log.debug(responseError, e);
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Обработчик исключения возникающего при ошибке десериализации запроса, причиной которой может являться ошибка в синтаксисе
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseError> httpMessageNotReadableException(HttpMessageNotReadableException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName(),
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -188,6 +238,7 @@ public class GlobalExceptionHandler {
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
 
@@ -197,7 +248,9 @@ public class GlobalExceptionHandler {
                 UUID.randomUUID(),
                 e.getLocalizedMessage(),
                 e.getClass().getName(),
-                environment.getProperty(SYSTEM_ID_KEY));
+                environment.getProperty(SYSTEM_ID_KEY)
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
 
@@ -218,6 +271,7 @@ public class GlobalExceptionHandler {
                 environment.getProperty(SYSTEM_ID_KEY),
                 Collections.singletonList(objectError)
         );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

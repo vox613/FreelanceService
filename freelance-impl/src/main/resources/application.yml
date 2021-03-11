@@ -63,7 +63,8 @@ management:
 client:
   email:
     regexp: '^([A-Za-z0-9._-]{1,40})@([A-Za-z0-9._-]{1,20}\.)([A-Za-z0-9._-]{1,15})$'
-
+  phone:
+    regexp: '^[0-9]{5,25}$'
 
 task:
   description:
@@ -74,6 +75,9 @@ task:
       max: 100000 # Максимальное количество символов в решении задания
   price:
     min: 0  # Минимальная стоимость задания
+  completion:
+    offset:
+      hours: 1
   scheduler:
     taskCompletionDate:
       expiredDays: 10  # Количество дней через которое будет удалено просроченное, невостребованное задание

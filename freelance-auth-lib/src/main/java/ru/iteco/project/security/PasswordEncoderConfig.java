@@ -1,4 +1,4 @@
-package ru.iteco.project.config.security;
+package ru.iteco.project.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

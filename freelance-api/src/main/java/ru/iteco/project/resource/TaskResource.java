@@ -44,7 +44,7 @@ public interface TaskResource {
                     response = ResponseError.class)
     })
     ResponseEntity<List<TaskDtoResponse>> getAllClientTasks(@ApiParam(value = "Идентификатор пользователя")
-                                                          @RequestParam(required = false) UUID clientId);
+                                                            @RequestParam(required = false) UUID clientId);
 
 
     /**
@@ -81,11 +81,11 @@ public interface TaskResource {
     @PostMapping(path = "/search")
     @ApiOperation(value = "Функционал поиска по заданиям")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", dataTypeClass = Integer.class, paramType = "query",
                     value = "Номер необходимой страницы (0..N)"),
-            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "size", dataTypeClass = Integer.class, paramType = "query",
                     value = "Количество записей на странице"),
-            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataTypeClass = String.class, paramType = "query",
                     value = "Критерии сортировки в формате: критерий(,asc|desc). " +
                             "По умолчанию: (size = 5, page = 0, sort = createdAt,ASC). " +
                             "Поддерживается сортировка по некольким критериям.")

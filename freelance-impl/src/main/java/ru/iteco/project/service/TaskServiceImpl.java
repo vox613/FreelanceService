@@ -1,8 +1,6 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
@@ -12,9 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.domain.*;
-import ru.iteco.project.exception.EntityRecordNotFoundException;
-import ru.iteco.project.exception.InvalidTaskStatusException;
-import ru.iteco.project.exception.UnavailableRoleOperationException;
+import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.TaskRepository;
@@ -32,25 +28,21 @@ import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.EXECUTOR;
 import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.BLOCKED;
 import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
-import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 
 /**
  * Класс реализует функционал сервисного слоя для работы с заданиями
  */
 @Service
-@PropertySource(value = {"classpath:errors.properties"})
+@PropertySource(value = {"classpath:errors.properties"}, encoding = "UTF-8")
 public class TaskServiceImpl implements TaskService {
-
-    private static final Logger log = LogManager.getLogger(TaskServiceImpl.class.getName());
 
     @Value("${errors.client.role.operation.unavailable}")
     private String unavailableOperationMessage;
@@ -93,11 +85,9 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<TaskDtoResponse> getAllTasks() {
-        ArrayList<TaskDtoResponse> taskDtoResponses = new ArrayList<>();
-        for (Task task : taskRepository.findAll()) {
-            taskDtoResponses.add(enrichByClientsInfo(task));
-        }
-        return taskDtoResponses;
+        return taskRepository.findAll().stream()
+                .map(this::enrichByClientsInfo)
+                .collect(Collectors.toList());
     }
 
 
@@ -121,13 +111,10 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public TaskDtoResponse getTaskById(UUID id) {
-        TaskDtoResponse taskDtoResponse = null;
-        Optional<Task> optionalTask = taskRepository.findById(id);
-        if (optionalTask.isPresent()) {
-            Task task = optionalTask.get();
-            taskDtoResponse = enrichByClientsInfo(task);
-        }
-        return taskDtoResponse;
+        Task task = taskRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        return enrichByClientsInfo(task);
     }
 
 
@@ -139,9 +126,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('USER')")
     public TaskDtoResponse createTask(TaskDtoRequest taskDtoRequest) {
-        Client client = clientRepository.findById(taskDtoRequest.getClientId()).orElseThrow(
-                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-        checkClientPermissions(client);
+        checkPossibilityToCreate(taskDtoRequest);
         Task task = mapperFacade.map(taskDtoRequest, Task.class);
         task.setId(UUID.randomUUID());
         Task save = taskRepository.save(task);
@@ -157,12 +142,9 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('USER')")
     public TaskDtoResponse updateTask(TaskDtoRequest taskDtoRequest) {
-        Client client = clientRepository.findById(taskDtoRequest.getClientId()).orElseThrow(
-                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
         Task task = taskRepository.findById(taskDtoRequest.getId()).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-
-        allowToUpdate(client, task);
+        checkUpdatedData(taskDtoRequest, task);
         mapperFacade.map(taskDtoRequest, task);
         Task save = taskRepository.save(task);
         return enrichByClientsInfo(save);
@@ -181,8 +163,8 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
         checkPermissions(task.getCustomer().getId());
-        Optional<Contract> optionalContract = contractRepository.findContractByTask(task);
-        optionalContract.ifPresent(contractRepository::delete);
+        taskStatusIsTerminated(task.getTaskStatus().getValue());
+        contractRepository.findContractByTask(task).ifPresent(this::deleteContractForTask);
         taskRepository.deleteById(id);
         return true;
     }
@@ -190,6 +172,69 @@ public class TaskServiceImpl implements TaskService {
     private void checkPermissions(UUID clientId) {
         if (AuthenticationUtil.userHasRole(AuthenticationUtil.ROLE_USER)) {
             AuthenticationUtil.userIdAndClientIdIsMatched(clientId);
+        }
+    }
+
+    private void taskStatusIsTerminated(String taskStatus) {
+        if (!TaskStatus.TaskStatusEnum.valueOf(taskStatus).isTerminated()) {
+            throw new InvalidTaskStatusException("errors.task.status.notTerminated");
+        }
+    }
+
+    private void deleteContractForTask(Contract contract) {
+        if (!ContractStatus.ContractStatusEnum.valueOf(contract.getContractStatus().getValue()).isTerminated()) {
+            throw new InvalidContractStatusException("errors.contract.status.notTerminated");
+        }
+        contractRepository.delete(contract);
+    }
+
+    @Override
+    public void checkPossibilityToCreate(TaskDtoRequest taskDtoRequest) {
+        Client client = clientRepository.findById(AuthenticationUtil.getUserPrincipalId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        if (ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, client) ||
+                ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client)) {
+            throw new UnavailableRoleOperationException(unavailableOperationMessage);
+        }
+    }
+
+    @Override
+    public void checkUpdatedData(TaskDtoRequest taskDtoRequest, Task task) {
+        if (isEqualsTaskStatus(CANCELED, task) || isEqualsTaskStatus(DONE, task)) {
+            throw new InvalidTaskStatusException("errors.task.status.terminated");
+        }
+
+        Client client = clientRepository.findById(AuthenticationUtil.getUserPrincipalId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        clientNotBlocked(client);
+        boolean clientIsCustomerAndTaskOnCustomer = client.getId().equals(task.getCustomer().getId()) &&
+                (isEqualsTaskStatus(REGISTERED, task) || isEqualsTaskStatus(ON_CHECK, task));
+        boolean clientIsExecutorAndTaskOnExecutor = (task.getExecutor() != null) &&
+                client.getId().equals(task.getExecutor().getId()) &&
+                (isEqualsTaskStatus(IN_PROGRESS, task) || isEqualsTaskStatus(ON_FIX, task));
+
+        if (!(clientIsCustomerAndTaskOnCustomer || clientIsExecutorAndTaskOnExecutor)) {
+            throw new UnavailableRoleOperationException(unavailableOperationMessage);
+        }
+
+        String newTaskStatus = taskDtoRequest.getTaskStatus();
+        boolean haveExecutor = task.getExecutor() != null;
+        if ((haveExecutor && isEqualsTaskStatus(CANCELED, newTaskStatus)) ||
+                (haveExecutor && isEqualsTaskStatus(REGISTERED, newTaskStatus)) ||
+                (!haveExecutor && isEqualsTaskStatus(ON_FIX, newTaskStatus))) {
+            throw new UnavailableRoleOperationException(unavailableOperationMessage);
+        }
+    }
+
+
+    /**
+     * Метод проверяет статус клиента
+     *
+     * @param client - клиент
+     */
+    private void clientNotBlocked(Client client) {
+        if (ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client)) {
+            throw new InvalidClientStatusException("errors.client.status.blocked");
         }
     }
 
@@ -209,9 +254,6 @@ public class TaskServiceImpl implements TaskService {
         return taskDtoResponse;
     }
 
-    public TaskRepository getTaskRepository() {
-        return taskRepository;
-    }
 
     /**
      * Метод проверяет возможность обновления контракта
@@ -240,29 +282,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-    /**
-     * Метод проверяет доступна ли для пользователя операция создания задания
-     *
-     * @param client - сущность пользователя
-     */
-    private void checkClientPermissions(Client client) {
-        AuthenticationUtil.userIdAndClientIdIsMatched(client.getId());
-        if (ClientRole.ClientRoleEnum.isEqualsClientRole(EXECUTOR, client) ||
-                ClientStatus.ClientStatusEnum.isEqualsClientStatus(BLOCKED, client)) {
-            throw new UnavailableRoleOperationException(unavailableOperationMessage);
-        }
-    }
-
-
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public PageDto<TaskDtoResponse> getTasks(SearchDto<TaskSearchDto> searchDto, Pageable pageable) {
         Page<Task> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = taskRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = taskRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = taskRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = taskRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
         List<TaskDtoResponse> taskDtoResponses = page.map(this::enrichByClientsInfo).toList();
@@ -292,87 +324,22 @@ public class TaskServiceImpl implements TaskService {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
         SearchUnit taskSearchStatus = taskSearchDto.getTaskStatus();
-        if (searchUnitIsValid(taskSearchStatus)) {
-            TaskStatus taskStatus = taskStatusRepository
-                    .findTaskStatusByValue(taskSearchStatus.getValue())
-                    .orElseThrow(InvalidTaskStatusException::new);
-
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("taskStatus")
-                    .setTypedValue(taskStatus)
-                    .setSearchOperation(taskSearchStatus.getSearchOperation())
-                    .build());
-
-        }
+        prepareRestrictionValue(restrictionValues, taskSearchStatus, "taskStatus",
+                o -> taskStatusRepository.findTaskStatusByValue(taskSearchStatus.getValue())
+                        .orElseThrow(InvalidTaskStatusException::new));
 
         SearchUnit createdAt = taskSearchDto.getCreatedAt();
-        if (searchUnitIsValid(createdAt)) {
-            if (isBetweenOperation(createdAt)) {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("createdAt")
-                        .setSearchOperation(createdAt.getSearchOperation())
-                        .setValue(createdAt.getValue())
-                        .setMinValue(createdAt.getMinValue())
-                        .setMaxValue(createdAt.getMaxValue())
-                        .build());
-            } else {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("createdAt")
-                        .setSearchOperation(createdAt.getSearchOperation())
-                        .setValue(createdAt.getValue())
-                        .build());
-            }
-        }
-
+        prepareRestrictionValue(restrictionValues, createdAt, "createdAt", searchUnit -> createdAt.getValue());
 
         SearchUnit price = taskSearchDto.getPrice();
-        if (searchUnitIsValid(price)) {
-            if (isBetweenOperation(price)) {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("price")
-                        .setSearchOperation(price.getSearchOperation())
-                        .setValue(price.getValue())
-                        .setMinValue(price.getMinValue())
-                        .setMaxValue(price.getMaxValue())
-                        .build());
-            } else {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("price")
-                        .setSearchOperation(price.getSearchOperation())
-                        .setValue(price.getValue())
-                        .build());
-            }
-        }
-
+        prepareRestrictionValue(restrictionValues, price, "price", searchUnit -> price.getValue());
 
         SearchUnit description = taskSearchDto.getDescription();
-        if (searchUnitIsValid(description)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("description")
-                    .setSearchOperation(description.getSearchOperation())
-                    .setValue(description.getValue())
-                    .build());
-        }
-
+        prepareRestrictionValue(restrictionValues, description, "description", searchUnit -> description.getValue());
 
         SearchUnit taskCompletionDate = taskSearchDto.getTaskCompletionDate();
-        if (searchUnitIsValid(taskCompletionDate)) {
-            if (isBetweenOperation(taskCompletionDate)) {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("taskCompletionDate")
-                        .setSearchOperation(taskCompletionDate.getSearchOperation())
-                        .setValue(taskCompletionDate.getValue())
-                        .setMinValue(taskCompletionDate.getMinValue())
-                        .setMaxValue(taskCompletionDate.getMaxValue())
-                        .build());
-            } else {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("taskCompletionDate")
-                        .setSearchOperation(taskCompletionDate.getSearchOperation())
-                        .setValue(taskCompletionDate.getValue())
-                        .build());
-            }
-        }
+        prepareRestrictionValue(restrictionValues, taskCompletionDate, "taskCompletionDate", searchUnit -> taskCompletionDate.getValue());
+
 
         return restrictionValues;
     }

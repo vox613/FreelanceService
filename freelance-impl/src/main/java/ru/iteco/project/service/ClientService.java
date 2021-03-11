@@ -1,10 +1,11 @@
 package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.iteco.project.resource.dto.ClientDtoRequest;
-import ru.iteco.project.resource.dto.ClientDtoResponse;
+import ru.iteco.project.domain.Client;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.dto.ClientDtoRequest;
+import ru.iteco.project.resource.dto.ClientDtoResponse;
 import ru.iteco.project.resource.searching.ClientSearchDto;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.UUID;
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности Client
  */
-public interface ClientService {
+public interface ClientService extends CommonService<ClientDtoRequest, Client> {
 
     /**
      * Метод получения пользователя по id
@@ -38,6 +39,16 @@ public interface ClientService {
      * @return - объект ClientDtoResponse с обновленной сущностью пользователя
      */
     ClientDtoResponse updateClient(ClientDtoRequest clientDtoRequest);
+
+    /**
+     * Метод обновления статуса клиента
+     *
+     * @param id     - уникальный идентификатор клиента
+     * @param status - устанавливаемое клиенту значение статуса
+     * @return - объект ClientDtoResponse с обновленной сущностью пользователя
+     */
+    ClientDtoResponse updateClientStatus(UUID id, String status);
+
 
     /**
      * Метод получения данных обо всех пользователях

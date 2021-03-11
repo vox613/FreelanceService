@@ -39,6 +39,9 @@ public class TaskDtoRequestValidator extends AbstractDtoValidator implements Val
     @Value("${task.decision.length.max}")
     private Integer taskDecisionMaxLength;
 
+    /*** Смещение относительно текущего времени для формирования минимально допустимой даты выполнения задания*/
+    @Value("${task.completion.offset.hours}")
+    private Integer taskCompletionOffsetHours;
 
     public TaskDtoRequestValidator(MessageSource messageSource) {
         super(messageSource);
@@ -54,12 +57,6 @@ public class TaskDtoRequestValidator extends AbstractDtoValidator implements Val
     public void validate(Object target, Errors errors) {
 
         TaskDtoRequest taskForm = (TaskDtoRequest) target;
-
-        if (ObjectUtils.isEmpty(taskForm.getClientId())) {
-            logger.error("client Id is empty");
-            prepareErrorMessage(errors, "task.client.id.empty", "clientId");
-        }
-        if (errors.hasErrors()) return;
 
         if (ObjectUtils.isEmpty(taskForm.getCustomerId())) {
             logger.error("customerId is empty");
@@ -90,6 +87,8 @@ public class TaskDtoRequestValidator extends AbstractDtoValidator implements Val
             prepareErrorMessage(errors, "task.date.completion.empty", "taskCompletionDate");
         } else if (!dateTimeFormatIsValid(taskForm)) {
             prepareErrorMessage(errors, "task.date.completion.format", "taskCompletionDate");
+        } else if (!dateTimeIsValid(taskForm)) {
+            prepareErrorMessage(errors, "task.date.completion.invalid", "taskCompletionDate");
         }
         if (errors.hasErrors()) return;
 
@@ -136,6 +135,20 @@ public class TaskDtoRequestValidator extends AbstractDtoValidator implements Val
             return false;
         }
     }
+
+    /**
+     * Метод проверяет валидность заданной даты исполнения задания, запрещая создавать задания с датой выполнения ранее:
+     * текущая дата и время + taskCompletionOffsetHours
+     *
+     * @param taskForm - объект запроса
+     * @return true - дата и время валидны, false - не валидны
+     */
+    private boolean dateTimeIsValid(TaskDtoRequest taskForm) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(formatDateTime);
+        LocalDateTime dateTime = LocalDateTime.parse(taskForm.getTaskCompletionDate(), dateTimeFormatter);
+        return dateTime.isAfter(LocalDateTime.now().plusHours(taskCompletionOffsetHours));
+    }
+
 
     /**
      * Метод проверяет удовлетворяет ли введенная сумма установленным ограничениям

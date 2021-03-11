@@ -9,7 +9,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.iteco.project.jwt.service.JwtValidationService;
-import ru.iteco.project.service.UserService;
+import ru.iteco.project.security.JwtAccessDeniedHandler;
+import ru.iteco.project.security.TokenAuthenticationEntryPoint;
+import ru.iteco.project.security.TokenAuthenticationFilter;
+import ru.iteco.project.security.TokenAuthenticationManager;
 
 /**
  * Класс-конфигурация Spring Security
@@ -25,9 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /*** Объект сервисного слоя для валидации JWT токена*/
     private final JwtValidationService jwtValidationService;
 
-    /*** Объект сервисного слоя для работы с сущностями User*/
-    private final UserService userService;
-
     /*** Объект хэндлера для событий AccessDenied*/
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -35,11 +35,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final TokenAuthenticationEntryPoint tokenAuthenticationEntryPoint;
 
 
-    public SecurityConfig(Environment environment, JwtValidationService jwtValidationService, UserService userService,
+    public SecurityConfig(Environment environment, JwtValidationService jwtValidationService,
                           JwtAccessDeniedHandler jwtAccessDeniedHandler, TokenAuthenticationEntryPoint tokenAuthenticationEntryPoint) {
         this.environment = environment;
         this.jwtValidationService = jwtValidationService;
-        this.userService = userService;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
         this.tokenAuthenticationEntryPoint = tokenAuthenticationEntryPoint;
     }
@@ -74,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     public TokenAuthenticationFilter authenticationFilter() {
         TokenAuthenticationFilter filter = new TokenAuthenticationFilter("/api/v1/**");
-        filter.setAuthenticationManager(new TokenAuthenticationManager(environment, jwtValidationService, userService));
+        filter.setAuthenticationManager(new TokenAuthenticationManager(environment, jwtValidationService));
         return filter;
     }
 }

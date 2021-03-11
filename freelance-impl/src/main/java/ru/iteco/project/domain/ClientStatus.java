@@ -10,7 +10,7 @@ import java.util.UUID;
  * Модель данных представляющая статусы пользователей
  */
 @Entity
-@Table(schema = "freelance", name = "Client_statuses")
+@Table(schema = "freelance", name = "client_statuses")
 public class ClientStatus extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Уникальный id роли пользователя */

@@ -1,18 +1,15 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Client;
-import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.domain.ClientStatus;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
+import ru.iteco.project.exception.InvalidSearchExpressionException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ClientStatusRepository;
 import ru.iteco.project.resource.PageDto;
@@ -24,11 +21,12 @@ import ru.iteco.project.resource.searching.ClientStatusSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 
 /**
@@ -36,8 +34,6 @@ import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsVa
  */
 @Service
 public class ClientStatusServiceImpl implements ClientStatusService {
-
-    private static final Logger log = LogManager.getLogger(ClientStatusServiceImpl.class.getName());
 
     /*** Объект доступа к репозиторию статусов пользователей */
     private final ClientStatusRepository clientStatusRepository;
@@ -74,13 +70,10 @@ public class ClientStatusServiceImpl implements ClientStatusService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public ClientStatusDtoResponse getClientStatusById(UUID id) {
-        ClientStatusDtoResponse clientStatusDtoResponse = new ClientStatusDtoResponse();
-        Optional<ClientStatus> clientStatusOptional = clientStatusRepository.findById(id);
-        if (clientStatusOptional.isPresent()) {
-            ClientStatus clientStatus = clientStatusOptional.get();
-            clientStatusDtoResponse = mapperFacade.map(clientStatus, ClientStatusDtoResponse.class);
-        }
-        return clientStatusDtoResponse;
+        ClientStatus clientStatus = clientStatusRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        return mapperFacade.map(clientStatus, ClientStatusDtoResponse.class);
     }
 
     /**
@@ -91,14 +84,11 @@ public class ClientStatusServiceImpl implements ClientStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public ClientStatusDtoResponse createClientStatus(ClientStatusDtoRequest clientStatusDtoRequest) {
-        ClientStatusDtoResponse clientStatusDtoResponse = new ClientStatusDtoResponse();
-        if (operationIsAllow(clientStatusDtoRequest)) {
-            ClientStatus newClientStatus = mapperFacade.map(clientStatusDtoRequest, ClientStatus.class);
-            newClientStatus.setId(UUID.randomUUID());
-            ClientStatus save = clientStatusRepository.save(newClientStatus);
-            clientStatusDtoResponse = mapperFacade.map(save, ClientStatusDtoResponse.class);
-        }
-        return clientStatusDtoResponse;
+        checkPossibilityToCreate(clientStatusDtoRequest);
+        ClientStatus newClientStatus = mapperFacade.map(clientStatusDtoRequest, ClientStatus.class);
+        newClientStatus.setId(UUID.randomUUID());
+        ClientStatus save = clientStatusRepository.save(newClientStatus);
+        return mapperFacade.map(save, ClientStatusDtoResponse.class);
     }
 
 
@@ -110,19 +100,13 @@ public class ClientStatusServiceImpl implements ClientStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public ClientStatusDtoResponse updateClientStatus(UUID id, ClientStatusDtoRequest clientStatusDtoRequest) {
-        ClientStatusDtoResponse clientStatusDtoResponse = new ClientStatusDtoResponse();
-        if (operationIsAllow(clientStatusDtoRequest) &&
-                Objects.equals(id, clientStatusDtoRequest.getId()) &&
-                clientStatusRepository.existsById(clientStatusDtoRequest.getId())) {
-
-            ClientStatus clientStatusById = clientStatusRepository.findById(clientStatusDtoRequest.getId()).orElseThrow(
-                    () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
-            );
-            mapperFacade.map(clientStatusDtoRequest, clientStatusById);
-            ClientStatus save = clientStatusRepository.save(clientStatusById);
-            clientStatusDtoResponse = mapperFacade.map(save, ClientStatusDtoResponse.class);
-        }
-        return clientStatusDtoResponse;
+        ClientStatus clientStatusById = clientStatusRepository.findById(clientStatusDtoRequest.getId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        checkUpdatedData(clientStatusDtoRequest, clientStatusById);
+        mapperFacade.map(clientStatusDtoRequest, clientStatusById);
+        ClientStatus save = clientStatusRepository.save(clientStatusById);
+        return mapperFacade.map(save, ClientStatusDtoResponse.class);
     }
 
     /**
@@ -149,42 +133,46 @@ public class ClientStatusServiceImpl implements ClientStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteClientStatus(UUID id) {
-        Optional<ClientStatus> clientStatusById = clientStatusRepository.findById(id);
-        if (clientStatusById.isPresent()) {
-            ClientStatus clientStatus = clientStatusById.get();
-            Collection<Client> allByClientStatus = clientRepository.findAllByClientStatus(clientStatus);
-            allByClientStatus.forEach(client -> clientService.deleteClient(client.getId()));
-            clientStatusRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        ClientStatus clientStatus = clientStatusRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        clientRepository.findAllByClientStatus(clientStatus)
+                .forEach(client -> clientService.deleteClient(client.getId()));
+        clientStatusRepository.deleteById(id);
+        return true;
     }
 
-    /**
-     * Метод проверяет разрешена ли для пользователя данная операция
-     *
-     * @param clientStatusDtoRequest - запрос
-     * @return true - операция разрешена, false - операция запрещена
-     */
-    private boolean operationIsAllow(ClientStatusDtoRequest clientStatusDtoRequest) {
-        if ((clientStatusDtoRequest != null) && (clientStatusDtoRequest.getClientId() != null)) {
-            Optional<Client> client = clientRepository.findById(clientStatusDtoRequest.getClientId());
-            if (client.isPresent()) {
-                return ClientRole.ClientRoleEnum.isEqualsClientRole(ADMIN, client.get());
-            }
+
+    @Override
+    public void checkPossibilityToCreate(ClientStatusDtoRequest clientStatusDtoRequest) {
+        if (clientStatusRepository.existsClientStatusByValue(clientStatusDtoRequest.getValue())) {
+            throw new IllegalArgumentException("errors.persistence.entity.exist");
         }
-        return false;
     }
+
+
+    @Override
+    public void checkUpdatedData(ClientStatusDtoRequest clientStatusDtoRequest, ClientStatus clientStatus) {
+        String value = clientStatusDtoRequest.getValue();
+        if (!value.equals(clientStatus.getValue())) {
+            checkPossibilityToCreate(clientStatusDtoRequest);
+        }
+    }
+
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ClientStatusDtoResponse> getStatus(SearchDto<ClientStatusSearchDto> searchDto, Pageable pageable) {
         Page<ClientStatus> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = clientStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = clientStatusRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = clientStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = clientStatusRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
         List<ClientStatusDtoResponse> clientStatusDtoResponses = page
                 .map(entity -> mapperFacade.map(entity, ClientStatusDtoResponse.class))
@@ -214,22 +202,11 @@ public class ClientStatusServiceImpl implements ClientStatusService {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
         SearchUnit value = statusSearchDto.getValue();
-        if (searchUnitIsValid(value)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("value")
-                    .setTypedValue(value.getValue())
-                    .setSearchOperation(value.getSearchOperation())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, value, "value", searchUnit -> value.getValue());
 
         SearchUnit description = statusSearchDto.getDescription();
-        if (searchUnitIsValid(description)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("description")
-                    .setValue(description.getValue())
-                    .setSearchOperation(description.getSearchOperation())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, description, "description", searchUnit -> description.getValue());
+
         return restrictionValues;
     }
 

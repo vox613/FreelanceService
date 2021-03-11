@@ -2,10 +2,10 @@ package ru.iteco.project.service;
 
 import org.springframework.data.domain.Pageable;
 import ru.iteco.project.domain.Task;
-import ru.iteco.project.resource.dto.TaskDtoRequest;
-import ru.iteco.project.resource.dto.TaskDtoResponse;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.dto.TaskDtoRequest;
+import ru.iteco.project.resource.dto.TaskDtoResponse;
 import ru.iteco.project.resource.searching.TaskSearchDto;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности Task
  */
-public interface TaskService {
+public interface TaskService extends CommonService<TaskDtoRequest, Task> {
 
     /**
      * Метод получает все задания из коллекции

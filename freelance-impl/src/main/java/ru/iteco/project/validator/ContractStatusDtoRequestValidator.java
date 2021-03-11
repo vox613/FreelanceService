@@ -32,13 +32,6 @@ public class ContractStatusDtoRequestValidator extends AbstractDtoValidator impl
 
         ContractStatusDtoRequest contractStatusDtoRequest = (ContractStatusDtoRequest) target;
 
-        if (ObjectUtils.isEmpty(contractStatusDtoRequest.getClientId())) {
-            logger.error("client Id is empty");
-            prepareErrorMessage(errors, "status.contract.id.empty", "clientId");
-        }
-        if (errors.hasErrors()) return;
-
-
         if (ObjectUtils.isEmpty(contractStatusDtoRequest.getValue())) {
             logger.error("status value is empty");
             prepareErrorMessage(errors, "status.contract.value.empty", "value");

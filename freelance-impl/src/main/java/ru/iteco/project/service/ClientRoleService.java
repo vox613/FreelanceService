@@ -2,10 +2,11 @@ package ru.iteco.project.service;
 
 
 import org.springframework.data.domain.Pageable;
-import ru.iteco.project.resource.dto.ClientRoleDtoRequest;
-import ru.iteco.project.resource.dto.ClientRoleDtoResponse;
+import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.dto.ClientRoleDtoRequest;
+import ru.iteco.project.resource.dto.ClientRoleDtoResponse;
 import ru.iteco.project.resource.searching.ClientRoleSearchDto;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.UUID;
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности ClientRole
  */
-public interface ClientRoleService {
+public interface ClientRoleService extends CommonService<ClientRoleDtoRequest, ClientRole> {
 
     /**
      * Метод получения роли пользователя по id
@@ -35,7 +36,7 @@ public interface ClientRoleService {
     /**
      * Метод обновления данных роли пользователя
      *
-     * @param id                 - уникальный идентификатор роли пользователя
+     * @param id                   - уникальный идентификатор роли пользователя
      * @param clientRoleDtoRequest - запрос с обновленными данными клиента
      * @return - объект ClientRoleDtoResponse с обновленной сущностью роли пользователя
      */

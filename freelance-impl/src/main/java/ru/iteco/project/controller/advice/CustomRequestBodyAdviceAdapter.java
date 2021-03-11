@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 import ru.iteco.project.exception.MismatchedIdException;
+import ru.iteco.project.resource.dto.ClientDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
-import ru.iteco.project.resource.dto.ClientDtoRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
@@ -28,7 +28,7 @@ import java.util.Objects;
  * Класс-расширение функционала контроллеров
  */
 @RestControllerAdvice
-@PropertySource(value = {"classpath:errors.properties"})
+@PropertySource(value = {"classpath:errors.properties"}, encoding = "UTF-8")
 public class CustomRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
     private static final Logger log = LogManager.getLogger(CustomRequestBodyAdviceAdapter.class.getName());
 

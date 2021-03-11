@@ -9,7 +9,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.iteco.project.resource.dto.*;
+import ru.iteco.project.resource.dto.ContractStatusBaseDto;
+import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
+import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
+import ru.iteco.project.resource.dto.ResponseError;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -75,11 +78,11 @@ public interface ContractStatusResource {
     @PostMapping(path = "/search")
     @ApiOperation(value = "Функционал поиска по статусам контрактов")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", dataTypeClass = Integer.class, paramType = "query",
                     value = "Номер необходимой страницы (0..N)"),
-            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "size", dataTypeClass = Integer.class, paramType = "query",
                     value = "Количество записей на странице"),
-            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataTypeClass = String.class, paramType = "query",
                     value = "Критерии сортировки в формате: критерий(,asc|desc). " +
                             "По умолчанию: (size = 5, page = 0, sort = createdAt,ASC). " +
                             "Поддерживается сортировка по некольким критериям.")

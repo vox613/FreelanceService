@@ -20,24 +20,7 @@ public class ResponseError {
             required = true)
     private String codeError;
 
-    @ApiModelProperty(value = "Список ошибок",
-            example = "\"objectErrorList\": [\n" +
-                    "        {\n" +
-                    "            \"codes\": [\n" +
-                    "                \"contract.confirmation.code.mismatch.contractDtoRequest.repeatConfirmationCode\",\n" +
-                    "                \"contract.confirmation.code.mismatch.repeatConfirmationCode\",\n" +
-                    "                \"contract.confirmation.code.mismatch.java.lang.String\",\n" +
-                    "                \"contract.confirmation.code.mismatch\"\n" +
-                    "            ],\n" +
-                    "            \"defaultMessage\": \"Confirmation codes don't match\",\n" +
-                    "            \"objectName\": \"contractDtoRequest\",\n" +
-                    "            \"field\": \"repeatConfirmationCode\",\n" +
-                    "            \"rejectedValue\": \"confirmationCoded\",\n" +
-                    "            \"bindingFailure\": false,\n" +
-                    "            \"code\": \"contract.confirmation.code.mismatch\"\n" +
-                    "        }\n" +
-                    "    ]",
-            allowEmptyValue = true)
+    @ApiModelProperty(value = "Список ошибок", allowEmptyValue = true)
     private List<ObjectError> objectErrorList;
 
     public ResponseError() {
@@ -86,5 +69,15 @@ public class ResponseError {
 
     public void setObjectErrorList(List<ObjectError> objectErrorList) {
         this.objectErrorList = objectErrorList;
+    }
+
+    @Override
+    public String toString() {
+        return "ResponseError{" +
+                "id=" + id +
+                ", message='" + message + '\'' +
+                ", codeError='" + codeError + '\'' +
+                ", objectErrorList=" + objectErrorList +
+                '}';
     }
 }

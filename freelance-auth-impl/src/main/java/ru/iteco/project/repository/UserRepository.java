@@ -34,9 +34,18 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
      */
     boolean existsByEmail(String email);
 
+    /**
+     * Метод проверяет существует ли пользователь с переданным логином
+     *
+     * @param username - логин пользователя
+     * @return - true - пользователь с переданным username существует,
+     * false - пользователя с переданным username не существует
+     */
+    boolean existsByUsername(String username);
 
     /**
      * Метод поиска сущности пользователя по его username
+     *
      * @param username - логин/уникальное имя пользователя
      * @return - Optional c сущностью пользователя, если пользователь с данным username сущетвует, иначе Optional c null
      */
