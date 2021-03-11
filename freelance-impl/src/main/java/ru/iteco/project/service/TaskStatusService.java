@@ -2,10 +2,11 @@ package ru.iteco.project.service;
 
 
 import org.springframework.data.domain.Pageable;
-import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
-import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
+import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
+import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
 import ru.iteco.project.resource.searching.TaskStatusSearchDto;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.UUID;
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности TaskStatus
  */
-public interface TaskStatusService {
+public interface TaskStatusService extends CommonService<TaskStatusDtoRequest, TaskStatus> {
 
     /**
      * Метод получения статуса задания по id

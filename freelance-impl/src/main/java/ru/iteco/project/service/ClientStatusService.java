@@ -2,10 +2,11 @@ package ru.iteco.project.service;
 
 
 import org.springframework.data.domain.Pageable;
-import ru.iteco.project.resource.dto.ClientStatusDtoRequest;
-import ru.iteco.project.resource.dto.ClientStatusDtoResponse;
+import ru.iteco.project.domain.ClientStatus;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.SearchDto;
+import ru.iteco.project.resource.dto.ClientStatusDtoRequest;
+import ru.iteco.project.resource.dto.ClientStatusDtoResponse;
 import ru.iteco.project.resource.searching.ClientStatusSearchDto;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.UUID;
 /**
  * Интерфейс описывает общий функционал Service слоя для сущности ClientStatus
  */
-public interface ClientStatusService {
+public interface ClientStatusService extends CommonService<ClientStatusDtoRequest, ClientStatus> {
 
     /**
      * Метод получения статуса пользователя по id
@@ -35,7 +36,7 @@ public interface ClientStatusService {
     /**
      * Метод обновления данных статуса пользователя
      *
-     * @param id                   - уникальный идентификатор статуса пользователя
+     * @param id                     - уникальный идентификатор статуса пользователя
      * @param clientStatusDtoRequest - запрос с обновленными данными статуса
      * @return - объект ClientStatusDtoResponse с обновленной сущностью статуса пользователя
      */

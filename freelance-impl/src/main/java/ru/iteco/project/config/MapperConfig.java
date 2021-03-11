@@ -11,25 +11,29 @@ import net.rakugakibox.spring.boot.orika.OrikaMapperFactoryConfigurer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import ru.iteco.project.domain.*;
 import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.*;
 import ru.iteco.project.resource.dto.*;
 import ru.iteco.project.service.mappers.DateTimeMapper;
+import ru.iteco.project.service.util.AuthenticationUtil;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.time.LocalDateTime;
 
-import static ru.iteco.project.domain.ContractStatus.ContractStatusEnum.PAID;
-import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.*;
 import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.*;
 import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.ACTIVE;
+import static ru.iteco.project.domain.ContractStatus.ContractStatusEnum.PAID;
+import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.IN_PROGRESS;
+import static ru.iteco.project.domain.TaskStatus.TaskStatusEnum.ON_CHECK;
 
 /**
  * Класс - конфигурация для Orika маппера
  */
 @Configuration
+@PropertySource(value = {"classpath:application.yml", "classpath:errors.properties"}, encoding = "UTF-8")
 public class MapperConfig implements OrikaMapperFactoryConfigurer {
 
     @Value("${errors.client.role.operation.unavailable}")
@@ -43,6 +47,10 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
 
     @Value("${errors.contract.status.invalid}")
     private String invalidContractStatusMessage;
+
+    /*** Установленный формат даты и времени*/
+    @Value("${format.date.time}")
+    private String formatDateTime;
 
 
     /*** Объект доступа к репозиторию заданий */
@@ -140,8 +148,10 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                             client.setClientRole(clientRoleRepository.findClientRoleByValue(clientDtoRequest.getClientRole())
                                     .orElseThrow(() -> new InvalidClientRoleException(clientRoleIsInvalidMessage)));
                         }
-                        client.setClientStatus(clientStatusRepository.findClientStatusByValue(clientDtoRequest.getClientStatus())
-                                .orElseThrow(() -> new InvalidClientStatusException(unavailableOperationMessage)));
+                        if (client.getClientStatus().getId() == null) {
+                            client.setClientStatus(clientStatusRepository.findClientStatusByValue(clientDtoRequest.getClientStatus())
+                                    .orElseThrow(() -> new InvalidClientStatusException(unavailableOperationMessage)));
+                        }
                     }
                 })
                 .register();
@@ -240,20 +250,20 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                 .customize(new CustomMapper<TaskDtoRequest, Task>() {
                     @Override
                     public void mapAtoB(TaskDtoRequest taskDtoRequest, Task task, MappingContext context) {
-                        Client client = clientRepository.findById(taskDtoRequest.getClientId()).orElseThrow(
+                        Client client = clientRepository.findById(AuthenticationUtil.getUserPrincipalId()).orElseThrow(
                                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
                         );
                         if (isEqualsClientRole(CUSTOMER, client)) {
                             task.setTitle(taskDtoRequest.getTitle());
                             task.setDescription(taskDtoRequest.getDescription());
-                            task.setTaskCompletionDate(DateTimeMapper.stringToObject(taskDtoRequest.getTaskCompletionDate()));
-                            task.setPrice(taskDtoRequest.getPrice());
-
+                            task.setTaskCompletionDate(DateTimeMapper.stringToObject(taskDtoRequest.getTaskCompletionDate(), formatDateTime));
                             task.setTaskStatus(taskStatusRepository
-                                    .findTaskStatusByValue((taskDtoRequest.getTaskStatus() != null) ?
-                                            taskDtoRequest.getTaskStatus() : REGISTERED.name()
-                                    ).orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage)));
-
+                                    .findTaskStatusByValue(taskDtoRequest.getTaskStatus())
+                                    .orElseThrow(() -> new InvalidTaskStatusException(invalidTaskStatusMessage))
+                            );
+                            if (task.getExecutor() == null) {
+                                task.setPrice(taskDtoRequest.getPrice());
+                            }
                             task.setTaskDecision(taskDtoRequest.getTaskDecision());
                             client.setClientStatus(clientStatusRepository.findClientStatusByValue(ACTIVE.name())
                                     .orElseThrow(InvalidClientRoleException::new));
@@ -336,7 +346,7 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                                     () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
                             );
                             executor.setClientStatus(clientStatusRepository.findClientStatusByValue(ACTIVE.name())
-                                    .orElseThrow(InvalidClientRoleException::new));
+                                    .orElseThrow(InvalidClientStatusException::new));
 
                             contract.setCustomer(task.getCustomer());
                             contract.setExecutor(executor);
@@ -383,16 +393,16 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
     /**
      * Класс-конвертер для преобразования типов и форматов дат
      */
-    static class DateTimeFormatter extends BidirectionalConverter<LocalDateTime, String> {
+    class DateTimeFormatter extends BidirectionalConverter<LocalDateTime, String> {
 
         @Override
         public String convertTo(LocalDateTime source, Type<String> destinationType, MappingContext mappingContext) {
-            return DateTimeMapper.objectToString(source);
+            return DateTimeMapper.objectToString(source, formatDateTime);
         }
 
         @Override
         public LocalDateTime convertFrom(String source, Type<LocalDateTime> destinationType, MappingContext mappingContext) {
-            return DateTimeMapper.stringToObject(source);
+            return DateTimeMapper.stringToObject(source, formatDateTime);
         }
     }
 }

@@ -25,6 +25,14 @@ public interface ClientRepository extends JpaRepository<Client, UUID>, JpaSpecif
     boolean existsByEmail(String email);
 
     /**
+     * Метод определяет существование клиента с переданным phoneNumber
+     *
+     * @param phoneNumber - телефон клиента
+     * @return - true - клиент с таким телефоном существует, false - клиента с данным телефонным номером не существует.
+     */
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    /**
      * Метод получения всех пользователей с переданным статусом
      *
      * @param clientStatus - статус пользователя

@@ -32,13 +32,6 @@ public class ClientStatusDtoRequestValidator extends AbstractDtoValidator implem
 
         ClientStatusDtoRequest clientStatusDtoRequest = (ClientStatusDtoRequest) target;
 
-        if (ObjectUtils.isEmpty(clientStatusDtoRequest.getClientId())) {
-            logger.error("Client Id is empty");
-            prepareErrorMessage(errors, "status.client.id.empty", "clientId");
-        }
-        if (errors.hasErrors()) return;
-
-
         if (ObjectUtils.isEmpty(clientStatusDtoRequest.getValue())) {
             logger.error("status value is empty");
             prepareErrorMessage(errors, "status.client.value.empty", "value");

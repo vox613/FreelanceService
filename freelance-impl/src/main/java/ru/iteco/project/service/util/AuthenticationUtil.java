@@ -64,4 +64,17 @@ public class AuthenticationUtil {
         }
     }
 
+    /**
+     * Метод проверяет совпадают ли переданный clientId и userId из объекта Authentication,
+     * проверка осуществляется если роль клиента совпадает с переданным значением role
+     *
+     * @param role     - переданная роль пользователя при которой происходит сравнение
+     * @param clientId - уникальный идентификатор клиента
+     */
+    public static void checkIdForRole(String role, UUID clientId) {
+        if (AuthenticationUtil.userHasRole(role)) {
+            AuthenticationUtil.userIdAndClientIdIsMatched(clientId);
+        }
+    }
+
 }

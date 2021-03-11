@@ -1,0 +1,64 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="contract_statuses"/>
+        </preConditions>
+
+        <addUniqueConstraint schemaName="freelance" tableName="contract_statuses" columnNames="value"/>
+
+        <comment> Добавил ограничение уникальности для колонки value в таблице contract_statuses </comment>
+    </changeSet>
+
+
+    <changeSet id="2" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="task_statuses"/>
+        </preConditions>
+
+        <addUniqueConstraint schemaName="freelance" tableName="task_statuses" columnNames="value"/>
+
+        <comment> Добавил ограничение уникальности для колонки value в таблице task_statuses </comment>
+    </changeSet>
+
+
+    <changeSet id="3" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="client_roles"/>
+        </preConditions>
+
+        <addUniqueConstraint schemaName="freelance" tableName="client_roles" columnNames="value"/>
+
+        <comment> Добавил ограничение уникальности для колонки value в таблице client_roles </comment>
+    </changeSet>
+
+
+    <changeSet id="4" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="clients"/>
+        </preConditions>
+
+        <addNotNullConstraint schemaName="freelance" tableName="clients" columnName="phone_number"/>
+        <addUniqueConstraint schemaName="freelance" tableName="clients" columnNames="phone_number"/>
+
+        <addUniqueConstraint schemaName="freelance" tableName="clients" columnNames="email"/>
+
+        <comment> Добавил ограничение уникальности для колонок email и phone_number в таблице clients </comment>
+    </changeSet>
+
+
+    <changeSet id="5" author="Alexey Alexandrov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="contract"/>
+        </preConditions>
+
+        <addUniqueConstraint schemaName="freelance" tableName="contract" columnNames="task_id"/>
+
+        <comment> Добавил ограничение уникальности для колонки task_id в таблице contract </comment>
+    </changeSet>
+
+</databaseChangeLog>

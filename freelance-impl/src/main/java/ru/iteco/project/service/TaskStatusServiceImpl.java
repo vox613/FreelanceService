@@ -1,19 +1,15 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Client;
-import ru.iteco.project.domain.ClientRole;
-import ru.iteco.project.domain.Task;
 import ru.iteco.project.domain.TaskStatus;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
+import ru.iteco.project.exception.InvalidSearchExpressionException;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.TaskRepository;
 import ru.iteco.project.repository.TaskStatusRepository;
@@ -26,20 +22,18 @@ import ru.iteco.project.resource.searching.TaskStatusSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 /**
  * Класс реализует функционал сервисного слоя для работы со статусами заданий
  */
 @Service
 public class TaskStatusServiceImpl implements TaskStatusService {
-
-    private static final Logger log = LogManager.getLogger(TaskStatusServiceImpl.class.getName());
-
 
     /*** Объект доступа к репозиторию статусов заданий */
     private final TaskStatusRepository taskStatusRepository;
@@ -80,13 +74,9 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public TaskStatusDtoResponse getTaskStatusById(UUID id) {
-        TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
-        Optional<TaskStatus> optionalTaskStatusById = taskStatusRepository.findById(id);
-        if (optionalTaskStatusById.isPresent()) {
-            TaskStatus taskStatus = optionalTaskStatusById.get();
-            taskStatusDtoResponse = mapperFacade.map(taskStatus, TaskStatusDtoResponse.class);
-        }
-        return taskStatusDtoResponse;
+        TaskStatus taskStatus = taskStatusRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        return mapperFacade.map(taskStatus, TaskStatusDtoResponse.class);
     }
 
     /**
@@ -97,14 +87,11 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public TaskStatusDtoResponse createTaskStatus(TaskStatusDtoRequest taskStatusDtoRequest) {
-        TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
-        if (operationIsAllow(taskStatusDtoRequest)) {
-            TaskStatus newTaskStatus = mapperFacade.map(taskStatusDtoRequest, TaskStatus.class);
-            newTaskStatus.setId(UUID.randomUUID());
-            TaskStatus save = taskStatusRepository.save(newTaskStatus);
-            taskStatusDtoResponse = mapperFacade.map(save, TaskStatusDtoResponse.class);
-        }
-        return taskStatusDtoResponse;
+        checkPossibilityToCreate(taskStatusDtoRequest);
+        TaskStatus newTaskStatus = mapperFacade.map(taskStatusDtoRequest, TaskStatus.class);
+        newTaskStatus.setId(UUID.randomUUID());
+        TaskStatus save = taskStatusRepository.save(newTaskStatus);
+        return mapperFacade.map(save, TaskStatusDtoResponse.class);
     }
 
     /**
@@ -115,19 +102,13 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public TaskStatusDtoResponse updateTaskStatus(UUID id, TaskStatusDtoRequest taskStatusDtoRequest) {
-        TaskStatusDtoResponse taskStatusDtoResponse = new TaskStatusDtoResponse();
-        if (operationIsAllow(taskStatusDtoRequest) &&
-                Objects.equals(id, taskStatusDtoRequest.getId()) &&
-                taskStatusRepository.existsById(taskStatusDtoRequest.getId())) {
-
-            TaskStatus taskStatus = taskStatusRepository.findById(taskStatusDtoRequest.getId()).orElseThrow(
-                    () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-
-            mapperFacade.map(taskStatusDtoRequest, taskStatus);
-            TaskStatus save = taskStatusRepository.save(taskStatus);
-            taskStatusDtoResponse = mapperFacade.map(save, TaskStatusDtoResponse.class);
-        }
-        return taskStatusDtoResponse;
+        TaskStatus taskStatus = taskStatusRepository.findById(taskStatusDtoRequest.getId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        checkUpdatedData(taskStatusDtoRequest, taskStatus);
+        mapperFacade.map(taskStatusDtoRequest, taskStatus);
+        TaskStatus save = taskStatusRepository.save(taskStatus);
+        return mapperFacade.map(save, TaskStatusDtoResponse.class);
     }
 
     /**
@@ -153,31 +134,28 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteTaskStatus(UUID id) {
-        Optional<TaskStatus> taskStatusById = taskStatusRepository.findById(id);
-        if (taskStatusById.isPresent()) {
-            Collection<Task> allTasksWithStatus = taskRepository.findAllByTaskStatus(taskStatusById.get());
-            allTasksWithStatus.forEach(task -> taskService.deleteTask(task.getId()));
-            taskStatusRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        TaskStatus taskStatus = taskStatusRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        taskRepository.findAllByTaskStatus(taskStatus)
+                .forEach(task -> taskService.deleteTask(task.getId()));
+        taskStatusRepository.deleteById(id);
+        return true;
     }
 
 
-    /**
-     * Метод проверяет разрешена ли для пользователя данная операция
-     *
-     * @param taskStatusDtoRequest - запрос
-     * @return true - операция разрешена, false - операция запрещена
-     */
-    private boolean operationIsAllow(TaskStatusDtoRequest taskStatusDtoRequest) {
-        if ((taskStatusDtoRequest != null) && (taskStatusDtoRequest.getClientId() != null)) {
-            Optional<Client> clientById = clientRepository.findById(taskStatusDtoRequest.getClientId());
-            if (clientById.isPresent()) {
-                return ClientRole.ClientRoleEnum.isEqualsClientRole(ADMIN, clientById.get());
-            }
+    @Override
+    public void checkPossibilityToCreate(TaskStatusDtoRequest taskStatusDtoRequest) {
+        if (taskStatusRepository.existsTaskStatusByValue(taskStatusDtoRequest.getValue())) {
+            throw new IllegalArgumentException("errors.persistence.entity.exist");
         }
-        return false;
+    }
+
+    @Override
+    public void checkUpdatedData(TaskStatusDtoRequest taskStatusDtoRequest, TaskStatus taskStatus) {
+        String value = taskStatusDtoRequest.getValue();
+        if (!value.equals(taskStatus.getValue())) {
+            checkPossibilityToCreate(taskStatusDtoRequest);
+        }
     }
 
     @Override
@@ -185,10 +163,14 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @PreAuthorize("hasRole('ADMIN')")
     public PageDto<TaskStatusDtoResponse> getStatus(SearchDto<TaskStatusSearchDto> searchDto, Pageable pageable) {
         Page<TaskStatus> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = taskStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = taskStatusRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = taskStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = taskStatusRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
         List<TaskStatusDtoResponse> TaskStatusDtoResponses = page
@@ -219,22 +201,11 @@ public class TaskStatusServiceImpl implements TaskStatusService {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
         SearchUnit value = taskStatusSearchDto.getValue();
-        if (searchUnitIsValid(value)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("value")
-                    .setTypedValue(value.getValue())
-                    .setSearchOperation(value.getSearchOperation())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, value, "value", searchUnit -> value.getValue());
 
         SearchUnit description = taskStatusSearchDto.getDescription();
-        if (searchUnitIsValid(description)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("description")
-                    .setValue(description.getValue())
-                    .setSearchOperation(description.getSearchOperation())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, description, "description", searchUnit -> description.getValue());
+
         return restrictionValues;
     }
 }

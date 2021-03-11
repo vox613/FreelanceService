@@ -67,23 +67,28 @@ public class TaskStatus extends CreateAtIdentified implements Identified<UUID> {
      * Перечисление возможных статусов задания
      */
     public enum TaskStatusEnum {
-        REGISTERED("Задание зарегистрировано"),
-        IN_PROGRESS("Задание на выполнении"),
-        ON_CHECK("Задание на проверке"),
-        ON_FIX("Задание на исправлении"),
-        DONE("Задание выполнено"),
-        CANCELED("Задание отменено");
+        REGISTERED("Задание зарегистрировано", true),
+        IN_PROGRESS("Задание на выполнении", false),
+        ON_CHECK("Задание на проверке", false),
+        ON_FIX("Задание на исправлении", false),
+        DONE("Задание выполнено", true),
+        CANCELED("Задание отменено", true);
 
         private final String description;
+        private final boolean isTerminated;
 
-        TaskStatusEnum(String description) {
+        TaskStatusEnum(String description, boolean isTerminated) {
             this.description = description;
+            this.isTerminated = isTerminated;
         }
 
         public String getDescription() {
             return description;
         }
 
+        public boolean isTerminated() {
+            return isTerminated;
+        }
 
         /**
          * Метод проверяет является ли входная строка текстовым представлением одного из элементов перечисления

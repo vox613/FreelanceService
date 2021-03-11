@@ -7,12 +7,12 @@ public class AuditCode {
 
     /*** Создание клиента*/
     public static final String CLIENT_CREATE = "CLIENT_CREATE";
-    /*** Создание пакета клиента*/
-    public static final String CLIENT_BATCH_CREATE = "CLIENT_BATCH_CREATE";
     /*** Обновление клиента*/
     public static final String CLIENT_UPDATE = "CLIENT_UPDATE";
     /*** Удаление клиента*/
     public static final String CLIENT_DELETE = "CLIENT_DELETE";
+    /*** Изменение статуса клиента*/
+    public static final String UPDATE_CLIENT_STATUS = "UPDATE_CLIENT_STATUS";
 
 
     /*** Создание роли клиента*/

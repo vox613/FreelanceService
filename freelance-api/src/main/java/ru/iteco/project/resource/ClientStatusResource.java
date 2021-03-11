@@ -9,7 +9,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.iteco.project.resource.dto.*;
+import ru.iteco.project.resource.dto.ClientStatusBaseDto;
+import ru.iteco.project.resource.dto.ClientStatusDtoRequest;
+import ru.iteco.project.resource.dto.ClientStatusDtoResponse;
+import ru.iteco.project.resource.dto.ResponseError;
 import ru.iteco.project.resource.searching.ClientStatusSearchDto;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -25,7 +28,7 @@ public interface ClientStatusResource {
      *
      * @return - список ClientStatusDtoResponse
      */
-    @GetMapping
+    @GetMapping(produces = {"application/json; charset=UTF-8"})
     @ApiOperation(value = "Получение списка всех статусов пользователей")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Список статусов пользователей, доступных вызывающей стороне",
@@ -46,7 +49,7 @@ public interface ClientStatusResource {
      * @param id - уникальный идентификатор статуса пользователя
      * @return ClientStatusDtoResponse заданного статуса или пустой ClientStatusDtoResponse, если данный статус не существует
      */
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/{id}", produces = {"application/json; charset=UTF-8"})
     @ApiOperation(value = "Детальная информация по статусу пользователя")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Информация о статусе пользователя, доступная вызывающей стороне",
@@ -61,24 +64,24 @@ public interface ClientStatusResource {
                     response = ResponseError.class)
     })
     ResponseEntity<ClientStatusDtoResponse> getClientStatus(@ApiParam(value = "Идентификатор статуса пользователя", required = true)
-                                                        @PathVariable UUID id);
+                                                            @PathVariable UUID id);
 
 
     /**
      * Эндпоинт с реализацией пагинации и сортировки результатов поиска
      *
      * @param clientStatusSearchDto - dto объект который задает значения полей по которым будет осуществляться поиск данных
-     * @param pageable            - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
+     * @param pageable              - объект пагинации с информацией о размере/наполнении/сортировке данных на странице
      * @return - объект PageDto с результатами соответствующими критериям запроса
      */
-    @PostMapping(path = "/search")
+    @PostMapping(path = "/search", produces = {"application/json; charset=UTF-8"})
     @ApiOperation(value = "Функционал поиска по статусам пользователей")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", dataTypeClass = Integer.class, paramType = "query",
                     value = "Номер необходимой страницы (0..N)"),
-            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "size", dataTypeClass = Integer.class, paramType = "query",
                     value = "Количество записей на странице"),
-            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataTypeClass = String.class, paramType = "query",
                     value = "Критерии сортировки в формате: критерий(,asc|desc). " +
                             "По умолчанию: (size = 5, page = 0, sort = createdAt,ASC). " +
                             "Поддерживается сортировка по некольким критериям.")
@@ -95,8 +98,8 @@ public interface ClientStatusResource {
     })
     PageDto getClients(@RequestBody(required = false) ClientStatusSearchDto clientStatusSearchDto,
                        @ApiIgnore
-                     @PageableDefault(size = 5, page = 0, sort = {"createdAt"}, direction = Sort.Direction.ASC)
-                             Pageable pageable);
+                       @PageableDefault(size = 5, page = 0, sort = {"createdAt"}, direction = Sort.Direction.ASC)
+                               Pageable pageable);
 
 
     /**
@@ -106,7 +109,7 @@ public interface ClientStatusResource {
      * @return Тело запроса на создание статуса пользователя с уникальным проставленным id,
      * * или тело запроса с id = null, если создать статус не удалось
      */
-    @PostMapping
+    @PostMapping(produces = {"application/json; charset=UTF-8"})
     @ApiOperation(value = "Создание статуса пользователя")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Статус пользователя успешно создан. " +
@@ -130,10 +133,10 @@ public interface ClientStatusResource {
     /**
      * Обновляет существующий статус пользователя {id}
      *
-     * @param id                   - уникальный идентификатор статуса пользователя
+     * @param id                     - уникальный идентификатор статуса пользователя
      * @param clientStatusDtoRequest - тело запроса с данными для обновления
      */
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{id}", produces = {"application/json; charset=UTF-8"})
     @ApiOperation(value = "Обновление статуса пользователя")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Данные статуса пользователя успешно обновлены",
@@ -148,7 +151,7 @@ public interface ClientStatusResource {
                     response = ResponseError.class)
     })
     ResponseEntity<? extends ClientStatusBaseDto> updateClientStatus(@ApiParam(value = "Идентификатор статуса пользователя", required = true)
-                                                                 @PathVariable UUID id,
+                                                                     @PathVariable UUID id,
                                                                      @Validated @RequestBody ClientStatusDtoRequest clientStatusDtoRequest,
                                                                      BindingResult result);
 
@@ -173,6 +176,6 @@ public interface ClientStatusResource {
                     response = ResponseError.class)
     })
     ResponseEntity<Object> deleteClientStatus(@ApiParam(value = "Идентификатор статуса пользователя", required = true)
-                                            @PathVariable UUID id);
+                                              @PathVariable UUID id);
 
 }

@@ -11,7 +11,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.function.Function;
 
 import static ru.iteco.project.enumaration.SearchOperations.*;
 import static ru.iteco.project.specification.SearchPredicatesUtil.*;
@@ -91,7 +93,19 @@ public class SpecificationBuilder<T> {
      */
     public static boolean isBetweenOperation(SearchUnit searchUnit) {
         SearchOperations searchOperation = fromString(searchUnit.getSearchOperation());
-        return (searchOperation == BETWEEN) || (searchOperation == NOT_BETWEEN);    }
+        return (searchOperation == BETWEEN) || (searchOperation == NOT_BETWEEN);
+    }
+
+    /**
+     * Метод определяет относится ли операция к определяющей эквивалентность
+     *
+     * @param searchUnit - элемент поиска со всеми данными
+     * @return - true - операция является определяющей эквивалентность, false - операция не является определяющей эквивалентность
+     */
+    public static boolean isEqualOperation(SearchUnit searchUnit) {
+        SearchOperations searchOperation = fromString(searchUnit.getSearchOperation());
+        return (searchOperation == EQUAL) || (searchOperation == NOT_EQUAL);
+    }
 
     /**
      * Метод проверяет наличие необходимых значений в searchUnit для конкретного типа операции
@@ -108,5 +122,44 @@ public class SpecificationBuilder<T> {
             }
         }
         return false;
+    }
+
+
+    /**
+     * Метод формирует restrictionValue и добавляет его в список
+     *
+     * @param restrictionValues - список ограничений для поиска
+     * @param searchUnit        - элемент поиска со всеми данными
+     * @param key               - наименование поля по которому осуществляется поиск
+     * @param function          - вспомогатеьный метод получения необходимого значения
+     */
+    public static void prepareRestrictionValue(ArrayList<CriteriaObject.RestrictionValues> restrictionValues,
+                                               SearchUnit searchUnit, String key, Function function) {
+        if (searchUnitIsValid(searchUnit)) {
+            restrictionValues.add(enrichByOperationType(searchUnit, function)
+                    .setKey(key)
+                    .setSearchOperation(searchUnit.getSearchOperation())
+                    .build());
+        }
+    }
+
+    /**
+     * Метод обогащает ограничение поиска необходимыми данными в зависимости от типа запроса
+     *
+     * @param searchUnit - элемент поиска со всеми данными
+     * @param function   - вспомогатеьный метод получения необходимого значения
+     * @return объект RestrictionValues.Builder для дальнейшего формирования RestrictionValue
+     */
+    private static CriteriaObject.RestrictionValues.Builder enrichByOperationType(SearchUnit searchUnit, Function function) {
+        CriteriaObject.RestrictionValues.Builder builder = CriteriaObject.RestrictionValues.newBuilder();
+        if (isEqualOperation(searchUnit)) {
+            builder.setTypedValue(function.apply(searchUnit));
+        } else if (isBetweenOperation(searchUnit)) {
+            builder.setMinValue(searchUnit.getMinValue())
+                    .setMaxValue(searchUnit.getMaxValue());
+        } else {
+            builder.setValue(searchUnit.getValue());
+        }
+        return builder;
     }
 }

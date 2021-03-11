@@ -22,4 +22,13 @@ public interface ClientStatusRepository extends JpaRepository<ClientStatus, UUID
      */
     Optional<ClientStatus> findClientStatusByValue(String value);
 
+
+    /**
+     * Метод проверяет существование статуса клиента с переданным значением поля value
+     *
+     * @param value - наименование статуса клиента
+     * @return true - статус клиента с переданным значением существует,
+     * false - статус клиента с переданным значением статуса не существует
+     */
+    Boolean existsClientStatusByValue(String value);
 }

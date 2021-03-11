@@ -22,4 +22,13 @@ public interface ContractStatusRepository extends JpaRepository<ContractStatus, 
      */
     Optional<ContractStatus> findContractStatusByValue(String value);
 
+
+    /**
+     * Метод проверяет существование статуса контракта с переданным значением поля value
+     *
+     * @param value - наименование статуса контракта
+     * @return true - статус контракта с переданным значением существует,
+     * false - статус контракта с переданным значением статуса не существует
+     */
+    Boolean existsContractStatusByValue(String value);
 }

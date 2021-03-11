@@ -32,13 +32,6 @@ public class TaskStatusDtoRequestValidator extends AbstractDtoValidator implemen
 
         TaskStatusDtoRequest taskStatusDtoRequest = (TaskStatusDtoRequest) target;
 
-        if (ObjectUtils.isEmpty(taskStatusDtoRequest.getClientId())) {
-            logger.error("client Id is empty");
-            prepareErrorMessage(errors, "status.task.id.empty", "clientId");
-        }
-        if (errors.hasErrors()) return;
-
-
         if (ObjectUtils.isEmpty(taskStatusDtoRequest.getValue())) {
             logger.error("status value is empty");
             prepareErrorMessage(errors, "status.task.value.empty", "value");

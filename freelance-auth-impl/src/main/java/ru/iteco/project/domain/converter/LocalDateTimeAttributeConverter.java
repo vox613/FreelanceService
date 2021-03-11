@@ -1,6 +1,7 @@
 package ru.iteco.project.domain.converter;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import ru.iteco.project.exception.LocalDateTimeConvertException;
 
 import javax.persistence.AttributeConverter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
  * Класс-конвертер даты типа LocalDateTime в совместимый с БД sql.Timestamp
  */
 @Converter
+@PropertySource(value = {"classpath:errors.properties"}, encoding = "UTF-8")
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, Timestamp> {
 
     /*** Текст ошибки возникающей при попытке сохранения в поле БД null значения */

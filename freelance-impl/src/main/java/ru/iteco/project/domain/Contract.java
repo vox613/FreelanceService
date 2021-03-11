@@ -29,7 +29,7 @@ public class Contract extends CreateAtIdentified implements Identified<UUID> {
 
     /*** Задание - предмет договора */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, optional = false)
-    @JoinColumn(name = "task_id", nullable = false)
+    @JoinColumn(name = "task_id", nullable = false, unique = true)
     private Task task;
 
     /*** Статус договора */

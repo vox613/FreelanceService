@@ -32,13 +32,6 @@ public class ClientRoleDtoRequestValidator extends AbstractDtoValidator implemen
 
         ClientRoleDtoRequest clientRoleForm = (ClientRoleDtoRequest) target;
 
-        if (ObjectUtils.isEmpty(clientRoleForm.getClientId())) {
-            logger.error("Client Id is empty");
-            prepareErrorMessage(errors, "roles.client.id.empty", "clientId");
-        }
-        if (errors.hasErrors()) return;
-
-
         if (ObjectUtils.isEmpty(clientRoleForm.getValue())) {
             logger.error("role value is empty");
             prepareErrorMessage(errors, "roles.value.empty", "value");

@@ -53,11 +53,11 @@ public interface ClientResource {
     @PostMapping(path = "/search")
     @ApiOperation(value = "Функционал поиска по пользователям")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", dataTypeClass = Integer.class, paramType = "query",
                     value = "Номер необходимой страницы (0..N)"),
-            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "size", dataTypeClass = Integer.class, paramType = "query",
                     value = "Количество записей на странице"),
-            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataTypeClass = String.class, paramType = "query",
                     value = "Критерии сортировки в формате: критерий(,asc|desc). " +
                             "По умолчанию: (size = 5, page = 0, sort = createdAt,ASC). " +
                             "Поддерживается сортировка по некольким критериям.")
@@ -153,6 +153,33 @@ public interface ClientResource {
                                                          @PathVariable UUID id,
                                                          @Validated @RequestBody ClientDtoRequest clientDtoRequest,
                                                          BindingResult result);
+
+
+    /**
+     * Обновляет статус существующего пользователя {id}
+     *
+     * @param id  - уникальный идентификатор пользователя
+     * @param val - устанавиваемое значение статуса клиента
+     * @return - данные клиента в объекте ClientBaseDto с обновленным статусом
+     */
+    @PutMapping(value = "/{id}/status")
+    @ApiOperation(value = "Обновление пользователя")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Данные пользователя успешно обновлены",
+                    response = ClientDtoResponse.class, responseContainer = "ResponseEntity"),
+            @ApiResponse(code = 400, message = "Непредвиденная ошибка", response = ResponseError.class),
+            @ApiResponse(code = 401,
+                    message = "Полномочия не подтверждены. Например, JWT невалиден, отсутствует, либо неверного формата",
+                    response = ResponseError.class),
+            @ApiResponse(code = 403, message = "Нет полномочий на выполнение запрашиваемой операции",
+                    response = ResponseError.class),
+            @ApiResponse(code = 422, message = "Серверу не удалось обработать инструкции содержимого тела запроса",
+                    response = ResponseError.class)
+    })
+    ResponseEntity<? extends ClientBaseDto> updateClientStatus(@ApiParam(value = "Идентификатор пользователя", required = true)
+                                                               @PathVariable UUID id,
+                                                               @ApiParam(value = "Устанавливаемый статус пользователя", required = true)
+                                                               @RequestParam(name = "val") String val);
 
 
     /**

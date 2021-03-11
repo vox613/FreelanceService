@@ -62,20 +62,25 @@ public class ContractStatus extends CreateAtIdentified implements Identified<UUI
 
 
     public enum ContractStatusEnum {
-        PAID("Договор оплачен"),
-        TERMINATED("Договор расторгнут"),
-        DONE("Договор исполнен");
+        PAID("Договор оплачен", false),
+        TERMINATED("Договор расторгнут", true),
+        DONE("Договор исполнен", true);
 
         private final String description;
+        private final boolean isTerminated;
 
-        ContractStatusEnum(String description) {
+        ContractStatusEnum(String description, boolean isTerminated) {
             this.description = description;
+            this.isTerminated = isTerminated;
         }
 
         public String getDescription() {
             return description;
         }
 
+        public boolean isTerminated() {
+            return isTerminated;
+        }
 
         /**
          * Метод проверяет является ли входная строка текстовым представлением одного из элементов перечисления

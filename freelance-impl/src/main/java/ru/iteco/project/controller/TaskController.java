@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.TaskResource;
 import ru.iteco.project.resource.dto.TaskBaseDto;
 import ru.iteco.project.resource.dto.TaskDtoRequest;
 import ru.iteco.project.resource.dto.TaskDtoResponse;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.TaskSearchDto;
 import ru.iteco.project.service.TaskService;
 import ru.iteco.project.validator.TaskDtoRequestValidator;
@@ -22,9 +22,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
-import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с Task
@@ -64,11 +64,7 @@ public class TaskController implements TaskResource {
         beforeCall(Level.DEBUG, "getTask()", id);
         TaskDtoResponse taskById = taskService.getTaskById(id);
         afterCall(Level.DEBUG, "getTask()", taskById);
-        if ((taskById != null) && (taskById.getId() != null)) {
-            return ResponseEntity.ok().body(taskById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(taskById);
     }
 
 
@@ -96,17 +92,12 @@ public class TaskController implements TaskResource {
         TaskDtoResponse taskDtoResponse = taskService.createTask(taskDtoRequest);
         afterCall(Level.DEBUG, "createTask()", taskDtoResponse);
 
-        if (taskDtoResponse != null) {
-            URI uri = componentsBuilder
-                    .path(String.format("/tasks/%s", taskDtoResponse.getId()))
-                    .buildAndExpand(taskDtoResponse)
-                    .toUri();
+        URI uri = componentsBuilder
+                .path(String.format("/api/v1/tasks/%s", taskDtoResponse.getId()))
+                .buildAndExpand(taskDtoResponse)
+                .toUri();
 
-            return ResponseEntity.created(uri).body(taskDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
+        return ResponseEntity.created(uri).body(taskDtoResponse);
     }
 
 
@@ -122,11 +113,7 @@ public class TaskController implements TaskResource {
 
         TaskDtoResponse taskDtoResponse = taskService.updateTask(taskDtoRequest);
         afterCall(Level.DEBUG, "updateTask()", taskDtoResponse);
-        if (taskDtoResponse != null) {
-            return ResponseEntity.ok().body(taskDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(taskDtoRequest);
-        }
+        return ResponseEntity.ok().body(taskDtoResponse);
     }
 
 
@@ -136,11 +123,7 @@ public class TaskController implements TaskResource {
         beforeCall(Level.DEBUG, "deleteTask()", id);
         Boolean isDeleted = taskService.deleteTask(id);
         afterCall(Level.DEBUG, "deleteTask()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
 

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.exception.ContractConclusionException;
+import ru.iteco.project.resource.dto.ContractDtoRequest;
 
 /**
  * Класс содержит валидаторы для полей объекта запроса ContractDtoRequest
@@ -31,13 +31,6 @@ public class ContractDtoRequestValidator extends AbstractDtoValidator implements
     public void validate(Object target, Errors errors) {
 
         ContractDtoRequest contractForm = (ContractDtoRequest) target;
-
-        if (ObjectUtils.isEmpty(contractForm.getClientId())) {
-            logger.error("client Id is empty");
-            prepareErrorMessage(errors, "contract.client.id.empty", "clientId");
-        }
-        if (errors.hasErrors()) return;
-
 
         if (ObjectUtils.isEmpty(contractForm.getExecutorId())) {
             logger.error("contract executorId is empty");

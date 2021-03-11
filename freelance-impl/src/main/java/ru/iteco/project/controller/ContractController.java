@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.resource.ContractResource;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.dto.ContractBaseDto;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.service.ContractService;
 import ru.iteco.project.validator.ContractDtoRequestValidator;
 
@@ -59,11 +59,7 @@ public class ContractController implements ContractResource {
         beforeCall(Level.DEBUG, "getContract()", id);
         ContractDtoResponse contractById = contractService.getContractById(id);
         afterCall(Level.DEBUG, "getContract()", contractById);
-        if ((contractById != null) && (contractById.getId() != null)) {
-            return ResponseEntity.ok().body(contractById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(contractById);
     }
 
 
@@ -91,16 +87,12 @@ public class ContractController implements ContractResource {
         ContractDtoResponse contractDtoResponse = contractService.createContract(contractDtoRequest);
         afterCall(Level.DEBUG, "createContract()", contractDtoResponse);
 
-        if (contractDtoResponse != null) {
-            URI uri = componentsBuilder
-                    .path(String.format("/contracts/%s", contractDtoResponse.getId()))
-                    .buildAndExpand(contractDtoResponse)
-                    .toUri();
+        URI uri = componentsBuilder
+                .path(String.format("/api/v1/contracts/%s", contractDtoResponse.getId()))
+                .buildAndExpand(contractDtoResponse)
+                .toUri();
 
-            return ResponseEntity.created(uri).body(contractDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
+        return ResponseEntity.created(uri).body(contractDtoResponse);
     }
 
 
@@ -117,11 +109,7 @@ public class ContractController implements ContractResource {
 
         ContractDtoResponse contractDtoResponse = contractService.updateContract(contractDtoRequest);
         afterCall(Level.DEBUG, "updateContract()", contractDtoResponse);
-        if (contractDtoResponse != null) {
-            return ResponseEntity.ok().body(contractDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(contractDtoRequest);
-        }
+        return ResponseEntity.ok().body(contractDtoResponse);
     }
 
 
@@ -131,11 +119,7 @@ public class ContractController implements ContractResource {
         beforeCall(Level.DEBUG, "deleteContract()", id);
         Boolean isDeleted = contractService.deleteContract(id);
         afterCall(Level.DEBUG, "deleteContract()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
 

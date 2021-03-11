@@ -12,11 +12,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.config.security.TokenAuthentication;
 import ru.iteco.project.config.security.UserPrincipal;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.UserResource;
 import ru.iteco.project.resource.dto.UserBaseDto;
 import ru.iteco.project.resource.dto.UserDtoRequest;
 import ru.iteco.project.resource.dto.UserDtoResponse;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.dto.UserInfoDTO;
 import ru.iteco.project.resource.searching.UserSearchDto;
 import ru.iteco.project.service.UserService;
@@ -74,11 +74,7 @@ public class UserController implements UserResource {
         beforeCall(Level.DEBUG, "getUser()", id);
         UserDtoResponse userById = userService.getUserById(id);
         afterCall(Level.DEBUG, "getUser()", userById);
-        if ((userById != null) && (userById.getId() != null)) {
-            return ResponseEntity.ok().body(userById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(userById);
     }
 
     @Override
@@ -94,14 +90,8 @@ public class UserController implements UserResource {
 
         UserDtoResponse userDtoResponse = userService.createUser(userDtoRequest);
         afterCall(Level.DEBUG, "createUser()", userDtoResponse);
-
-        if (userDtoResponse != null) {
-            URI uri = componentsBuilder.path("/users/" + userDtoResponse.getId()).buildAndExpand(userDtoResponse).toUri();
-            return ResponseEntity.created(uri).body(userDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
+        URI uri = componentsBuilder.path("/api/v1/users/" + userDtoResponse.getId()).buildAndExpand(userDtoResponse).toUri();
+        return ResponseEntity.created(uri).body(userDtoResponse);
     }
 
 
@@ -121,7 +111,7 @@ public class UserController implements UserResource {
         afterCall(Level.DEBUG, "createBatchUser()", bundleUsers);
 
 
-        URI uri = componentsBuilder.path("/").build().toUri();
+        URI uri = componentsBuilder.path("/api/v1/users").build().toUri();
         return ResponseEntity.created(uri).body(bundleUsers);
     }
 
@@ -136,15 +126,9 @@ public class UserController implements UserResource {
             userDtoRequest.setErrors(result.getAllErrors());
             return ResponseEntity.unprocessableEntity().body(userDtoRequest);
         }
-
         UserDtoResponse userDtoResponse = userService.updateUser(userDtoRequest);
         afterCall(Level.DEBUG, "updateUser()", userDtoResponse);
-
-        if (userDtoResponse != null) {
-            return ResponseEntity.ok().body(userDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(userDtoRequest);
-        }
+        return ResponseEntity.ok().body(userDtoResponse);
     }
 
 
@@ -154,11 +138,7 @@ public class UserController implements UserResource {
         beforeCall(Level.DEBUG, "deleteUser()", id);
         Boolean isDeleted = userService.deleteUser(id);
         afterCall(Level.DEBUG, "deleteUser()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @Override

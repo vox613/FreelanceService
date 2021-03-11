@@ -1,13 +1,12 @@
 package ru.iteco.project.mapper;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@PropertySource(value = {"classpath:properties.yml"})
+@Component
 public class DateTimeMapper {
 
     /*** Установленный формат даты и времени*/

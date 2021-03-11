@@ -1,9 +1,12 @@
 package ru.iteco.project.exception;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +22,7 @@ import java.util.UUID;
  */
 @RestControllerAdvice(basePackages = "ru.iteco.project.controller")
 public class GlobalExceptionHandler {
+    private static final Logger log = LogManager.getLogger(GlobalExceptionHandler.class.getName());
 
     /*** Экземпляр окружения*/
     private final Environment environment;
@@ -37,6 +41,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseError> contractConclusionException(ContractConclusionException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(),
                 e.getClass().getName(), e.getObjectErrorList());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -50,6 +55,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnavailableRoleOperationException.class)
     public ResponseEntity<ResponseError> unavailableRoleOperationException(UnavailableRoleOperationException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
 
@@ -63,6 +69,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MismatchedIdException.class)
     public ResponseEntity<ResponseError> mismatchedIdException(MismatchedIdException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -76,6 +83,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidClientRoleException.class)
     public ResponseEntity<ResponseError> invalidClientRoleException(InvalidClientRoleException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -89,6 +97,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidClientStatusException.class)
     public ResponseEntity<ResponseError> invalidClientStatusException(InvalidClientStatusException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -101,7 +110,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidTaskStatusException.class)
     public ResponseEntity<ResponseError> invalidTaskStatusException(InvalidTaskStatusException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), e.getLocalizedMessage()),
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -114,7 +128,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidContractStatusException.class)
     public ResponseEntity<ResponseError> invalidContractStatusException(InvalidContractStatusException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), e.getLocalizedMessage()),
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -128,6 +147,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LocalDateTimeConvertException.class)
     public ResponseEntity<ResponseError> localDateTimeConvertException(LocalDateTimeConvertException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -141,6 +161,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidSearchOperationException.class)
     public ResponseEntity<ResponseError> invalidSearchOperationException(InvalidSearchOperationException e) {
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -155,13 +176,15 @@ public class GlobalExceptionHandler {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 environment.getProperty(e.getMessage(), "Entity with id not found!"),
-                e.getClass().getName());
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
     /**
      * Класс исключения NonUniquePersonalDataException, возникающего при попытке создания пользователя с уникальными
-     *  * персональными данными, которые уже принадлежат другой учетной записи
+     * * персональными данными, которые уже принадлежат другой учетной записи
      *
      * @param e - объект исключения
      * @return - объект ResponseError с полной информацией о возникшей проблеме
@@ -171,8 +194,64 @@ public class GlobalExceptionHandler {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 environment.getProperty(e.getMessage(), "Already exist!"),
-                e.getClass().getName());
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Класс исключения InvalidSearchExpressionException, возникающего при некооректном выражени для поиска
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(InvalidSearchExpressionException.class)
+    public ResponseEntity<ResponseError> invalidSearchExpressionException(InvalidSearchExpressionException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), "Invalid search expression!"),
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
+     * Обработчик исключения возникающего при ошибке десериализации запроса, причиной которой может являться ошибка в синтаксисе
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseError> httpMessageNotReadableException(HttpMessageNotReadableException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                e.getLocalizedMessage(),
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
+     * Класс исключения InsufficientFundsException, возникающего при попытке заключения договора
+     * при недостатке средств на счету заказчика
+     *
+     * @param e - объект исключения
+     * @return - объект ResponseError с полной информацией о возникшей проблеме
+     */
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ResponseError> insufficientFundsException(InsufficientFundsException e) {
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), "Insufficient funds!"),
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
+        return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -187,7 +266,9 @@ public class GlobalExceptionHandler {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
                 e.getLocalizedMessage(),
-                e.getClass().getName());
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
 
@@ -199,10 +280,13 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ResponseError> illegalArgumentException(IllegalArgumentException e) {
+        String message = e.getMessage();
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
-                e.getLocalizedMessage(),
-                e.getClass().getName());
+                environment.getProperty(message, message),
+                e.getClass().getName()
+        );
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
@@ -217,6 +301,7 @@ public class GlobalExceptionHandler {
         ObjectError objectError = new ObjectError(String.valueOf(e.getCause()), Arrays.toString(e.getStackTrace()));
         ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(),
                 e.getClass().getName(), Collections.singletonList(objectError));
+        log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

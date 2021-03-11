@@ -1,8 +1,6 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,12 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.project.domain.Client;
-import ru.iteco.project.domain.ClientRole;
 import ru.iteco.project.domain.ClientStatus;
-import ru.iteco.project.exception.EntityRecordNotFoundException;
-import ru.iteco.project.exception.InvalidClientRoleException;
-import ru.iteco.project.exception.InvalidClientStatusException;
-import ru.iteco.project.exception.NonUniquePersonalDataException;
+import ru.iteco.project.exception.*;
 import ru.iteco.project.repository.ClientRepository;
 import ru.iteco.project.repository.ClientRoleRepository;
 import ru.iteco.project.repository.ClientStatusRepository;
@@ -32,22 +26,18 @@ import ru.iteco.project.specification.SpecificationBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.CREATED;
 import static ru.iteco.project.domain.ClientStatus.ClientStatusEnum.isEqualsClientStatus;
-import static ru.iteco.project.specification.SpecificationBuilder.isBetweenOperation;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 /**
  * Класс реализует функционал сервисного слоя для работы с пользователями
  */
 @Service
 public class ClientServiceImpl implements ClientService {
-
-    private static final Logger log = LogManager.getLogger(ClientServiceImpl.class.getName());
 
     /*** Объект доступа к репозиторию пользователей */
     private final ClientRepository clientRepository;
@@ -91,13 +81,10 @@ public class ClientServiceImpl implements ClientService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ClientDtoResponse getClientById(UUID uuid) {
-        ClientDtoResponse clientDtoResponse = new ClientDtoResponse();
-        Optional<Client> optionalClient = clientRepository.findById(uuid);
-        if (optionalClient.isPresent()) {
-            Client client = optionalClient.get();
-            clientDtoResponse = mapperFacade.map(client, ClientDtoResponse.class);
-        }
-        return clientDtoResponse;
+        AuthenticationUtil.checkIdForRole(AuthenticationUtil.ROLE_USER, uuid);
+        Client client = clientRepository.findById(uuid).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        return mapperFacade.map(client, ClientDtoResponse.class);
     }
 
     /**
@@ -108,17 +95,11 @@ public class ClientServiceImpl implements ClientService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('USER')")
     public ClientDtoResponse createClient(ClientDtoRequest clientDtoRequest) {
-        ClientDtoResponse clientDtoResponse = null;
-        UUID userId = AuthenticationUtil.getUserPrincipalId();
-        if (isEqualsClientStatus(CREATED, clientDtoRequest.getClientStatus())) {
-            emailIsAvailable(clientDtoRequest.getEmail());
-            clientIdIsAvailable(userId);
-            Client newClient = mapperFacade.map(clientDtoRequest, Client.class);
-            newClient.setId(userId);
-            Client save = clientRepository.save(newClient);
-            clientDtoResponse = mapperFacade.map(save, ClientDtoResponse.class);
-        }
-        return clientDtoResponse;
+        checkPossibilityToCreate(clientDtoRequest);
+        Client newClient = mapperFacade.map(clientDtoRequest, Client.class);
+        newClient.setId(AuthenticationUtil.getUserPrincipalId());
+        Client save = clientRepository.save(newClient);
+        return mapperFacade.map(save, ClientDtoResponse.class);
     }
 
 
@@ -139,6 +120,23 @@ public class ClientServiceImpl implements ClientService {
     }
 
 
+    @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ClientDtoResponse updateClientStatus(UUID id, String status) {
+        if (!ClientStatus.ClientStatusEnum.isCorrectValue(status)) {
+            throw new InvalidClientStatusException("errors.client.status.invalid");
+        }
+        Client client = clientRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        ClientStatus clientStatus = clientStatusRepository.findClientStatusByValue(status).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+
+        client.setClientStatus(clientStatus);
+        Client save = clientRepository.save(client);
+        return mapperFacade.map(save, ClientDtoResponse.class);
+    }
+
     /**
      * По умолчанию в Postgres isolation READ_COMMITTED + недоступна модификация данных
      *
@@ -146,7 +144,7 @@ public class ClientServiceImpl implements ClientService {
      */
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public List<ClientDtoResponse> getAllClients() {
         return clientRepository.findAll().stream()
                 .map(client -> mapperFacade.map(client, ClientDtoResponse.class))
@@ -164,7 +162,7 @@ public class ClientServiceImpl implements ClientService {
     public Boolean deleteClient(UUID id) {
         Client client = clientRepository.findById(id).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-        checkPermissions(client.getId());
+        AuthenticationUtil.checkIdForRole(AuthenticationUtil.ROLE_USER, client.getId());
         taskRepository.findTasksByClient(client)
                 .forEach(task -> taskService.deleteTask(task.getId()));
         clientRepository.deleteById(id);
@@ -172,29 +170,44 @@ public class ClientServiceImpl implements ClientService {
     }
 
 
-    private void checkUpdatedData(ClientDtoRequest clientDtoRequest, Client client) {
-        String requestEmail = clientDtoRequest.getEmail();
-        if (!requestEmail.equals(client.getEmail()) && clientRepository.existsByEmail(requestEmail)) {
-            throw new NonUniquePersonalDataException("errors.client.email.exist");
-        }
+    @Override
+    public void checkUpdatedData(ClientDtoRequest clientDtoRequest, Client client) {
         AuthenticationUtil.userIdAndClientIdIsMatched(client.getId());
+        String requestEmail = clientDtoRequest.getEmail();
+        if (!requestEmail.equals(client.getEmail())) {
+            emailIsAvailable(requestEmail);
+        }
+        String phoneNumber = clientDtoRequest.getPhoneNumber();
+        if (!phoneNumber.equals(client.getPhoneNumber())) {
+            phoneIsAvailable(phoneNumber);
+        }
+    }
+
+    @Override
+    public void checkPossibilityToCreate(ClientDtoRequest clientDtoRequest) {
+        if (!isEqualsClientStatus(CREATED, clientDtoRequest.getClientStatus())) {
+            throw new InvalidClientStatusException("errors.client.status.invalid");
+        }
+        clientIdIsAvailable(AuthenticationUtil.getUserPrincipalId());
+        emailIsAvailable(clientDtoRequest.getEmail());
+        phoneIsAvailable(clientDtoRequest.getPhoneNumber());
     }
 
     private void emailIsAvailable(String email) {
         if (clientRepository.existsByEmail(email)) {
-            throw new NonUniquePersonalDataException("errors.persistence.entity.exist");
+            throw new NonUniquePersonalDataException("errors.client.email.exist");
+        }
+    }
+
+    private void phoneIsAvailable(String phoneNumber) {
+        if (clientRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new NonUniquePersonalDataException("errors.client.phone.exist");
         }
     }
 
     private void clientIdIsAvailable(UUID id) {
         if (clientRepository.existsById(id)) {
-            throw new NonUniquePersonalDataException("errors.persistence.entity.exist");
-        }
-    }
-
-    private void checkPermissions(UUID clientId) {
-        if (AuthenticationUtil.userHasRole(AuthenticationUtil.ROLE_USER)) {
-            AuthenticationUtil.userIdAndClientIdIsMatched(clientId);
+            throw new NonUniquePersonalDataException("errors.client.already.registered");
         }
     }
 
@@ -204,12 +217,15 @@ public class ClientServiceImpl implements ClientService {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public PageDto<ClientDtoResponse> getClients(SearchDto<ClientSearchDto> searchDto, Pageable pageable) {
         Page<Client> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = clientRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = clientRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = clientRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = clientRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
-
         List<ClientDtoResponse> clientDtoResponses = page.map(entity -> mapperFacade.map(entity, ClientDtoResponse.class)).toList();
         return new PageDto<>(clientDtoResponses, page.getTotalElements(), page.getTotalPages());
 
@@ -236,77 +252,28 @@ public class ClientServiceImpl implements ClientService {
     private List<CriteriaObject.RestrictionValues> prepareRestrictionValues(ClientSearchDto clientSearchDto) {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
-        SearchUnit role = clientSearchDto.getRole();
-        if (searchUnitIsValid(role)) {
-            ClientRole clientRole = clientRoleRepository.findClientRoleByValue(role.getValue())
-                    .orElseThrow(InvalidClientRoleException::new);
-
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("role")
-                    .setSearchOperation(role.getSearchOperation())
-                    .setTypedValue(clientRole)
-                    .build());
-        }
-
+        SearchUnit role = clientSearchDto.getClientRole();
+        prepareRestrictionValue(restrictionValues, role, "clientRole",
+                searchUnit -> clientRoleRepository.findClientRoleByValue(role.getValue())
+                        .orElseThrow(InvalidClientRoleException::new));
 
         SearchUnit searchClientStatus = clientSearchDto.getClientStatus();
-        if (searchUnitIsValid(searchClientStatus)) {
-            ClientStatus clientStatus = clientStatusRepository.findClientStatusByValue(searchClientStatus.getValue())
-                    .orElseThrow(InvalidClientStatusException::new);
-
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("clientStatus")
-                    .setSearchOperation(searchClientStatus.getSearchOperation())
-                    .setTypedValue(clientStatus)
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, searchClientStatus, "clientStatus",
+                searchUnit -> clientStatusRepository.findClientStatusByValue(searchClientStatus.getValue())
+                        .orElseThrow(InvalidClientStatusException::new));
 
         SearchUnit secondName = clientSearchDto.getSecondName();
-        if (searchUnitIsValid(secondName)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("secondName")
-                    .setSearchOperation(secondName.getSearchOperation())
-                    .setValue(secondName.getValue())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, secondName, "secondName", searchUnit -> secondName.getValue());
 
         SearchUnit wallet = clientSearchDto.getWallet();
-        if (searchUnitIsValid(wallet)) {
-            if (isBetweenOperation(wallet)) {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("wallet")
-                        .setSearchOperation(wallet.getSearchOperation())
-                        .setValue(wallet.getValue())
-                        .setMinValue(wallet.getMinValue())
-                        .setMaxValue(wallet.getMaxValue())
-                        .build());
-            } else {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("wallet")
-                        .setValue(wallet.getValue())
-                        .setSearchOperation(wallet.getSearchOperation())
-                        .build());
-            }
-        }
+        prepareRestrictionValue(restrictionValues, wallet, "wallet", searchUnit -> wallet.getValue());
 
         SearchUnit createdAt = clientSearchDto.getCreatedAt();
-        if (searchUnitIsValid(createdAt)) {
-            if (isBetweenOperation(createdAt)) {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("createdAt")
-                        .setSearchOperation(createdAt.getSearchOperation())
-                        .setValue(createdAt.getValue())
-                        .setMinValue(createdAt.getMinValue())
-                        .setMaxValue(createdAt.getMaxValue())
-                        .build());
-            } else {
-                restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                        .setKey("createdAt")
-                        .setValue(createdAt.getValue())
-                        .setSearchOperation(createdAt.getSearchOperation())
-                        .build());
-            }
-        }
+        prepareRestrictionValue(restrictionValues, createdAt, "createdAt", searchUnit -> createdAt.getValue());
+
+        SearchUnit email = clientSearchDto.getEmail();
+        prepareRestrictionValue(restrictionValues, email, "email", searchUnit -> email.getValue());
+
         return restrictionValues;
     }
 }

@@ -25,7 +25,7 @@ public class ClientSearchDto extends AbstractSearchDto {
     private SearchUnit phoneNumber;
 
     @ApiModelProperty(value = "Роль пользователя", allowEmptyValue = true)
-    private SearchUnit role;
+    private SearchUnit clientRole;
 
     @ApiModelProperty(value = "Статус пользователя", allowEmptyValue = true)
     private SearchUnit clientStatus;
@@ -77,12 +77,12 @@ public class ClientSearchDto extends AbstractSearchDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public SearchUnit getRole() {
-        return role;
+    public SearchUnit getClientRole() {
+        return clientRole;
     }
 
-    public void setRole(SearchUnit role) {
-        this.role = role;
+    public void setClientRole(SearchUnit clientRole) {
+        this.clientRole = clientRole;
     }
 
     public SearchUnit getClientStatus() {

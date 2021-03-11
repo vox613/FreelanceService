@@ -23,7 +23,7 @@ import java.util.UUID;
 
 
 @Service
-@PropertySource(value = "classpath:errors.properties")
+@PropertySource(value = "classpath:errors.properties", encoding = "UTF-8")
 public class AuthServiceImpl implements AuthService {
 
     /*** Секрет для шифрования подписи токена*/

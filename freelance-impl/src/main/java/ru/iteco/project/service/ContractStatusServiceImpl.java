@@ -1,20 +1,15 @@
 package ru.iteco.project.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iteco.project.domain.Client;
-import ru.iteco.project.domain.ClientRole;
-import ru.iteco.project.domain.Contract;
 import ru.iteco.project.domain.ContractStatus;
 import ru.iteco.project.exception.EntityRecordNotFoundException;
-import ru.iteco.project.repository.ClientRepository;
+import ru.iteco.project.exception.InvalidSearchExpressionException;
 import ru.iteco.project.repository.ContractRepository;
 import ru.iteco.project.repository.ContractStatusRepository;
 import ru.iteco.project.resource.PageDto;
@@ -26,11 +21,12 @@ import ru.iteco.project.resource.searching.ContractStatusSearchDto;
 import ru.iteco.project.specification.CriteriaObject;
 import ru.iteco.project.specification.SpecificationBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ru.iteco.project.domain.ClientRole.ClientRoleEnum.ADMIN;
-import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsValid;
+import static ru.iteco.project.specification.SpecificationBuilder.prepareRestrictionValue;
 
 /**
  * Класс реализует функционал сервисного слоя для работы со статусами контрактов
@@ -38,16 +34,11 @@ import static ru.iteco.project.specification.SpecificationBuilder.searchUnitIsVa
 @Service
 public class ContractStatusServiceImpl implements ContractStatusService {
 
-    private static final Logger log = LogManager.getLogger(ContractStatusServiceImpl.class.getName());
-
     /*** Объект доступа к репозиторию статусов контрактов */
     private final ContractStatusRepository contractStatusRepository;
 
     /*** Объект доступа к репозиторию контрактов */
     private final ContractRepository contractRepository;
-
-    /*** Объект доступа к репозиторию пользователей */
-    private final ClientRepository clientRepository;
 
     /*** Объект сервисного слоя контрактов */
     private final ContractService contractService;
@@ -60,12 +51,11 @@ public class ContractStatusServiceImpl implements ContractStatusService {
 
 
     public ContractStatusServiceImpl(ContractStatusRepository contractStatusRepository, ContractRepository contractRepository,
-                                     ClientRepository clientRepository, ContractService contractService,
-                                     SpecificationBuilder<ContractStatus> specificationBuilder, MapperFacade mapperFacade) {
+                                     ContractService contractService, SpecificationBuilder<ContractStatus> specificationBuilder,
+                                     MapperFacade mapperFacade) {
 
         this.contractStatusRepository = contractStatusRepository;
         this.contractRepository = contractRepository;
-        this.clientRepository = clientRepository;
         this.contractService = contractService;
         this.specificationBuilder = specificationBuilder;
         this.mapperFacade = mapperFacade;
@@ -80,13 +70,10 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public ContractStatusDtoResponse getContractStatusById(UUID id) {
-        ContractStatusDtoResponse contractStatusDtoResponse = new ContractStatusDtoResponse();
-        Optional<ContractStatus> optionalContractStatusById = contractStatusRepository.findById(id);
-        if (optionalContractStatusById.isPresent()) {
-            ContractStatus contractStatus = optionalContractStatusById.get();
-            contractStatusDtoResponse = mapperFacade.map(contractStatus, ContractStatusDtoResponse.class);
-        }
-        return contractStatusDtoResponse;
+        ContractStatus contractStatus = contractStatusRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        return mapperFacade.map(contractStatus, ContractStatusDtoResponse.class);
     }
 
     /**
@@ -97,14 +84,11 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public ContractStatusDtoResponse createContractStatus(ContractStatusDtoRequest contractStatusDtoRequest) {
-        ContractStatusDtoResponse contractStatusDtoResponse = new ContractStatusDtoResponse();
-        if (operationIsAllow(contractStatusDtoRequest)) {
-            ContractStatus newContractStatus = mapperFacade.map(contractStatusDtoRequest, ContractStatus.class);
-            newContractStatus.setId(UUID.randomUUID());
-            ContractStatus save = contractStatusRepository.save(newContractStatus);
-            contractStatusDtoResponse = mapperFacade.map(save, ContractStatusDtoResponse.class);
-        }
-        return contractStatusDtoResponse;
+        checkPossibilityToCreate(contractStatusDtoRequest);
+        ContractStatus newContractStatus = mapperFacade.map(contractStatusDtoRequest, ContractStatus.class);
+        newContractStatus.setId(UUID.randomUUID());
+        ContractStatus save = contractStatusRepository.save(newContractStatus);
+        return mapperFacade.map(save, ContractStatusDtoResponse.class);
     }
 
     /**
@@ -115,19 +99,12 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public ContractStatusDtoResponse updateContractStatus(UUID id, ContractStatusDtoRequest contractStatusDtoRequest) {
-        ContractStatusDtoResponse contractStatusDtoResponse = new ContractStatusDtoResponse();
-        if (operationIsAllow(contractStatusDtoRequest) &&
-                Objects.equals(id, contractStatusDtoRequest.getId()) &&
-                contractStatusRepository.existsById(contractStatusDtoRequest.getId())) {
-
-            ContractStatus contractStatus = contractStatusRepository.findById(contractStatusDtoRequest.getId()).orElseThrow(
-                    () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-
-            mapperFacade.map(contractStatusDtoRequest, contractStatus);
-            ContractStatus save = contractStatusRepository.save(contractStatus);
-            contractStatusDtoResponse = mapperFacade.map(save, ContractStatusDtoResponse.class);
-        }
-        return contractStatusDtoResponse;
+        ContractStatus contractStatus = contractStatusRepository.findById(contractStatusDtoRequest.getId()).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
+        checkUpdatedData(contractStatusDtoRequest, contractStatus);
+        mapperFacade.map(contractStatusDtoRequest, contractStatus);
+        ContractStatus save = contractStatusRepository.save(contractStatus);
+        return mapperFacade.map(save, ContractStatusDtoResponse.class);
     }
 
     /**
@@ -153,30 +130,29 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteContractStatus(UUID id) {
-        Optional<ContractStatus> contractStatusById = contractStatusRepository.findById(id);
-        if (contractStatusById.isPresent()) {
-            Collection<Contract> allContractsByStatus = contractRepository.findContractsByContractStatus(contractStatusById.get());
-            allContractsByStatus.forEach(contract -> contractService.deleteContract(contract.getId()));
-            contractStatusRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        ContractStatus contractStatus = contractStatusRepository.findById(id).orElseThrow(
+                () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
+        );
+        contractRepository.findContractsByContractStatus(contractStatus)
+                .forEach(contract -> contractService.deleteContract(contract.getId()));
+        contractStatusRepository.deleteById(id);
+        return true;
     }
 
-    /**
-     * Метод проверяет разрешена ли для пользователя данная операция
-     *
-     * @param contractStatusDtoRequest - запрос
-     * @return true - операция разрешена, false - операция запрещена
-     */
-    private boolean operationIsAllow(ContractStatusDtoRequest contractStatusDtoRequest) {
-        if ((contractStatusDtoRequest != null) && (contractStatusDtoRequest.getClientId() != null)) {
-            Optional<Client> clientById = clientRepository.findById(contractStatusDtoRequest.getClientId());
-            if (clientById.isPresent()) {
-                return ClientRole.ClientRoleEnum.isEqualsClientRole(ADMIN, clientById.get());
-            }
+
+    @Override
+    public void checkPossibilityToCreate(ContractStatusDtoRequest contractStatusDtoRequest) {
+        if (contractStatusRepository.existsContractStatusByValue(contractStatusDtoRequest.getValue())) {
+            throw new IllegalArgumentException("errors.persistence.entity.exist");
         }
-        return false;
+    }
+
+    @Override
+    public void checkUpdatedData(ContractStatusDtoRequest contractStatusDtoRequest, ContractStatus contractStatus) {
+        String value = contractStatusDtoRequest.getValue();
+        if (!value.equals(contractStatus.getValue())) {
+            checkPossibilityToCreate(contractStatusDtoRequest);
+        }
     }
 
     @Override
@@ -184,10 +160,14 @@ public class ContractStatusServiceImpl implements ContractStatusService {
     @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ContractStatusDtoResponse> getStatus(SearchDto<ContractStatusSearchDto> searchDto, Pageable pageable) {
         Page<ContractStatus> page;
-        if ((searchDto != null) && (searchDto.searchData() != null)) {
-            page = contractStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
-        } else {
-            page = contractStatusRepository.findAll(pageable);
+        try {
+            if ((searchDto != null) && (searchDto.searchData() != null)) {
+                page = contractStatusRepository.findAll(specificationBuilder.getSpec(prepareCriteriaObject(searchDto)), pageable);
+            } else {
+                page = contractStatusRepository.findAll(pageable);
+            }
+        } catch (Exception e) {
+            throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
         List<ContractStatusDtoResponse> ContractStatusDtoResponses = page
@@ -219,22 +199,11 @@ public class ContractStatusServiceImpl implements ContractStatusService {
         ArrayList<CriteriaObject.RestrictionValues> restrictionValues = new ArrayList<>();
 
         SearchUnit value = contractStatusSearchDto.getValue();
-        if (searchUnitIsValid(value)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("value")
-                    .setSearchOperation(value.getSearchOperation())
-                    .setTypedValue(value.getValue())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, value, "value", searchUnit -> value.getValue());
 
         SearchUnit description = contractStatusSearchDto.getDescription();
-        if (searchUnitIsValid(description)) {
-            restrictionValues.add(CriteriaObject.RestrictionValues.newBuilder()
-                    .setKey("description")
-                    .setSearchOperation(description.getSearchOperation())
-                    .setValue(description.getValue())
-                    .build());
-        }
+        prepareRestrictionValue(restrictionValues, description, "description", searchUnit -> description.getValue());
+
         return restrictionValues;
     }
 }

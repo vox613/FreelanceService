@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
 import ru.iteco.project.resource.ContractStatusResource;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.dto.ContractStatusBaseDto;
 import ru.iteco.project.resource.dto.ContractStatusDtoRequest;
 import ru.iteco.project.resource.dto.ContractStatusDtoResponse;
 import ru.iteco.project.resource.searching.ContractStatusSearchDto;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.service.ContractStatusService;
 import ru.iteco.project.validator.ContractStatusDtoRequestValidator;
 
@@ -22,9 +22,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
-import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с ContractStatus
@@ -58,11 +58,7 @@ public class ContractStatusController implements ContractStatusResource {
         beforeCall(Level.DEBUG, "getContractStatus()", id);
         ContractStatusDtoResponse contractStatusById = contractStatusService.getContractStatusById(id);
         afterCall(Level.DEBUG, "getContractStatus()", contractStatusById);
-        if ((contractStatusById != null) && (contractStatusById.getId() != null)) {
-            return ResponseEntity.ok().body(contractStatusById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(contractStatusById);
     }
 
 
@@ -88,13 +84,8 @@ public class ContractStatusController implements ContractStatusResource {
 
         ContractStatusDtoResponse contractStatusDtoResponse = contractStatusService.createContractStatus(contractStatusDtoRequest);
         afterCall(Level.DEBUG, "createContractStatus()", contractStatusDtoResponse);
-
-        if (contractStatusDtoResponse.getId() != null) {
-            URI uri = componentsBuilder.path("statuses/contracts/" + contractStatusDtoResponse.getId()).buildAndExpand(contractStatusDtoResponse).toUri();
-            return ResponseEntity.created(uri).body(contractStatusDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
+        URI uri = componentsBuilder.path("/api/v1/statuses/contracts/" + contractStatusDtoResponse.getId()).buildAndExpand(contractStatusDtoResponse).toUri();
+        return ResponseEntity.created(uri).body(contractStatusDtoResponse);
     }
 
 
@@ -110,11 +101,7 @@ public class ContractStatusController implements ContractStatusResource {
 
         ContractStatusDtoResponse contractStatusDtoResponse = contractStatusService.updateContractStatus(id, contractStatusDtoRequest);
         afterCall(Level.DEBUG, "updateTaskStatus()", contractStatusDtoResponse);
-        if (contractStatusDtoResponse != null) {
-            return ResponseEntity.ok().body(contractStatusDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(null);
-        }
+        return ResponseEntity.ok().body(contractStatusDtoResponse);
     }
 
 
@@ -124,11 +111,7 @@ public class ContractStatusController implements ContractStatusResource {
         beforeCall(Level.DEBUG, "deleteTaskStatus()", id);
         Boolean isDeleted = contractStatusService.deleteContractStatus(id);
         afterCall(Level.DEBUG, "deleteTaskStatus()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @InitBinder(value = "contractStatusDtoRequest")

@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
+import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.TaskStatusResource;
 import ru.iteco.project.resource.dto.TaskStatusBaseDto;
 import ru.iteco.project.resource.dto.TaskStatusDtoRequest;
 import ru.iteco.project.resource.dto.TaskStatusDtoResponse;
-import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.searching.TaskStatusSearchDto;
 import ru.iteco.project.service.TaskStatusService;
 import ru.iteco.project.validator.TaskStatusDtoRequestValidator;
@@ -22,9 +22,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.iteco.project.controller.audit.AuditCode.*;
 import static ru.iteco.project.logger.utils.LoggerUtils.afterCall;
 import static ru.iteco.project.logger.utils.LoggerUtils.beforeCall;
-import static ru.iteco.project.controller.audit.AuditCode.*;
 
 /**
  * Класс реализует функционал слоя контроллеров для взаимодействия с TaskStatus
@@ -58,11 +58,7 @@ public class TaskStatusController implements TaskStatusResource {
         beforeCall(Level.DEBUG, "getTaskStatus()", id);
         TaskStatusDtoResponse taskStatusById = taskStatusService.getTaskStatusById(id);
         afterCall(Level.DEBUG, "getTaskStatus()", taskStatusById);
-        if ((taskStatusById != null) && (taskStatusById.getId() != null)) {
-            return ResponseEntity.ok().body(taskStatusById);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(taskStatusById);
     }
 
 
@@ -88,13 +84,8 @@ public class TaskStatusController implements TaskStatusResource {
 
         TaskStatusDtoResponse taskStatusDtoResponse = taskStatusService.createTaskStatus(taskStatusDtoRequest);
         afterCall(Level.DEBUG, "createTaskStatus()", taskStatusDtoResponse);
-
-        if (taskStatusDtoResponse.getId() != null) {
-            URI uri = componentsBuilder.path("statuses/tasks/" + taskStatusDtoResponse.getId()).buildAndExpand(taskStatusDtoResponse).toUri();
-            return ResponseEntity.created(uri).body(taskStatusDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().build();
-        }
+        URI uri = componentsBuilder.path("/api/v1/statuses/tasks/" + taskStatusDtoResponse.getId()).buildAndExpand(taskStatusDtoResponse).toUri();
+        return ResponseEntity.created(uri).body(taskStatusDtoResponse);
     }
 
 
@@ -110,12 +101,7 @@ public class TaskStatusController implements TaskStatusResource {
 
         TaskStatusDtoResponse taskStatusDtoResponse = taskStatusService.updateTaskStatus(id, taskStatusDtoRequest);
         afterCall(Level.DEBUG, "updateTaskStatus()", taskStatusDtoResponse);
-
-        if (taskStatusDtoResponse != null) {
-            return ResponseEntity.ok().body(taskStatusDtoResponse);
-        } else {
-            return ResponseEntity.unprocessableEntity().body(null);
-        }
+        return ResponseEntity.ok().body(taskStatusDtoResponse);
     }
 
 
@@ -125,11 +111,7 @@ public class TaskStatusController implements TaskStatusResource {
         beforeCall(Level.DEBUG, "deleteTaskStatus()", id);
         Boolean isDeleted = taskStatusService.deleteTaskStatus(id);
         afterCall(Level.DEBUG, "deleteTaskStatus()", isDeleted);
-        if (isDeleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @InitBinder(value = "taskStatusDtoRequest")
