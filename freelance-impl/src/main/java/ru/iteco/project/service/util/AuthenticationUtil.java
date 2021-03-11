@@ -4,7 +4,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.iteco.project.config.security.UserPrincipal;
+import ru.iteco.project.security.UserPrincipal;
 
 import java.util.UUID;
 

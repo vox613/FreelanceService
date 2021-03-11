@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.iteco.project.annotation.Audit;
-import ru.iteco.project.config.security.TokenAuthentication;
-import ru.iteco.project.config.security.UserPrincipal;
 import ru.iteco.project.resource.PageDto;
 import ru.iteco.project.resource.UserResource;
 import ru.iteco.project.resource.dto.UserBaseDto;
@@ -19,6 +17,8 @@ import ru.iteco.project.resource.dto.UserDtoRequest;
 import ru.iteco.project.resource.dto.UserDtoResponse;
 import ru.iteco.project.resource.dto.UserInfoDTO;
 import ru.iteco.project.resource.searching.UserSearchDto;
+import ru.iteco.project.security.TokenAuthentication;
+import ru.iteco.project.security.UserPrincipal;
 import ru.iteco.project.service.UserService;
 import ru.iteco.project.validator.UserDtoRequestValidator;
 

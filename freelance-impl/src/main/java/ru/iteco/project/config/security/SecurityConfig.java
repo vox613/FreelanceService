@@ -1,16 +1,17 @@
 package ru.iteco.project.config.security;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.iteco.project.jwt.service.JwtValidationService;
+import ru.iteco.project.security.JwtAccessDeniedHandler;
+import ru.iteco.project.security.TokenAuthenticationEntryPoint;
+import ru.iteco.project.security.TokenAuthenticationFilter;
+import ru.iteco.project.security.TokenAuthenticationManager;
 
 /**
  * Класс-конфигурация Spring Security
@@ -39,11 +40,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtValidationService = jwtValidationService;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
         this.tokenAuthenticationEntryPoint = tokenAuthenticationEntryPoint;
-    }
-
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Override

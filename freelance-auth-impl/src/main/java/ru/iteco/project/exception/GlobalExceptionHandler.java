@@ -179,7 +179,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseError> unavailableOperationException(UnavailableOperationException e) {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
-                e.getLocalizedMessage(),
+                environment.getProperty(e.getMessage(), e.getLocalizedMessage()),
                 e.getClass().getName(),
                 environment.getProperty(SYSTEM_ID_KEY)
         );

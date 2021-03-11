@@ -1,4 +1,4 @@
-package ru.iteco.project.config.security;
+package ru.iteco.project.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;

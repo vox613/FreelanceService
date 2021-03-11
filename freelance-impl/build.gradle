@@ -13,6 +13,7 @@ dependencies {
     implementation project(":freelance-specification-search")
     implementation project(":freelance-specification-search-api")
     implementation project(":freelance-auth-validate")
+    implementation project(":freelance-auth-lib")
 
     implementation deps."spring-boot-starter-web"
     implementation deps."spring-boot-starter-actuator"

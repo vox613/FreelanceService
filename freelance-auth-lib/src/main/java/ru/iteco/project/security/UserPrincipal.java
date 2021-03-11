@@ -1,4 +1,4 @@
-package ru.iteco.project.config.security;
+package ru.iteco.project.security;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.core.GrantedAuthority;

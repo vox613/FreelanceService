@@ -1,0 +1,18 @@
+bootJar {
+    enabled = false
+}
+
+dependencies {
+    implementation project(":freelance-auth-api")
+    implementation project(":freelance-auth-validate")
+
+    implementation deps."spring-boot-starter-web"
+    implementation deps."spring-security"
+    implementation deps."commons-lang3"
+    implementation deps."jwt"
+
+}
+
+jar {
+    enabled = true
+}
