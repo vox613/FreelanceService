@@ -12,6 +12,10 @@ public class ContractBaseDto implements DtoInterface {
             allowEmptyValue = true)
     private UUID id;
 
+    @ApiModelProperty(value = "Идентификатор заказчика", example = "bf51c162-95f3-4e69-ab6d-7ff214430ba5",
+            required = true)
+    private UUID customerId;
+
     @ApiModelProperty(value = "Идентификатор исполнителя", example = "bf51c162-95f3-4e69-ab6d-7ff214430ba6",
             required = true)
     private UUID executorId;
@@ -35,6 +39,14 @@ public class ContractBaseDto implements DtoInterface {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(UUID customerId) {
+        this.customerId = customerId;
     }
 
     public UUID getExecutorId() {

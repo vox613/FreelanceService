@@ -63,13 +63,6 @@ public interface TaskService extends CommonService<TaskDtoRequest, Task> {
      */
     Boolean deleteTask(UUID id);
 
-    /**
-     * Метод формирует ответ TaskDtoResponse и обогащает его данными о заказчике и исполнителе
-     *
-     * @param task - объект задания
-     * @return - объект TaskDtoResponse с подготовленными данными о задании, исполнителе и заказчике
-     */
-    TaskDtoResponse enrichByClientsInfo(Task task);
 
     /**
      * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска

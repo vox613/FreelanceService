@@ -16,6 +16,7 @@ import ru.iteco.project.resource.SearchUnit;
 import ru.iteco.project.resource.dto.ClientBaseDto;
 import ru.iteco.project.resource.dto.ContractDtoRequest;
 import ru.iteco.project.resource.dto.ContractDtoResponse;
+import ru.iteco.project.resource.dto.TaskDtoResponse;
 import ru.iteco.project.resource.searching.ContractSearchDto;
 import ru.iteco.project.service.util.AuthenticationUtil;
 import ru.iteco.project.specification.CriteriaObject;
@@ -89,7 +90,7 @@ public class ContractServiceImpl implements ContractService {
     public List<ContractDtoResponse> getAllContracts() {
         return contractRepository.findAll()
                 .stream()
-                .map(this::enrichContractInfo)
+                .map(contract -> mapperFacade.map(contract, ContractDtoResponse.class))
                 .collect(Collectors.toList());
     }
 
@@ -103,7 +104,7 @@ public class ContractServiceImpl implements ContractService {
         Contract contract = contractRepository.findById(id).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
         );
-        return enrichContractInfo(contract);
+        return mapperFacade.map(contract, ContractDtoResponse.class);
     }
 
 
@@ -124,7 +125,7 @@ public class ContractServiceImpl implements ContractService {
         Client taskCustomer = contract.getCustomer();
         taskCustomer.setWallet(taskCustomer.getWallet().subtract(task.getPrice()));
         Contract save = contractRepository.save(contract);
-        return enrichContractInfo(save);
+        return mapperFacade.map(save, ContractDtoResponse.class);
     }
 
     /**
@@ -142,7 +143,7 @@ public class ContractServiceImpl implements ContractService {
         mapperFacade.map(contractDtoRequest, contract);
         transferFunds(contract);
         Contract save = contractRepository.save(contract);
-        return enrichContractInfo(save);
+        return mapperFacade.map(save, ContractDtoResponse.class);
     }
 
 
@@ -163,16 +164,6 @@ public class ContractServiceImpl implements ContractService {
         }
         contractRepository.deleteById(id);
         return true;
-    }
-
-
-    @Override
-    public ContractDtoResponse enrichContractInfo(Contract contract) {
-        ContractDtoResponse contractDtoResponse = mapperFacade.map(contract, ContractDtoResponse.class);
-        contractDtoResponse.setCustomer(mapperFacade.map(contract.getCustomer(), ClientBaseDto.class));
-        contractDtoResponse.setExecutor(mapperFacade.map(contract.getExecutor(), ClientBaseDto.class));
-        contractDtoResponse.setTask(taskService.enrichByClientsInfo(contract.getTask()));
-        return contractDtoResponse;
     }
 
     /**
@@ -253,13 +244,13 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public void checkPossibilityToCreate(ContractDtoRequest contractDtoRequest) {
+        AuthenticationUtil.userIdAndClientIdIsMatched(contractDtoRequest.getExecutorId());
         Task task = taskRepository.findById(contractDtoRequest.getTaskId()).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound"));
-        Client executor = clientRepository.findById(AuthenticationUtil.getUserPrincipalId()).orElseThrow(
+        Client executor = clientRepository.findById(contractDtoRequest.getExecutorId()).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
         );
 
-        AuthenticationUtil.userIdAndClientIdIsMatched(executor.getId());
         if (!isEqualsTaskStatus(REGISTERED, task)) {
             throw new InvalidTaskStatusException("errors.task.status.invalid");
         }
@@ -288,7 +279,8 @@ public class ContractServiceImpl implements ContractService {
             throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
-        List<ContractDtoResponse> contractDtoResponses = page.map(this::enrichContractInfo).toList();
+        List<ContractDtoResponse> contractDtoResponses = page
+                .map(contract -> mapperFacade.map(contract, ContractDtoResponse.class)).toList();
         return new PageDto<>(contractDtoResponses, page.getTotalElements(), page.getTotalPages());
 
     }

@@ -96,7 +96,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidClientStatusException.class)
     public ResponseEntity<ResponseError> invalidClientStatusException(InvalidClientStatusException e) {
-        ResponseError responseError = new ResponseError(UUID.randomUUID(), e.getLocalizedMessage(), e.getClass().getName());
+        ResponseError responseError = new ResponseError(
+                UUID.randomUUID(),
+                environment.getProperty(e.getMessage(), e.getLocalizedMessage()),
+                e.getClass().getName()
+        );
         log.debug(responseError, e);
         return new ResponseEntity<>(responseError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
@@ -265,7 +269,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseError> accessDeniedException(AccessDeniedException e) {
         ResponseError responseError = new ResponseError(
                 UUID.randomUUID(),
-                e.getLocalizedMessage(),
+                e.getMessage(),
                 e.getClass().getName()
         );
         log.debug(responseError, e);

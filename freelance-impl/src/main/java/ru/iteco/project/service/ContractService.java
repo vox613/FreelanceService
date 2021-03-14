@@ -56,12 +56,6 @@ public interface ContractService extends CommonService<ContractDtoRequest, Contr
      */
     Boolean deleteContract(UUID id);
 
-    /**
-     * Метод обогащает ContractDtoResponse данными о заказчике, исполнителе и задании
-     *
-     * @param contract - объект задания
-     */
-    ContractDtoResponse enrichContractInfo(Contract contract);
 
     /**
      * Метод поиска данных на основании заданной пагинации и/или сортировки и критериев поиска

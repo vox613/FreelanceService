@@ -128,7 +128,7 @@ audit:
   logName: audit
   logPath: /audit
   maxHistory: 300
-
+  destination: 'FILE'
 
 authentication:
   jwt:
