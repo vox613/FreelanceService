@@ -1,6 +1,6 @@
 package ru.iteco.project.service;
 
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import ru.iteco.project.domain.AuditEvent;
 import ru.iteco.project.repository.AuditRepository;
@@ -11,7 +11,7 @@ import ru.iteco.project.repository.AuditRepository;
  * Используется при активированном профиле "development" и осуществляет запись событий аудита в БД
  */
 @Service
-@Profile("development")
+@ConditionalOnProperty(prefix = "audit", value = "destination", havingValue = "DB")
 public class AuditServiceDevelopmentImpl implements AuditService {
 
     /*** Объект доступа к репозиторию событий аудита */

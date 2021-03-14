@@ -1,0 +1,3105 @@
+{
+	"info": {
+		"_postman_id": "1e28c72c-b351-428b-8cff-fedd906c322c",
+		"name": "ItecoSpringProject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "freelance",
+			"item": [
+				{
+					"name": "clients",
+					"item": [
+						{
+							"name": "get_client",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/clients",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"clients"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_client",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VybmFtZTEiLCJhdWQiOiJmcmVlbGFuY2UiLCJyb2xlIjoiVVNFUiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjE1NTA4ODQ4LCJ1c2VySWQiOiJlYzFkNTViMC1iNTA3LTQ3ZWMtYWIxMy01YTJkMDYyN2I5OWUiLCJpYXQiOjE2MTU1MDUyNDgsImVtYWlsIjoidXNlcm5hbWVkQGdtYWlsLmNvbSIsImp0aSI6ImM2NzE2NTYxLTFhODAtNGM0Yi1iOWFmLWI2YmRmNGE2YjYyYiJ9.LnZZepGXn8nqaRjXStPDdTIXFpNvTEhJOp61BZ_GQ3w",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstName\": \"username1\",\r\n    \"secondName\": \"username1\",\r\n    \"lastName\": \"username1\",\r\n    \"email\": \"username1@mail.ru\",\r\n    \"phoneNumber\": \"89633214589\",\r\n    \"clientRole\": \"CUSTOMER\",\r\n    \"clientStatus\": \"CREATED\",\r\n    \"wallet\": 10000\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/clients",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"clients"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_client",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "NEED TOKEN FOR \"freelance\"",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"userId\",\r\n    \"firstName\": \"firstName\",\r\n    \"secondName\": \"secondName\",\r\n    \"lastName\": \"lastName\",\r\n    \"email\": \"email@mail.ru\",\r\n    \"phoneNumber\": \"11111111111\",\r\n    \"clientRole\": \"CUSTOMER/EXECUTOR\",\r\n    \"clientStatus\": \"CREATED\",\r\n    \"wallet\": 100\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/clients/{userId}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"clients",
+										"{userId}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "admin_change_client_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"userId\",\r\n    \"firstName\": \"firstName\",\r\n    \"secondName\": \"secondName\",\r\n    \"lastName\": \"lastName\",\r\n    \"email\": \"email@mail.ru\",\r\n    \"phoneNumber\": \"11111111111\",\r\n    \"clientRole\": \"CUSTOMER/EXECUTOR\",\r\n    \"clientStatus\": \"CREATED\",\r\n    \"wallet\": 100\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/clients/be363ce8-85f2-4d02-90ce-cb3738b10002/status?val=ACTIVE",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"clients",
+										"be363ce8-85f2-4d02-90ce-cb3738b10002",
+										"status"
+									],
+									"query": [
+										{
+											"key": "val",
+											"value": "ACTIVE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_client",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "NEED TOKEN FOR \"freelance\"",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/clients/userId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"clients",
+										"userId"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "search_client",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VybmFtZTEiLCJhdWQiOiJmcmVlbGFuY2UiLCJyb2xlIjoiVVNFUiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjE3NjY0NTQwLCJ1c2VySWQiOiJhMDQ4ODk2MC01ZTJmLTQ1ODQtODk0ZS03ZTUwYTgwMzI1ZDYiLCJpYXQiOjE2MTUwNzI1NDAsImVtYWlsIjoidXNlcm5hbWUxQGdtYWlsLmNvbSIsImp0aSI6IjQzZGUyZjVmLTA5MTAtNDJlMi1hODhkLWYzY2Y2YTVjYTY0ZiJ9.5hf4k6PU1dca-axSFYKV7kcH_HiVlUqetS7XPpUySKk",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"clientStatus\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"ACTIVE\"\r\n    },\r\n    \"wallet\": {\r\n        \"searchOperation\": \"BETWEEN\",\r\n        \"minValue\": \"0\",\r\n        \"maxValue\": \"1000\"\r\n    },\r\n    \"secondName\": {\r\n        \"searchOperation\": \"LIKE\",\r\n        \"value\": \"cut\"\r\n    },\r\n    \"createdAt\": {\r\n        \"searchOperation\": \"GREATER_THAN_OR_EQUAL\",\r\n        \"value\": \"2021-03-07 02:14:20\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/clients/search?page=0&size=5&sort=wallet",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"clients",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "wallet"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Запросы для взаимодействия с бизнес сущностями Client"
+				},
+				{
+					"name": "tasks",
+					"item": [
+						{
+							"name": "get_task",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjdXN0b21lciIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJVU0VSIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM0MzAsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMSIsImlhdCI6MTYxNDI3NzQzMCwiZW1haWwiOiJjdXN0b21lckBtYWlsLnJ1IiwianRpIjoiMDcyODM5NWMtZWRhNS00ZmRjLTlhZTktMjUwOTQzNjVjZTUzIn0.OM2lxAQ1kjBsy7rgb9GgpmDSRfDJ8C4Ox1eba00ZHoY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/tasks/32e7c56a-7f3c-49af-a08e-d04b2e91c004",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"tasks",
+										"32e7c56a-7f3c-49af-a08e-d04b2e91c004"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_task",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjdXN0b21lciIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJVU0VSIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM0MzAsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMSIsImlhdCI6MTYxNDI3NzQzMCwiZW1haWwiOiJjdXN0b21lckBtYWlsLnJ1IiwianRpIjoiMDcyODM5NWMtZWRhNS00ZmRjLTlhZTktMjUwOTQzNjVjZTUzIn0.OM2lxAQ1kjBsy7rgb9GgpmDSRfDJ8C4Ox1eba00ZHoY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"customerId\": \"be363ce8-85f2-4d02-90ce-cb3738b10001\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"REGISTERED\",\r\n    \"taskCompletionDate\": \"2021-03-18 23:00:00\",\r\n    \"taskDecision\": \"empty\",\r\n    \"price\": \"1000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/tasks",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"tasks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_task",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjdXN0b21lciIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJVU0VSIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM0MzAsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMSIsImlhdCI6MTYxNDI3NzQzMCwiZW1haWwiOiJjdXN0b21lckBtYWlsLnJ1IiwianRpIjoiMDcyODM5NWMtZWRhNS00ZmRjLTlhZTktMjUwOTQzNjVjZTUzIn0.OM2lxAQ1kjBsy7rgb9GgpmDSRfDJ8C4Ox1eba00ZHoY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"32e7c56a-7f3c-49af-a08e-d04b2e91c004\",\r\n    \"customerId\": \"be363ce8-85f2-4d02-90ce-cb3738b10003\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"REGISTERED\",\r\n    \"taskCompletionDate\": \"2021-03-20 21:00:00\",\r\n    \"taskDecision\": \"empty\",\r\n    \"price\": \"3000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/tasks/32e7c56a-7f3c-49af-a08e-d04b2e91c004",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"tasks",
+										"32e7c56a-7f3c-49af-a08e-d04b2e91c004"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_task",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0X2N1c3RvbWVyIiwiYXVkIjoiZnJlZWxhbmNlIiwicm9sZSI6IlVTRVIiLCJpc3MiOiJmcmVlbGFuY2UtYXV0aCIsImV4cCI6MTYxNzQ5MzcxOCwidXNlcklkIjoiYmUzNjNjZTgtODVmMi00ZDAyLTkwY2UtY2IzNzM4YjEwMDAzIiwiaWF0IjoxNjE0OTAxNzE4LCJlbWFpbCI6InRlc3RfY3VzdG9tZXJAbWFpbC5ydSIsImp0aSI6IjJlNzk2NDdjLTU0OTgtNDM0Yi05N2E3LTE3ZjE1MWI2OTMzZSJ9.ZknYzGV5LQ9IC-H5ZMPgp2QE71iIvK6X-jdv6I--q_Q",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/tasks/32e7c56a-7f3c-49af-a08e-d04b2e91c004",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"tasks",
+										"32e7c56a-7f3c-49af-a08e-d04b2e91c004"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "tasks_search",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"role\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"USER\"\r\n    },\r\n        \"status\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"ACTIVE\"\r\n    },\r\n        \"createdAt\": {\r\n        \"searchOperation\": \"GREATER_THAN_OR_EQUAL\",\r\n        \"value\": \"2021-03-07 02:14:47\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/tasks/search?page=0&size=5&sort=createdAt",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"tasks",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "createdAt"
+										}
+									]
+								},
+								"description": "Поиск пользователей с пагинацией"
+							},
+							"response": []
+						}
+					],
+					"description": "Запросы для взаимодействия с бизнес сущностями Task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "contracts",
+					"item": [
+						{
+							"name": "get_contract",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/contracts",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"contracts"
+									]
+								},
+								"description": "Поиск пользователей с пагинацией"
+							},
+							"response": []
+						},
+						{
+							"name": "create_contract",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGVjdXRvciIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJVU0VSIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM0NDgsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMiIsImlhdCI6MTYxNDI3NzQ0OCwiZW1haWwiOiJleGVjdXRvckBtYWlsLnJ1IiwianRpIjoiNjc3NzJiNjctNTM0My00MTU5LWFkN2MtMjc3NWQ1ZjExODZlIn0.9ASsXAxtRMxPElVshrkPp0aT9p3-17jJRtPi_M_ODtk",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"executorId\": \"be363ce8-85f2-4d02-90ce-cb3738b10002\",\r\n    \"taskId\": \"32e7c56a-7f3c-49af-a08e-d04b2e91c004\",\r\n    \"contractStatus\": \"PAID\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/contracts",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"contracts"
+									]
+								},
+								"description": "Поиск пользователей с пагинацией"
+							},
+							"response": []
+						},
+						{
+							"name": "update_contract",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjdXN0b21lciIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJVU0VSIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM0MzAsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMSIsImlhdCI6MTYxNDI3NzQzMCwiZW1haWwiOiJjdXN0b21lckBtYWlsLnJ1IiwianRpIjoiMDcyODM5NWMtZWRhNS00ZmRjLTlhZTktMjUwOTQzNjVjZTUzIn0.OM2lxAQ1kjBsy7rgb9GgpmDSRfDJ8C4Ox1eba00ZHoY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"2044ebf4-a5e9-4531-bd38-aa2742453556\",\r\n    \"executorId\": \"be363ce8-85f2-4d02-90ce-cb3738b10002\",\r\n    \"taskId\": \"32e7c56a-7f3c-49af-a08e-d04b2e91c004\",\r\n    \"contractStatus\": \"DONE\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/contracts/2044ebf4-a5e9-4531-bd38-aa2742453556",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"contracts",
+										"2044ebf4-a5e9-4531-bd38-aa2742453556"
+									]
+								},
+								"description": "Поиск пользователей с пагинацией"
+							},
+							"response": []
+						},
+						{
+							"name": "delete_contract",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjdXN0b21lciIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJVU0VSIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM0MzAsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMSIsImlhdCI6MTYxNDI3NzQzMCwiZW1haWwiOiJjdXN0b21lckBtYWlsLnJ1IiwianRpIjoiMDcyODM5NWMtZWRhNS00ZmRjLTlhZTktMjUwOTQzNjVjZTUzIn0.OM2lxAQ1kjBsy7rgb9GgpmDSRfDJ8C4Ox1eba00ZHoY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/contracts/contractId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"contracts",
+										"contractId"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Запросы для взаимодействия с бизнес сущностями Contract",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "docs",
+					"item": [
+						{
+							"name": "swagger-ui",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8081/freelance/swagger-ui/index.html",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"swagger-ui",
+										"index.html"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "actuator",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8081/freelance/actuator",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"actuator"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "task_statuses",
+					"item": [
+						{
+							"name": "get_task_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/tasks",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"tasks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_task_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": \"NEW_STATUS\",\r\n    \"description\": \"NEW_STATUS зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/tasks",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"tasks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_task_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"abff8d31-e136-4aaa-b7fa-1533d056ae07\",\r\n    \"value\": \"NEW_STATUS_2\",\r\n    \"description\": \"NEW_STATUS_2 Задание зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/tasks/abff8d31-e136-4aaa-b7fa-1533d056ae07",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"tasks",
+										"abff8d31-e136-4aaa-b7fa-1533d056ae07"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_task_statuses",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/tasks/abff8d31-e136-4aaa-b7fa-1533d056ae07",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"tasks",
+										"abff8d31-e136-4aaa-b7fa-1533d056ae07"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "search_task_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"value\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"EXECUTOR\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/roles/clients/search?page=0&size=5&sort=value",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"roles",
+										"clients",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "value"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "client_roles",
+					"item": [
+						{
+							"name": "get_client_role",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/roles/clients",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"roles",
+										"clients"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_client_role",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": \"NEW_STATUS\",\r\n    \"description\": \"NEW_STATUS зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/roles/clients",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"roles",
+										"clients"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_client_role",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"76b01d76-d677-4c36-940a-b24a2a78e1e1\",\r\n    \"value\": \"NEW_ROLE_2\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/roles/clients/76b01d76-d677-4c36-940a-b24a2a78e1e1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"roles",
+										"clients",
+										"76b01d76-d677-4c36-940a-b24a2a78e1e1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_client_role",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/roles/clients/76b01d76-d677-4c36-940a-b24a2a78e1e1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"roles",
+										"clients",
+										"76b01d76-d677-4c36-940a-b24a2a78e1e1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "search_client_roles",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"value\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"BLOCKED\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/clients/search?page=0&size=5&sort=value",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"clients",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "value"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "client_statuses",
+					"item": [
+						{
+							"name": "get_client_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/clients",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"clients"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_client_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": \"NEW_STATUS\",\r\n    \"description\": \"NEW_STATUS зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/clients",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"clients"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_client_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"e7a916e6-674e-43c2-942d-840a381377f3\",\r\n    \"value\": \"NEW_STATUS_2\",\r\n    \"description\": \"NEW_STATUS_2 зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/clients/e7a916e6-674e-43c2-942d-840a381377f3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"clients",
+										"e7a916e6-674e-43c2-942d-840a381377f3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_client_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/clients/e7a916e6-674e-43c2-942d-840a381377f3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"clients",
+										"e7a916e6-674e-43c2-942d-840a381377f3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "search_client_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"description\": {\r\n        \"searchOperation\": \"LIKE\",\r\n        \"value\": \"выпо\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/tasks/search?page=0&size=5&sort=createdAt",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"tasks",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "createdAt"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "contract_statuses",
+					"item": [
+						{
+							"name": "get_contract_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/contracts",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"contracts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_contract_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": \"NEW_STATUS\",\r\n    \"description\": \"NEW_STATUS зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/contracts",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"contracts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_contract_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"dc48ede8-963a-4455-b9ae-41eb8afd2c8d\",\r\n    \"value\": \"NEW_STATUS_2\",\r\n    \"description\": \"NEW_STATUS_2 зарегистрировано\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/contracts/dc48ede8-963a-4455-b9ae-41eb8afd2c8d",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"contracts",
+										"dc48ede8-963a-4455-b9ae-41eb8afd2c8d"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_contract_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/contracts/dc48ede8-963a-4455-b9ae-41eb8afd2c8d",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"contracts",
+										"dc48ede8-963a-4455-b9ae-41eb8afd2c8d"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "search_contract_status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZSIsInJvbGUiOiJBRE1JTiIsImlzcyI6ImZyZWVsYW5jZS1hdXRoIiwiZXhwIjoxNjIyMDUzMzc1LCJ1c2VySWQiOiJiZTM2M2NlOC04NWYyLTRkMDItOTBjZS1jYjM3MzhiMTAwMDAiLCJpYXQiOjE2MTQyNzczNzUsImVtYWlsIjoiYWRtaW5AbWFpbC5ydSIsImp0aSI6IjE4OTYyODY5LTE0MzYtNGVmOS1iYmVmLWUzYWExZGIzMDY1NSJ9.2K_RTCtXf1e8sU3sLtmw55f2rJxzhYuVZoFLRhVtA-g",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"description\": {\r\n        \"searchOperation\": \"LIKE\",\r\n        \"value\": \"рас\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8081/freelance/api/v1/statuses/contracts/search?page=0&size=5&sort=value",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8081",
+									"path": [
+										"freelance",
+										"api",
+										"v1",
+										"statuses",
+										"contracts",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "value"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "freelance-auth",
+			"item": [
+				{
+					"name": "admin activity",
+					"item": [
+						{
+							"name": "get_token_admin_for_freelance",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin\",\r\n    \"audience\": \"freelance\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/auth",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"auth"
+									]
+								},
+								"description": "Получение токена для существующего пользователя admin для системы freelance"
+							},
+							"response": []
+						},
+						{
+							"name": "get_token_admin_for_freelance_auth",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin\",\r\n    \"audience\": \"freelance-auth\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/auth",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"auth"
+									]
+								},
+								"description": "Получение токена для существующего пользователя admin для системы freelance_auth"
+							},
+							"response": []
+						},
+						{
+							"name": "get_all_users",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users"
+									]
+								},
+								"description": "Запрос на получение всех пользователей системы"
+							},
+							"response": []
+						},
+						{
+							"name": "get_user_by_id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users/be363ce8-85f2-4d02-90ce-cb3738b10000",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users",
+										"be363ce8-85f2-4d02-90ce-cb3738b10000"
+									]
+								},
+								"description": "Запрос на получение пользователя системы по id"
+							},
+							"response": []
+						},
+						{
+							"name": "create_user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"username1\",\r\n    \"email\": \"usernamed@gmail.com\",\r\n    \"password\": \"username1\",\r\n    \"repeatPassword\": \"username1\",\r\n    \"role\": \"USER\",\r\n    \"status\": \"ACTIVE\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users"
+									]
+								},
+								"description": "Запрос на создание нового пользователя"
+							},
+							"response": []
+						},
+						{
+							"name": "update_user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"\",\r\n    \"username\": \"username1\",\r\n    \"email\": \"usernamed@gmail.com\",\r\n    \"password\": \"username1\",\r\n    \"repeatPassword\": \"username1\",\r\n    \"role\": \"USER\",\r\n    \"status\": \"ACTIVE\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users/ec1d55b0-b507-47ec-ab13-5a2d0627b99e",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users",
+										"ec1d55b0-b507-47ec-ab13-5a2d0627b99e"
+									]
+								},
+								"description": "Запрос для обновления данных пользователя, например существующего customer"
+							},
+							"response": []
+						},
+						{
+							"name": "delete_user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users/be363ce8-85f2-4d02-90ce-cb3738b10001",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users",
+										"be363ce8-85f2-4d02-90ce-cb3738b10001"
+									]
+								},
+								"description": "Запрос для удаление пользователя, например существующего customer"
+							},
+							"response": []
+						},
+						{
+							"name": "batch_users_create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n        \"username\": \"name1\",\r\n        \"email\": \"name1@gmail.com\",\r\n        \"password\": \"password_length_name1\",\r\n        \"repeatPassword\": \"password_length_name1\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name2\",\r\n        \"email\": \"name2@gmail.com\",\r\n        \"password\": \"password_length_name2\",\r\n        \"repeatPassword\": \"password_length_name2\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name3\",\r\n        \"email\": \"name3@gmail.com\",\r\n        \"password\": \"password_length_name3\",\r\n        \"repeatPassword\": \"password_length_name3\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name4\",\r\n        \"email\": \"name4@gmail.com\",\r\n        \"password\": \"password_length_name4\",\r\n        \"repeatPassword\": \"password_length_name4\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name5\",\r\n        \"email\": \"name5@gmail.com\",\r\n        \"password\": \"password_length_name5\",\r\n        \"repeatPassword\": \"password_length_name5\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name6\",\r\n        \"email\": \"name6@gmail.com\",\r\n        \"password\": \"password_length_name6\",\r\n        \"repeatPassword\": \"password_length_name6\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name7\",\r\n        \"email\": \"name7@gmail.com\",\r\n        \"password\": \"password_length_name7\",\r\n        \"repeatPassword\": \"password_length_name7\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name8\",\r\n        \"email\": \"name8@gmail.com\",\r\n        \"password\": \"password_length_name8\",\r\n        \"repeatPassword\": \"password_length_name8\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name9\",\r\n        \"email\": \"name9@gmail.com\",\r\n        \"password\": \"password_length_name9\",\r\n        \"repeatPassword\": \"password_length_name9\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"BLOCKED\"\r\n    },\r\n    {\r\n        \"username\": \"name10\",\r\n        \"email\": \"name10@gmail.com\",\r\n        \"password\": \"password_length_name10\",\r\n        \"repeatPassword\": \"password_length_name10\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name11\",\r\n        \"email\": \"name11@gmail.com\",\r\n        \"password\": \"password_length_name11\",\r\n        \"repeatPassword\": \"password_length_name11\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name12\",\r\n        \"email\": \"name12@gmail.com\",\r\n        \"password\": \"password_length_name12\",\r\n        \"repeatPassword\": \"password_length_name12\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"BLOCKED\"\r\n    },\r\n    {\r\n        \"username\": \"name13\",\r\n        \"email\": \"name13@gmail.com\",\r\n        \"password\": \"password_length_name13\",\r\n        \"repeatPassword\": \"password_length_name13\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name14\",\r\n        \"email\": \"name14@gmail.com\",\r\n        \"password\": \"password_length_name14\",\r\n        \"repeatPassword\": \"password_length_name14\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name15\",\r\n        \"email\": \"name15@gmail.com\",\r\n        \"password\": \"password_length_name15\",\r\n        \"repeatPassword\": \"password_length_name15\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name16\",\r\n        \"email\": \"name16@gmail.com\",\r\n        \"password\": \"password_length_name16\",\r\n        \"repeatPassword\": \"password_length_name16\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name17\",\r\n        \"email\": \"name17@gmail.com\",\r\n        \"password\": \"password_length_name17\",\r\n        \"repeatPassword\": \"password_length_name17\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name18\",\r\n        \"email\": \"name18@gmail.com\",\r\n        \"password\": \"password_length_name18\",\r\n        \"repeatPassword\": \"password_length_name18\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"BLOCKED\"\r\n    },\r\n    {\r\n        \"username\": \"name19\",\r\n        \"email\": \"name19@gmail.com\",\r\n        \"password\": \"password_length_name19\",\r\n        \"repeatPassword\": \"password_length_name19\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"BLOCKED\"\r\n    },\r\n    {\r\n        \"username\": \"name20\",\r\n        \"email\": \"name20@gmail.com\",\r\n        \"password\": \"password_length_name20\",\r\n        \"repeatPassword\": \"password_length_name20\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name21\",\r\n        \"email\": \"name21@gmail.com\",\r\n        \"password\": \"password_length_name21\",\r\n        \"repeatPassword\": \"password_length_name21\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name22\",\r\n        \"email\": \"name22@gmail.com\",\r\n        \"password\": \"password_length_name22\",\r\n        \"repeatPassword\": \"password_length_name22\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name23\",\r\n        \"email\": \"name23@gmail.com\",\r\n        \"password\": \"password_length_name23\",\r\n        \"repeatPassword\": \"password_length_name23\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name24\",\r\n        \"email\": \"name24@gmail.com\",\r\n        \"password\": \"password_length_name24\",\r\n        \"repeatPassword\": \"password_length_name24\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name25\",\r\n        \"email\": \"name25@gmail.com\",\r\n        \"password\": \"password_length_name25\",\r\n        \"repeatPassword\": \"password_length_name25\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"DELETED\"\r\n    },\r\n    {\r\n        \"username\": \"name26\",\r\n        \"email\": \"name26@gmail.com\",\r\n        \"password\": \"password_length_name26\",\r\n        \"repeatPassword\": \"password_length_name26\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"BLOCKED\"\r\n    },\r\n    {\r\n        \"username\": \"name27\",\r\n        \"email\": \"name27@gmail.com\",\r\n        \"password\": \"password_length_name27\",\r\n        \"repeatPassword\": \"password_length_name27\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name28\",\r\n        \"email\": \"name28@gmail.com\",\r\n        \"password\": \"password_length_name28\",\r\n        \"repeatPassword\": \"password_length_name28\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"DELETED\"\r\n    },\r\n    {\r\n        \"username\": \"name29\",\r\n        \"email\": \"name29@gmail.com\",\r\n        \"password\": \"password_length_name29\",\r\n        \"repeatPassword\": \"password_length_name29\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name30\",\r\n        \"email\": \"name30@gmail.com\",\r\n        \"password\": \"password_length_name30\",\r\n        \"repeatPassword\": \"password_length_name30\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name31\",\r\n        \"email\": \"name31@gmail.com\",\r\n        \"password\": \"password_length_name31\",\r\n        \"repeatPassword\": \"password_length_name31\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name32\",\r\n        \"email\": \"name32@gmail.com\",\r\n        \"password\": \"password_length_name32\",\r\n        \"repeatPassword\": \"password_length_name32\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name33\",\r\n        \"email\": \"name33@gmail.com\",\r\n        \"password\": \"password_length_name33\",\r\n        \"repeatPassword\": \"password_length_name33\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"DELETED\"\r\n    },\r\n    {\r\n        \"username\": \"name34\",\r\n        \"email\": \"name34@gmail.com\",\r\n        \"password\": \"password_length_name34\",\r\n        \"repeatPassword\": \"password_length_name34\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name35\",\r\n        \"email\": \"name35@gmail.com\",\r\n        \"password\": \"password_length_name35\",\r\n        \"repeatPassword\": \"password_length_name35\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name36\",\r\n        \"email\": \"name36@gmail.com\",\r\n        \"password\": \"password_length_name36\",\r\n        \"repeatPassword\": \"password_length_name36\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name37\",\r\n        \"email\": \"name37@gmail.com\",\r\n        \"password\": \"password_length_name37\",\r\n        \"repeatPassword\": \"password_length_name37\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name38\",\r\n        \"email\": \"name38@gmail.com\",\r\n        \"password\": \"password_length_name38\",\r\n        \"repeatPassword\": \"password_length_name38\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name39\",\r\n        \"email\": \"name39@gmail.com\",\r\n        \"password\": \"password_length_name39\",\r\n        \"repeatPassword\": \"password_length_name39\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name40\",\r\n        \"email\": \"name40@gmail.com\",\r\n        \"password\": \"password_length_name40\",\r\n        \"repeatPassword\": \"password_length_name40\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name41\",\r\n        \"email\": \"name41@gmail.com\",\r\n        \"password\": \"password_length_name41\",\r\n        \"repeatPassword\": \"password_length_name41\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name42\",\r\n        \"email\": \"name42@gmail.com\",\r\n        \"password\": \"password_length_name42\",\r\n        \"repeatPassword\": \"password_length_name42\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"CREATED\"\r\n    },\r\n    {\r\n        \"username\": \"name43\",\r\n        \"email\": \"name43@gmail.com\",\r\n        \"password\": \"password_length_name43\",\r\n        \"repeatPassword\": \"password_length_name43\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"DELETED\"\r\n    },\r\n    {\r\n        \"username\": \"name44\",\r\n        \"email\": \"name44@gmail.com\",\r\n        \"password\": \"password_length_name44\",\r\n        \"repeatPassword\": \"password_length_name44\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name45\",\r\n        \"email\": \"name45@gmail.com\",\r\n        \"password\": \"password_length_name45\",\r\n        \"repeatPassword\": \"password_length_name45\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name46\",\r\n        \"email\": \"name46@gmail.com\",\r\n        \"password\": \"password_length_name46\",\r\n        \"repeatPassword\": \"password_length_name46\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"DELETED\"\r\n    },\r\n    {\r\n        \"username\": \"name47\",\r\n        \"email\": \"name47@gmail.com\",\r\n        \"password\": \"password_length_name47\",\r\n        \"repeatPassword\": \"password_length_name47\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name48\",\r\n        \"email\": \"name48@gmail.com\",\r\n        \"password\": \"password_length_name48\",\r\n        \"repeatPassword\": \"password_length_name48\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"ACTIVE\"\r\n    },\r\n    {\r\n        \"username\": \"name49\",\r\n        \"email\": \"name49@gmail.com\",\r\n        \"password\": \"password_length_name49\",\r\n        \"repeatPassword\": \"password_length_name49\",\r\n        \"role\": \"USER\",\r\n        \"status\": \"DELETED\"\r\n    }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users/batch",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users",
+										"batch"
+									]
+								},
+								"description": "Пакетное создание пользователей"
+							},
+							"response": []
+						},
+						{
+							"name": "users_search",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"role\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"USER\"\r\n    },\r\n        \"status\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"ACTIVE\"\r\n    },\r\n        \"createdAt\": {\r\n        \"searchOperation\": \"GREATER_THAN_OR_EQUAL\",\r\n        \"value\": \"2021-03-07 02:14:47\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users/search?page=0&size=5&sort=createdAt",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users",
+										"search"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "sort",
+											"value": "createdAt"
+										}
+									]
+								},
+								"description": "Поиск пользователей с пагинацией"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "user activity",
+					"item": [
+						{
+							"name": "get_token_сustomer_for_freelance",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"test_customer\",\r\n    \"password\": \"test_customer\",\r\n    \"audience\": \"freelance\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/auth",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"auth"
+									]
+								},
+								"description": "Получение токена для существующего пользователя сustomer для системы freelance"
+							},
+							"response": []
+						},
+						{
+							"name": "get_user_info",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImF1ZCI6ImZyZWVsYW5jZS1hdXRoIiwicm9sZSI6IkFETUlOIiwiaXNzIjoiZnJlZWxhbmNlLWF1dGgiLCJleHAiOjE2MjIwNTM1MjQsInVzZXJJZCI6ImJlMzYzY2U4LTg1ZjItNGQwMi05MGNlLWNiMzczOGIxMDAwMCIsImlhdCI6MTYxNDI3NzUyNCwiZW1haWwiOiJhZG1pbkBtYWlsLnJ1IiwianRpIjoiY2QzZWYwNWYtNGIxYi00NjY4LTgyN2YtYWY2MDU0ZDk0YTgwIn0.0k2K1SV-EV3x4B-kYCbFY5AIp8x1pNmamQVEgSAq9oA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/v1/users/info",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"v1",
+										"users",
+										"info"
+									]
+								},
+								"description": "Получение токена для существующего пользователя сustomer для системы freelance"
+							},
+							"response": []
+						},
+						{
+							"name": "get_token_executor_for_freelance",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"test_executor\",\r\n    \"password\": \"test_executor\",\r\n    \"audience\": \"freelance\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/api/auth",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"api",
+										"auth"
+									]
+								},
+								"description": "Получение токена для существующего пользователя executor для системы freelance"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "docs",
+					"item": [
+						{
+							"name": "swagger-ui",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/swagger-ui/index.html",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"swagger-ui",
+										"index.html"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "actuator",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8082/freelance-auth/actuator",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8082",
+									"path": [
+										"freelance-auth",
+										"actuator"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "scenario-1",
+			"item": [
+				{
+					"name": "[admin] get_token_for_freelance_auth",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin\",\r\n    \"audience\": \"freelance-auth\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/freelance-auth/api/auth",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"freelance-auth",
+								"api",
+								"auth"
+							]
+						},
+						"description": "Получение токена для существующего пользователя admin для системы freelance_auth"
+					},
+					"response": []
+				},
+				{
+					"name": "[admin] create_user_for_customer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test_customer\",\r\n    \"email\": \"test_customer@gmail.com\",\r\n    \"password\": \"test_customer\",\r\n    \"repeatPassword\": \"test_customer\",\r\n    \"role\": \"USER\",\r\n    \"status\": \"ACTIVE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/freelance-auth/api/v1/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"freelance-auth",
+								"api",
+								"v1",
+								"users"
+							]
+						},
+						"description": "Запрос на создание нового пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "[admin] create_user_for_executor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test_executor\",\r\n    \"email\": \"test_executor@gmail.com\",\r\n    \"password\": \"test_executor\",\r\n    \"repeatPassword\": \"test_executor\",\r\n    \"role\": \"USER\",\r\n    \"status\": \"ACTIVE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/freelance-auth/api/v1/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"freelance-auth",
+								"api",
+								"v1",
+								"users"
+							]
+						},
+						"description": "Запрос на создание нового пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] get_token_for_freelance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test_customer\",\r\n    \"password\": \"test_customer\",\r\n    \"audience\": \"freelance\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/freelance-auth/api/auth",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"freelance-auth",
+								"api",
+								"auth"
+							]
+						},
+						"description": "Получение токена для существующего пользователя сustomer для системы freelance"
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] get_token_for_freelance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test_executor\",\r\n    \"password\": \"test_executor\",\r\n    \"audience\": \"freelance\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/freelance-auth/api/auth",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"freelance-auth",
+								"api",
+								"auth"
+							]
+						},
+						"description": "Получение токена для существующего пользователя сustomer для системы freelance"
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] create_client_customer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"test_customer\",\r\n    \"secondName\": \"test_customer\",\r\n    \"lastName\": \"test_customer\",\r\n    \"email\": \"test_customer@mail.ru\",\r\n    \"phoneNumber\": \"89633214589\",\r\n    \"clientRole\": \"CUSTOMER\",\r\n    \"clientStatus\": \"CREATED\",\r\n    \"wallet\": 10000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/clients",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] create_client_executor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"test_executor\",\r\n    \"secondName\": \"test_executor\",\r\n    \"lastName\": \"test_executor\",\r\n    \"email\": \"test_executor@mail.ru\",\r\n    \"phoneNumber\": \"89633214580\",\r\n    \"clientRole\": \"EXECUTOR\",\r\n    \"clientStatus\": \"CREATED\",\r\n    \"wallet\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/clients",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] create_task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customerId\": \"customerId\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"REGISTERED\",\r\n    \"taskCompletionDate\": \"2021-03-12 23:00:00\",\r\n    \"taskDecision\": \"empty\",\r\n    \"price\": \"1000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] create_contract",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"executorId\": \"executorId\",\r\n    \"taskId\": \"taskId\",\r\n    \"contractStatus\": \"PAID\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/contracts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"contracts"
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] update_decision_task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"taskId\",\r\n    \"customerId\": \"customerId\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"ON_CHECH\",\r\n    \"taskCompletionDate\": \"2021-03-12 23:00:00\",\r\n    \"taskDecision\": \"taskDecision provided\",\r\n    \"price\": \"1000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks/taskId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks",
+								"taskId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] return_task_on_fix",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"taskId\",\r\n    \"customerId\": \"customerId\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"ON_FIX\",\r\n    \"taskCompletionDate\": \"2021-03-12 23:00:00\",\r\n    \"taskDecision\": \"taskDecision provided [need fix]\",\r\n    \"price\": \"1000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks/taskId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks",
+								"taskId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] return_task_on_check",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"taskId\",\r\n    \"customerId\": \"customerId\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"ON_CHECK\",\r\n    \"taskCompletionDate\": \"2021-03-12 23:00:00\",\r\n    \"taskDecision\": \"taskDecision provided [fixed]\",\r\n    \"price\": \"1000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks/taskId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks",
+								"taskId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] task_done",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"taskId\",\r\n    \"customerId\": \"customerId\",\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"taskStatus\": \"DONE\",\r\n    \"taskCompletionDate\": \"2021-03-12 23:00:00\",\r\n    \"taskDecision\": \"taskDecision provided [accept decision]\",\r\n    \"price\": \"1000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks/taskId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks",
+								"taskId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] contract_done",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0X2N1c3RvbWVyIiwiYXVkIjoiZnJlZWxhbmNlIiwicm9sZSI6IlVTRVIiLCJpc3MiOiJmcmVlbGFuY2UtYXV0aCIsImV4cCI6MTYxNTY3ODM1MiwidXNlcklkIjoiYTQwYWYyNzEtOGM3Ny00ZjNhLTlmYTgtNjRjOTQ1MWU2OGJlIiwiaWF0IjoxNjE1Njc0NzUyLCJlbWFpbCI6InRlc3RfY3VzdG9tZXJAZ21haWwuY29tIiwianRpIjoiM2FhY2Y2ZWQtNmUwYS00YzcwLWI1YjEtZDk2NjMwY2ZhMWIwIn0.0elsE-QcFcOf6IWoRYBnvKHnM8AVVdErPK4KWwSrIvE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"contractId\",\r\n    \"executorId\": \"executorId\",\r\n    \"taskId\": \"taskId\",\r\n    \"contractStatus\": \"DONE\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/contracts/contractId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"contracts",
+								"contractId"
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "scenario-2",
+			"item": [
+				{
+					"name": "[сustomer] create_task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customerId\": \"customerId\",\r\n    \"title\": \"title_2\",\r\n    \"description\": \"description_2\",\r\n    \"taskStatus\": \"REGISTERED\",\r\n    \"taskCompletionDate\": \"2021-03-15 23:00:00\",\r\n    \"taskDecision\": \"empty\",\r\n    \"price\": \"10000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] tasks_search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"joinOperation\": \"AND\",\r\n    \"price\": {\r\n        \"searchOperation\": \"GREATER_THAN_OR_EQUAL\",\r\n        \"value\": 9000\r\n    },\r\n        \"taskStatus\": {\r\n        \"searchOperation\": \"EQUAL\",\r\n        \"value\": \"REGISTERED\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/tasks/search?page=0&size=5&sort=createdAt",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"tasks",
+								"search"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "sort",
+									"value": "createdAt"
+								}
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] create_contract_2_not_enough_money",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"executorId\": \"executorId\",\r\n    \"taskId\": \"taskId\",\r\n    \"contractStatus\": \"PAID\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/contracts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"contracts"
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] add_money_to_customer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"clientId\",\r\n    \"firstName\": \"test_customer\",\r\n    \"secondName\": \"test_customer\",\r\n    \"lastName\": \"test_customer\",\r\n    \"email\": \"test_customer@mail.ru\",\r\n    \"phoneNumber\": \"89633214589\",\r\n    \"clientRole\": \"CUSTOMER\",\r\n    \"clientStatus\": \"CREATED\",\r\n    \"wallet\": 15000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/clients/clientId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"clients",
+								"clientId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] create_contract_2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"executorId\": \"executorId\",\r\n    \"taskId\": \"taskId\",\r\n    \"contractStatus\": \"PAID\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/contracts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"contracts"
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "[сustomer] contract_terminated",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0X2N1c3RvbWVyIiwiYXVkIjoiZnJlZWxhbmNlIiwicm9sZSI6IlVTRVIiLCJpc3MiOiJmcmVlbGFuY2UtYXV0aCIsImV4cCI6MTYxNTY4MjU4MSwidXNlcklkIjoiYTQwYWYyNzEtOGM3Ny00ZjNhLTlmYTgtNjRjOTQ1MWU2OGJlIiwiaWF0IjoxNjE1Njc4OTgxLCJlbWFpbCI6InRlc3RfY3VzdG9tZXJAZ21haWwuY29tIiwianRpIjoiNGMyNzQ1MjQtODZjYi00ODNjLWE2MDItMWEwY2YwMzgxZTE5In0.qWi1pPgTLhraL5azgzakQVL1ubBKXltk2GmLgaRmQaI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"contractId\",\r\n    \"executorId\": \"executorId\",\r\n    \"taskId\": \"taskId\",\r\n    \"contractStatus\": \"TERMINATED\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/contracts/contractId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"contracts",
+								"contractId"
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "[executor] create_contract",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"executorId\": \"executorId\",\r\n    \"taskId\": \"taskId\",\r\n    \"contractStatus\": \"PAID\",\r\n    \"confirmationCode\": \"confirmationCode\",\r\n    \"repeatConfirmationCode\": \"confirmationCode\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/freelance/api/v1/contracts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"freelance",
+								"api",
+								"v1",
+								"contracts"
+							]
+						},
+						"description": "Поиск пользователей с пагинацией"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

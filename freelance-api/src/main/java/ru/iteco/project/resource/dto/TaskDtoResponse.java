@@ -12,12 +12,6 @@ public class TaskDtoResponse extends TaskBaseDto {
             allowEmptyValue = true)
     private String taskDecision;
 
-    @ApiModelProperty(value = "Модель заказчика (в формате ClientBaseDto)", required = true)
-    private ClientBaseDto customer;
-
-    @ApiModelProperty(value = "Модель исполнителя (в формате ClientBaseDto)")
-    private ClientBaseDto executor;
-
     @ApiModelProperty(value = "Дата и время создания задания", example = "2020-12-28 03:47:32", required = true)
     private String createdAt;
 
@@ -27,22 +21,6 @@ public class TaskDtoResponse extends TaskBaseDto {
 
 
     public TaskDtoResponse() {
-    }
-
-    public ClientBaseDto getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(ClientBaseDto customer) {
-        this.customer = customer;
-    }
-
-    public ClientBaseDto getExecutor() {
-        return executor;
-    }
-
-    public void setExecutor(ClientBaseDto executor) {
-        this.executor = executor;
     }
 
     public String getTaskDecision() {

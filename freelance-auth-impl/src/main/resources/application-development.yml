@@ -21,5 +21,6 @@ logging:
 # Настройки аудита
 audit:
   logName: audit
-  logPath: /audit/auth
+  logPath: /audit
   maxHistory: 300
+  destination: 'DB'

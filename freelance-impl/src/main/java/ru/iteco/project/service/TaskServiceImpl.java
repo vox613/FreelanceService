@@ -86,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<TaskDtoResponse> getAllTasks() {
         return taskRepository.findAll().stream()
-                .map(this::enrichByClientsInfo)
+                .map(task -> mapperFacade.map(task, TaskDtoResponse.class))
                 .collect(Collectors.toList());
     }
 
@@ -99,7 +99,7 @@ public class TaskServiceImpl implements TaskService {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<TaskDtoResponse> getAllClientTasks(UUID clientId) {
         return taskRepository.findTasksByCustomerId(clientId).stream()
-                .map(this::enrichByClientsInfo)
+                .map(task -> mapperFacade.map(task, TaskDtoResponse.class))
                 .collect(Collectors.toList());
     }
 
@@ -114,7 +114,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id).orElseThrow(
                 () -> new EntityRecordNotFoundException("errors.persistence.entity.notfound")
         );
-        return enrichByClientsInfo(task);
+        return mapperFacade.map(task, TaskDtoResponse.class);
     }
 
 
@@ -130,7 +130,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = mapperFacade.map(taskDtoRequest, Task.class);
         task.setId(UUID.randomUUID());
         Task save = taskRepository.save(task);
-        return enrichByClientsInfo(save);
+        return mapperFacade.map(save, TaskDtoResponse.class);
     }
 
 
@@ -147,7 +147,7 @@ public class TaskServiceImpl implements TaskService {
         checkUpdatedData(taskDtoRequest, task);
         mapperFacade.map(taskDtoRequest, task);
         Task save = taskRepository.save(task);
-        return enrichByClientsInfo(save);
+        return mapperFacade.map(save, TaskDtoResponse.class);
     }
 
 
@@ -238,22 +238,6 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    /**
-     * Метод формирует ответ TaskDtoResponse и обогащает его данными о заказчике и исполнителе
-     *
-     * @param task - объект задания
-     * @return - объект TaskDtoResponse с подготовленными данными о задании, исполнителе и заказчике
-     */
-    @Override
-    public TaskDtoResponse enrichByClientsInfo(Task task) {
-        TaskDtoResponse taskDtoResponse = mapperFacade.map(task, TaskDtoResponse.class);
-        taskDtoResponse.setCustomer(mapperFacade.map(task.getCustomer(), ClientBaseDto.class));
-        if (task.getExecutor() != null) {
-            taskDtoResponse.setExecutor(mapperFacade.map(task.getExecutor(), ClientBaseDto.class));
-        }
-        return taskDtoResponse;
-    }
-
 
     /**
      * Метод проверяет возможность обновления контракта
@@ -297,7 +281,7 @@ public class TaskServiceImpl implements TaskService {
             throw new InvalidSearchExpressionException("errors.search.expression.invalid");
         }
 
-        List<TaskDtoResponse> taskDtoResponses = page.map(this::enrichByClientsInfo).toList();
+        List<TaskDtoResponse> taskDtoResponses = page.map(task -> mapperFacade.map(task, TaskDtoResponse.class)).toList();
         return new PageDto<>(taskDtoResponses, page.getTotalElements(), page.getTotalPages());
 
     }

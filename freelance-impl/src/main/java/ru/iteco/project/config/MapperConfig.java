@@ -317,6 +317,7 @@ public class MapperConfig implements OrikaMapperFactoryConfigurer {
                 .customize(new CustomMapper<Contract, ContractDtoResponse>() {
                     @Override
                     public void mapAtoB(Contract contract, ContractDtoResponse contractDtoResponse, MappingContext context) {
+                        contractDtoResponse.setCustomerId(contract.getCustomer().getId());
                         contractDtoResponse.setExecutorId(contract.getExecutor().getId());
                         contractDtoResponse.setTaskId(contract.getTask().getId());
                         contractDtoResponse.setContractStatus(contract.getContractStatus().getValue());

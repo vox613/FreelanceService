@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -106,6 +107,20 @@ public class AuditEvent implements Serializable {
 
         public void setAuditEventType(AuditEventType auditEventType) {
             this.auditEventType = auditEventType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AuditEventId that = (AuditEventId) o;
+            return id.equals(that.id) &&
+                    auditEventType == that.auditEventType;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, auditEventType);
         }
     }
 
